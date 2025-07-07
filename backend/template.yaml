@@ -1,0 +1,326 @@
+Transform: AWS::Serverless-2016-10-31
+Resources:
+    Api:
+        Type: AWS::Serverless::Api
+        Properties:
+            Name: !Sub
+                - ${ResourceName} From Stack ${AWS::StackName}
+                - ResourceName: Api
+            StageName: Prod
+            DefinitionBody:
+                openapi: "3.0"
+                info:
+                    title: ReaperGT API
+                    version: 1.0.0
+                paths:
+                    /crns:
+                        get:
+                            x-amazon-apigateway-integration:
+                                httpMethod: POST
+                                type: aws_proxy
+                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${AppFunction.Arn}/invocations
+                            responses: {}
+                            security:
+                                - CognitoAuthorizer: []
+                        post:
+                            x-amazon-apigateway-integration:
+                                httpMethod: POST
+                                type: aws_proxy
+                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${AppFunction.Arn}/invocations
+                            responses: {}
+                            security:
+                                - CognitoAuthorizer: []
+                    /crns/{crn}:
+                        delete:
+                            x-amazon-apigateway-integration:
+                                httpMethod: POST
+                                type: aws_proxy
+                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${AppFunction.Arn}/invocations
+                            responses: {}
+                            security:
+                                - CognitoAuthorizer: []
+                            parameters:
+                                - name: crn
+                                  in: path
+                                  required: true
+                                  schema:
+                                    type: string
+                    /crn/{crn}:
+                        get:
+                            x-amazon-apigateway-integration:
+                                httpMethod: POST
+                                type: aws_proxy
+                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${AppFunction.Arn}/invocations
+                            responses: {}
+                            security:
+                                - CognitoAuthorizer: []
+                            parameters:
+                                - name: crn
+                                  in: path
+                                  required: true
+                                  schema:
+                                    type: string
+                    /register-push:
+                        post:
+                            x-amazon-apigateway-integration:
+                                httpMethod: POST
+                                type: aws_proxy
+                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${AppFunction.Arn}/invocations
+                            responses: {}
+                            security:
+                                - CognitoAuthorizer: []
+                components:
+                    securitySchemes:
+                        CognitoAuthorizer:
+                            type: apiKey
+                            name: Authorization
+                            in: header
+                            x-amazon-apigateway-authorizer:
+                                type: jwt
+                                jwtConfiguration:
+                                    issuer: !Ref CognitoUserPool
+                                    audience:
+                                        - !Ref CognitoUserPoolClient
+            EndpointConfiguration: REGIONAL
+            TracingEnabled: true
+            Cors:
+                MaxAge: 5
+                AllowHeaders: "'Content-Type,Authorization'"
+                AllowMethods: "'GET,POST,DELETE,OPTIONS'"
+                AllowOrigin: "'*'"
+
+    AppFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            Description: !Sub
+                - Stack ${AWS::StackName} Function ${ResourceName}
+                - ResourceName: AppFunction
+            CodeUri: src
+            Handler: api.lambda_handler
+            Runtime: python3.12
+            MemorySize: 512
+            Timeout: 30
+            Tracing: Active
+            Environment:
+                Variables:
+                    DYNAMODB_USERS_TABLE: !Ref DynamoDBUsersTable
+                    DYNAMODB_CRNS_TABLE: !Ref DynamoDBCrnsTable
+            Policies:
+                - DynamoDBCrudPolicy:
+                      TableName: !Ref DynamoDBUsersTable
+                - DynamoDBCrudPolicy:
+                      TableName: !Ref DynamoDBCrnsTable
+                - Version: '2012-10-17'
+                  Statement:
+                    - Effect: Allow
+                      Action:
+                        - secretsmanager:GetSecretValue
+                        - secretsmanager:DescribeSecret
+                      Resource: !Ref SecretsSecret
+
+    AppFunctionLogGroup:
+        Type: AWS::Logs::LogGroup
+        DeletionPolicy: Retain
+        Properties:
+            LogGroupName: !Sub /aws/lambda/${AppFunction}
+
+    CognitoUserPool:
+        Type: AWS::Cognito::UserPool
+        Properties:
+            UserPoolName: !Sub ${AWS::StackName}-user-pool
+            AutoVerifiedAttributes:
+                - email
+            UsernameAttributes:
+                - email
+
+    CognitoUserPoolClient:
+        Type: AWS::Cognito::UserPoolClient
+        Properties:
+            UserPoolId: !Ref CognitoUserPool
+            ClientName: !Sub ${AWS::StackName}-client
+            GenerateSecret: false
+            ExplicitAuthFlows:
+                - ALLOW_USER_PASSWORD_AUTH
+                - ALLOW_REFRESH_TOKEN_AUTH
+                - ALLOW_USER_SRP_AUTH
+
+    DynamoDBUsersTable:
+        Type: AWS::DynamoDB::Table
+        Properties:
+            TableName: reapergt-dynamo-users
+            BillingMode: PAY_PER_REQUEST
+            AttributeDefinitions:
+                - AttributeName: user_id
+                  AttributeType: S
+            KeySchema:
+                - AttributeName: user_id
+                  KeyType: HASH
+
+    DynamoDBCrnsTable:
+        Type: AWS::DynamoDB::Table
+        Properties:
+            TableName: reapergt-dynamo-crns
+            BillingMode: PAY_PER_REQUEST
+            AttributeDefinitions:
+                - AttributeName: crn
+                  AttributeType: S
+            KeySchema:
+                - AttributeName: crn
+                  KeyType: HASH
+
+    SecretsSecret:
+        Type: AWS::SecretsManager::Secret
+        Properties:
+            Name: reapergt-secrets-secrets
+            Description: Secrets for ReaperGT application
+            SecretString: !Sub |
+                {
+                    "TELEGRAM_BOT_TOKEN": "7600978427:AAFeuIb7poqoYaab0wh-Z87z4akV2ryfj0c",
+                    "TERM_CODE": "202508",
+                    "CHECK_INTERVAL": "6"
+                }
+
+    # Keep existing resources for background processing
+    Schedule:
+        Type: AWS::Scheduler::Schedule
+        Properties:
+            ScheduleExpression: rate(1 minute)
+            FlexibleTimeWindow:
+                Mode: "OFF"
+            ScheduleExpressionTimezone: America/New_York
+            Target:
+                Arn: !GetAtt Dispatcher.Arn
+                RoleArn: !GetAtt ScheduleToDispatcherRole.Arn
+
+    Dispatcher:
+        Type: AWS::Serverless::Function
+        Properties:
+            Description: !Sub
+                - Stack ${AWS::StackName} Function ${ResourceName}
+                - ResourceName: Dispatcher
+            CodeUri: src
+            Handler: dispatcher.handler
+            Runtime: python3.12
+            MemorySize: 3008
+            Timeout: 30
+            Tracing: Active
+            Environment:
+                Variables:
+                    SCRAPERQUEUE_QUEUE_NAME: !GetAtt ScraperQueue.QueueName
+                    SCRAPERQUEUE_QUEUE_ARN: !GetAtt ScraperQueue.Arn
+                    SCRAPERQUEUE_QUEUE_URL: !Ref ScraperQueue
+            Policies:
+                - SQSSendMessagePolicy:
+                      QueueName: !GetAtt ScraperQueue.QueueName
+
+    DispatcherLogGroup:
+        Type: AWS::Logs::LogGroup
+        DeletionPolicy: Retain
+        Properties:
+            LogGroupName: !Sub /aws/lambda/${Dispatcher}
+
+    ScheduleToDispatcherRole:
+        Type: AWS::IAM::Role
+        Properties:
+            AssumeRolePolicyDocument:
+                Version: "2012-10-17"
+                Statement:
+                    Effect: Allow
+                    Principal:
+                        Service: scheduler.amazonaws.com
+                    Action: sts:AssumeRole
+            Policies:
+                - PolicyName: StartExecutionPolicy
+                  PolicyDocument:
+                      Version: "2012-10-17"
+                      Statement:
+                          - Effect: Allow
+                            Action: lambda:InvokeFunction
+                            Resource: !GetAtt Dispatcher.Arn
+
+    ScraperQueue:
+        Type: AWS::SQS::Queue
+        Properties:
+            MessageRetentionPeriod: 120
+
+    Scraper:
+        Type: AWS::Serverless::Function
+        Properties:
+            Description: !Sub
+                - Stack ${AWS::StackName} Function ${ResourceName}
+                - ResourceName: Scraper
+            CodeUri: src
+            Handler: scraper.handler
+            Runtime: python3.12
+            MemorySize: 3008
+            Timeout: 30
+            Tracing: Active
+            Events:
+                ScraperQueue:
+                    Type: SQS
+                    Properties:
+                        Queue: !GetAtt ScraperQueue.Arn
+                        BatchSize: 1
+            Environment:
+                Variables:
+                    NOTIFIERQUEUE_QUEUE_NAME: !GetAtt NotifierQueue.QueueName
+                    NOTIFIERQUEUE_QUEUE_ARN: !GetAtt NotifierQueue.Arn
+                    NOTIFIERQUEUE_QUEUE_URL: !Ref NotifierQueue
+            Policies:
+                - SQSSendMessagePolicy:
+                      QueueName: !GetAtt NotifierQueue.QueueName
+
+    ScraperLogGroup:
+        Type: AWS::Logs::LogGroup
+        DeletionPolicy: Retain
+        Properties:
+            LogGroupName: !Sub /aws/lambda/${Scraper}
+
+    NotifierQueue:
+        Type: AWS::SQS::Queue
+        Properties:
+            MessageRetentionPeriod: 345600
+
+    Notifier:
+        Type: AWS::Serverless::Function
+        Properties:
+            Description: !Sub
+                - Stack ${AWS::StackName} Function ${ResourceName}
+                - ResourceName: Notifier
+            CodeUri: src
+            Handler: notifier.handler
+            Runtime: python3.12
+            MemorySize: 3008
+            Timeout: 30
+            Tracing: Active
+            Events:
+                NotifierQueue:
+                    Type: SQS
+                    Properties:
+                        Queue: !GetAtt NotifierQueue.Arn
+                        BatchSize: 1
+
+    NotifierLogGroup:
+        Type: AWS::Logs::LogGroup
+        DeletionPolicy: Retain
+        Properties:
+            LogGroupName: !Sub /aws/lambda/${Notifier}
+
+Outputs:
+    ApiUrl:
+        Description: API Gateway endpoint URL
+        Value: !Sub https://${Api}.execute-api.${AWS::Region}.amazonaws.com/Prod/
+        Export:
+            Name: !Sub ${AWS::StackName}-ApiUrl
+
+    CognitoUserPoolId:
+        Description: Cognito User Pool ID
+        Value: !Ref CognitoUserPool
+        Export:
+            Name: !Sub ${AWS::StackName}-UserPoolId
+
+    CognitoUserPoolClientId:
+        Description: Cognito User Pool Client ID
+        Value: !Ref CognitoUserPoolClient
+        Export:
+            Name: !Sub ${AWS::StackName}-UserPoolClientId

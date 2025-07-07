@@ -1,0 +1,154 @@
+{
+	"ok": true,
+	"result": [
+		{
+			"update_id": 369423543,
+			"message": {
+				"message_id": 3,
+				"from": {
+					"id": 7197415694,
+					"is_bot": false,
+					"first_name": "rom",
+					"language_code": "en"
+				},
+				"chat": {
+					"id": 7197415694,
+					"first_name": "rom",
+					"type": "private"
+				},
+				"date": 1749338900,
+				"text": "/help",
+				"entities": [
+					{
+						"offset": 0,
+						"length": 5,
+						"type": "bot_command"
+					}
+				]
+			}
+		},
+		{
+			"update_id": 369423544,
+			"message": {
+				"message_id": 4,
+				"from": {
+					"id": 7197415694,
+					"is_bot": false,
+					"first_name": "rom",
+					"language_code": "en"
+				},
+				"chat": {
+					"id": 7197415694,
+					"first_name": "rom",
+					"type": "private"
+				},
+				"date": 1749339118,
+				"text": "/help",
+				"entities": [
+					{
+						"offset": 0,
+						"length": 5,
+						"type": "bot_command"
+					}
+				]
+			}
+		},
+		{
+			"update_id": 369423545,
+			"message": {
+				"message_id": 5,
+				"from": {
+					"id": 7197415694,
+					"is_bot": false,
+					"first_name": "rom",
+					"language_code": "en"
+				},
+				"chat": {
+					"id": 7197415694,
+					"first_name": "rom",
+					"type": "private"
+				},
+				"date": 1749339158,
+				"text": "/list",
+				"entities": [
+					{
+						"offset": 0,
+						"length": 5,
+						"type": "bot_command"
+					}
+				]
+			}
+		},
+		{
+			"update_id": 369423546,
+			"message": {
+				"message_id": 6,
+				"from": {
+					"id": 7197415694,
+					"is_bot": false,
+					"first_name": "rom",
+					"language_code": "en"
+				},
+				"chat": {
+					"id": 7197415694,
+					"first_name": "rom",
+					"type": "private"
+				},
+				"date": 1749344649,
+				"text": "ok"
+			}
+		},
+		{
+			"update_id": 369423547,
+			"message": {
+				"message_id": 7,
+				"from": {
+					"id": 7197415694,
+					"is_bot": false,
+					"first_name": "rom",
+					"language_code": "en"
+				},
+				"chat": {
+					"id": 7197415694,
+					"first_name": "rom",
+					"type": "private"
+				},
+				"date": 1749344669,
+				"text": "/add",
+				"entities": [
+					{
+						"offset": 0,
+						"length": 4,
+						"type": "bot_command"
+					}
+				]
+			}
+		},
+		{
+			"update_id": 369423548,
+			"message": {
+				"message_id": 8,
+				"from": {
+					"id": 7197415694,
+					"is_bot": false,
+					"first_name": "rom",
+					"language_code": "en"
+				},
+				"chat": {
+					"id": 7197415694,
+					"first_name": "rom",
+					"type": "private"
+				},
+				"date": 1749344707,
+				"text": "/add 12345, 12345 12345",
+				"entities": [
+					{
+						"offset": 0,
+						"length": 4,
+						"type": "bot_command"
+					}
+				]
+			}
+		}
+	]
+}
