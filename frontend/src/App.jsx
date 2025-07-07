@@ -392,7 +392,7 @@ function App() {
     const handleSignOut = () => {
         auth.removeUser();
         // Use a more explicit sign out approach
-        const logoutUrl = `https://reapergt.auth.us-east-1.amazoncognito.com/logout?client_id=ghq72js41cdk53vcren6v436e&logout_uri=https://app.getreaper.com/`;
+        const logoutUrl = `https://us-east-1cagrtsvtf.auth.us-east-1.amazoncognito.com/logout?client_id=7d3t35plvsbnv0a2dkt8ic24ls&logout_uri=https://app.getreaper.com/`;
         window.location.href = logoutUrl;
     };
 
@@ -402,6 +402,22 @@ function App() {
                 <div className={styles.container}>
                     <Header />
                     <div style={{ color: '#ECECEC', textAlign: 'center', marginTop: 80, fontSize: 24 }}>Loading...</div>
+                    {/* PWA Install Prompt */}
+                    {showInstallPrompt && (
+                        <div className={styles.installPrompt}>
+                            <div className={styles.installContent}>
+                                <span>📱 Install ReaperGT for a better experience</span>
+                                <div className={styles.installActions}>
+                                    <button onClick={handleInstallClick} className={styles.installButton}>
+                                        Install
+                                    </button>
+                                    <button onClick={dismissInstallPrompt} className={styles.dismissButton}>
+                                        Not now
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         );
@@ -413,6 +429,22 @@ function App() {
                 <div className={styles.container}>
                     <Header />
                     <div style={{ color: '#ff5555', textAlign: 'center', marginTop: 80, fontSize: 20 }}>Encountering error... {auth.error.message}</div>
+                    {/* PWA Install Prompt */}
+                    {showInstallPrompt && (
+                        <div className={styles.installPrompt}>
+                            <div className={styles.installContent}>
+                                <span>📱 Install ReaperGT for a better experience</span>
+                                <div className={styles.installActions}>
+                                    <button onClick={handleInstallClick} className={styles.installButton}>
+                                        Install
+                                    </button>
+                                    <button onClick={dismissInstallPrompt} className={styles.dismissButton}>
+                                        Not now
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         );
@@ -568,6 +600,22 @@ function App() {
                         <span className={styles.subscribeText}>Sign in</span>
                     </button>
                 </div>
+                {/* PWA Install Prompt */}
+                {showInstallPrompt && (
+                    <div className={styles.installPrompt}>
+                        <div className={styles.installContent}>
+                            <span>📱 Install ReaperGT for a better experience</span>
+                            <div className={styles.installActions}>
+                                <button onClick={handleInstallClick} className={styles.installButton}>
+                                    Install
+                                </button>
+                                <button onClick={dismissInstallPrompt} className={styles.dismissButton}>
+                                    Not now
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

@@ -7,8 +7,8 @@ import { AuthProvider } from 'react-oidc-context';
 console.log('main.jsx loaded');
 
 const cognitoAuthConfig = {
-    authority: "https://reapergt.auth.us-east-1.amazoncognito.com",
-    client_id: "ghq72js41cdk53vcren6v436e",
+    authority: "https://us-east-1cagrtsvtf.auth.us-east-1.amazoncognito.com",
+    client_id: "7d3t35plvsbnv0a2dkt8ic24ls",
     redirect_uri: "https://app.getreaper.com/",
     post_logout_redirect_uri: "https://app.getreaper.com/",
     response_type: "code",
