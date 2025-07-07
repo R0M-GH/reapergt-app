@@ -9,7 +9,7 @@ const api = axios.create({
 
 // Add auth token to requests
 api.interceptors.request.use((config) => {
-    const token = localStorage.getItem('oidc.user:https://us-east-1_ZErx06uN7.auth.us-east-1.amazoncognito.com:ghq72js41cdk53vcren6v436e');
+    const token = localStorage.getItem('oidc.user:https://reapergt.auth.us-east-1.amazoncognito.com:ghq72js41cdk53vcren6v436e');
     if (token) {
         try {
             const userData = JSON.parse(token);

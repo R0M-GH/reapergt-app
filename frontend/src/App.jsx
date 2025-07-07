@@ -392,7 +392,7 @@ function App() {
     const handleSignOut = () => {
         auth.removeUser();
         // Use a more explicit sign out approach
-        const logoutUrl = `https://us-east-1_ZErx06uN7.auth.us-east-1.amazoncognito.com/logout?client_id=ghq72js41cdk53vcren6v436e&logout_uri=https://reapergt.vercel.app/`;
+        const logoutUrl = `https://reapergt.auth.us-east-1.amazoncognito.com/logout?client_id=ghq72js41cdk53vcren6v436e&logout_uri=https://app.getreaper.com/`;
         window.location.href = logoutUrl;
     };
 
