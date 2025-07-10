@@ -121,7 +121,27 @@ self.addEventListener('sync', (event) => {
     }
 });
 
+// Store offline actions for background sync
+const OFFLINE_ACTIONS_STORE = 'offline-actions-v1';
+
 function doBackgroundSync() {
-    // This would handle background sync when connection is restored
-    return Promise.resolve();
+    return caches.open(OFFLINE_ACTIONS_STORE)
+        .then(cache => cache.keys())
+        .then(requests => {
+            const syncPromises = requests.map(request => {
+                return fetch(request.clone())
+                    .then(response => {
+                        if (response.ok) {
+                            return cache.delete(request);
+                        }
+                        throw new Error('Network response was not ok');
+                    })
+                    .catch(error => {
+                        console.log('Background sync failed for request:', request.url);
+                        // Keep the request in cache to retry later
+                        return Promise.resolve();
+                    });
+            });
+            return Promise.all(syncPromises);
+        });
 } 

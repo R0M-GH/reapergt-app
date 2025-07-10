@@ -8,8 +8,8 @@ function Header({ onSettings, showSettings }) {
     return (
         <header className={styles.header}>
             <div className={styles.headerContent}>
-                <img src="/logo.png" alt="ReaperGT Logo" className={styles.logo} />
-                <span className={styles.title}>ReaperGT</span>
+                <img src="/logo.png" alt="Reaper Logo" className={styles.logo} />
+                <span className={styles.title}>Reaper</span>
             </div>
             {showSettings && (
                 <button

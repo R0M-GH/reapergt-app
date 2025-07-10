@@ -2,14 +2,26 @@
   "id": "reaper-course-tracker",
   "name": "Reaper",
   "short_name": "Reaper",
-  "description": "Track course availability at Georgia Tech",
+  "description": "Track course availability and get notified when seats open up",
   "start_url": "/",
   "scope": "/",
+  "scope_extensions": [
+    {
+      "origin": "https://app.getreaper.com"
+    }
+  ],
   "display": "standalone",
   "background_color": "#1a1a1a",
   "theme_color": "#CBA135",
   "orientation": "portrait-primary",
   "prefer_related_applications": false,
+  "related_applications": [
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=com.getreaper.app",
+      "id": "com.getreaper.app"
+    }
+  ],
   "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
   "launch_handler": {
     "client_mode": "focus-existing"
@@ -84,6 +96,7 @@
   "categories": ["education", "productivity"],
   "lang": "en-US",
   "permissions": ["notifications"],
+  "iarc_rating_id": "e84b072d-71b3-4d3e-86ae-31a8ce4e53b7",
   "edge_side_panel": {
     "preferred_width": 400
   },
