@@ -566,6 +566,11 @@ function App() {
             <div className={styles.gradientContainer}>
                 <div className={styles.container}>
                     <Header onSettings={() => setSettingsOpen(true)} showSettings={true} />
+
+                    {/* Phase 2 Notice */}
+                    <div className={styles.phaseNotice}>
+                        <span>Add courses now, course notifications begin on phase 2 (August 11th)</span>
+                    </div>
                     <SettingsModal
                         open={settingsOpen}
                         onClose={() => setSettingsOpen(false)}

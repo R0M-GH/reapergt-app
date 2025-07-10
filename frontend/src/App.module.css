@@ -13,6 +13,19 @@
     }
 }
 
+/* Phase 2 Notice */
+.phaseNotice {
+    background: rgba(203, 161, 53, 0.1);
+    border: 1px solid rgba(203, 161, 53, 0.2);
+    border-radius: 8px;
+    padding: 8px 16px;
+    margin: 0 4px 20px 4px;
+    text-align: center;
+    font-size: 13px;
+    color: #CBA135;
+    font-weight: 500;
+}
+
 /* Ensure header stays in place on mobile when keyboard opens */
 @media (max-width: 600px) {
     .header {
@@ -24,6 +37,12 @@
         padding: 12px 4px;
         margin-bottom: 20px;
         border-bottom: 1px solid rgba(203, 161, 53, 0.1);
+    }
+
+    .phaseNotice {
+        margin: 0 8px 16px 8px;
+        font-size: 12px;
+        padding: 6px 12px;
     }
 }
 

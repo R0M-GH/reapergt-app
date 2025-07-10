@@ -1,4 +1,5 @@
 {
+  "id": "reaper-course-tracker",
   "name": "Reaper",
   "short_name": "Reaper",
   "description": "Track course availability at Georgia Tech",
@@ -10,6 +11,10 @@
   "orientation": "portrait-primary",
   "prefer_related_applications": false,
   "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  },
+  "dir": "ltr",
   "icons": [
     {
       "src": "/logo.png?v=2",
@@ -60,7 +65,32 @@
       "purpose": "maskable"
     }
   ],
+  "screenshots": [
+    {
+      "src": "/logo.png?v=2",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Reaper - Course Availability Tracker"
+    },
+    {
+      "src": "/logo.png?v=2", 
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Reaper - Mobile Course Tracker"
+    }
+  ],
   "categories": ["education", "productivity"],
   "lang": "en-US",
-  "permissions": ["notifications"]
+  "permissions": ["notifications"],
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "protocol_handlers": [
+    {
+      "protocol": "web+reaper",
+      "url": "/?crn=%s"
+    }
+  ]
 } 
