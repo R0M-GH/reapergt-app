@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Analytics } from "@vercel/analytics/react";
 import { crnService } from "./services/api";
 import { useGoogleAuth } from "./hooks/useGoogleAuth";
 import styles from "./App.module.css";
@@ -504,6 +505,7 @@ function App() {
                             </div>
                         </div>
                     )}
+                    <Analytics />
                 </div>
             </div>
         );
@@ -553,6 +555,7 @@ function App() {
                             </div>
                         </div>
                     )}
+                    <Analytics />
                 </div>
             </div>
         );
@@ -718,6 +721,7 @@ function App() {
                         </button>
                     </div>
                     <Message message={message} type={messageType} onClose={() => setMessage(null)} />
+                    <Analytics />
 
                 </div>
             </div>
@@ -782,6 +786,7 @@ function App() {
                         </div>
                     </div>
                 )}
+                <Analytics />
             </div>
         </div>
     );
