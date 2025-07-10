@@ -397,6 +397,12 @@ function App() {
     const addCRN = async () => {
         if (!crn.trim()) return;
 
+        // Check 5 CRN limit before making request
+        if (crns.length >= 5) {
+            showMessage('Maximum of 5 CRNs allowed per user', 'error');
+            return;
+        }
+
         setAdding(true);
         try {
             const newCRN = await crnService.addCRN(crn.trim());
@@ -693,37 +699,42 @@ function App() {
 
                     {/* Input container moved to bottom for better mobile UX */}
                     <div className={styles.inputContainerBottom}>
-                        <input
-                            type="text"
-                            value={crn}
-                            onChange={(e) => setCrn(e.target.value)}
-                            placeholder="Enter CRN (5 digits)"
-                            maxLength={5}
-                            pattern="[0-9]{5}"
-                            disabled={adding}
-                            className={styles.inputMobile}
-                            onKeyPress={(e) => {
-                                if (e.key === 'Enter') {
-                                    addCRN();
-                                }
-                            }}
-                        />
-                        <button
-                            onClick={addCRN}
-                            disabled={!crn.trim() || adding}
-                            className={styles.addButton}
-                            title={adding ? 'Adding...' : 'Add CRN'}
-                        >
-                            {adding ? (
-                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M12 2V6M12 18V22M4.93 4.93L7.76 7.76M16.24 16.24L19.07 19.07M2 12H6M18 12H22M4.93 19.07L7.76 16.24M16.24 7.76L19.07 4.93" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-                                </svg>
-                            ) : (
-                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
-                                </svg>
-                            )}
-                        </button>
+                        <div className={styles.inputHeader}>
+                            <span className={styles.crnCount}>{crns.length}/5 CRNs</span>
+                        </div>
+                        <div className={styles.inputRow}>
+                            <input
+                                type="text"
+                                value={crn}
+                                onChange={(e) => setCrn(e.target.value)}
+                                placeholder="Enter CRN (5 digits)"
+                                maxLength={5}
+                                pattern="[0-9]{5}"
+                                disabled={adding || crns.length >= 5}
+                                className={styles.inputMobile}
+                                onKeyPress={(e) => {
+                                    if (e.key === 'Enter') {
+                                        addCRN();
+                                    }
+                                }}
+                            />
+                            <button
+                                onClick={addCRN}
+                                disabled={!crn.trim() || adding || crns.length >= 5}
+                                className={styles.addButton}
+                                title={adding ? 'Adding...' : crns.length >= 5 ? 'Maximum 5 CRNs reached' : 'Add CRN'}
+                            >
+                                {adding ? (
+                                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 2V6M12 18V22M4.93 4.93L7.76 7.76M16.24 16.24L19.07 19.07M2 12H6M18 12H22M4.93 19.07L7.76 16.24M16.24 7.76L19.07 4.93" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                                    </svg>
+                                ) : (
+                                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
+                                    </svg>
+                                )}
+                            </button>
+                        </div>
                     </div>
                     <Message message={message} type={messageType} onClose={() => setMessage(null)} />
                     <Analytics />
