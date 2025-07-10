@@ -1,4 +1,4 @@
-const CACHE_NAME = 'reapergt-v1';
+const CACHE_NAME = 'reaper-v1';
 const urlsToCache = [
     '/',
     '/index.html',
@@ -73,11 +73,11 @@ self.addEventListener('push', (event) => {
                 }
             ],
             requireInteraction: true,
-            tag: data.crn ? `crn-${data.crn}` : 'reapergt-notification'
+            tag: data.crn ? `crn-${data.crn}` : 'reaper-notification'
         };
 
         event.waitUntil(
-            self.registration.showNotification(data.title || 'ReaperGT', options)
+            self.registration.showNotification(data.title || 'Reaper', options)
         );
     }
 });

@@ -173,23 +173,82 @@ function App() {
     const [messageType, setMessageType] = useState('success');
     const [showInstallPrompt, setShowInstallPrompt] = useState(false);
     const [deferredPrompt, setDeferredPrompt] = useState(null);
+    const [installPromptType, setInstallPromptType] = useState('browser'); // 'browser', 'ios', 'manual'
     const [notificationPermission, setNotificationPermission] = useState('default');
     const [notificationSubscription, setNotificationSubscription] = useState(null);
 
-    // PWA Install Prompt
+    // Detect device and browser for PWA install
+    const detectInstallability = () => {
+        // Check if already installed/in standalone mode
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+            window.navigator.standalone === true ||
+            document.referrer.includes('android-app://');
+
+        if (isStandalone) {
+            return false; // Don't show prompt if already installed
+        }
+
+        // Check if user has dismissed recently (reduced to 6 hours for more aggressive prompting)
+        const dismissed = localStorage.getItem('pwa-install-dismissed');
+        const dismissedTime = dismissed ? parseInt(dismissed) : 0;
+        const sixHoursAgo = Date.now() - (6 * 60 * 60 * 1000);
+
+        if (dismissedTime > sixHoursAgo) {
+            return false; // Don't show if dismissed in last 6 hours
+        }
+
+        // Detect iOS Safari
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+
+        if (isIOS && isSafari) {
+            setInstallPromptType('ios');
+            return true;
+        }
+
+        // Check if browser supports PWAs (has service worker and manifest support)
+        const supportsPWA = 'serviceWorker' in navigator && 'PushManager' in window;
+
+        if (supportsPWA) {
+            // For other browsers that support PWA, show manual instructions
+            setInstallPromptType('manual');
+            return true;
+        }
+
+        return false; // Don't show if browser doesn't support PWAs
+    };
+
+    // PWA Install Prompt - Enhanced for all devices
     useEffect(() => {
+        let installCheckTimeout;
+
         const handler = (e) => {
+            console.log('PWA: beforeinstallprompt event fired');
             e.preventDefault();
             setDeferredPrompt(e);
+            setInstallPromptType('browser');
             setShowInstallPrompt(true);
         };
 
+        // Listen for the native install prompt
         window.addEventListener('beforeinstallprompt', handler);
-        return () => window.removeEventListener('beforeinstallprompt', handler);
-    }, []);
+
+        // Check for installability after a delay (for cases where beforeinstallprompt doesn't fire)
+        installCheckTimeout = setTimeout(() => {
+            if (!deferredPrompt && detectInstallability()) {
+                console.log('PWA: Showing install prompt (fallback detection)');
+                setShowInstallPrompt(true);
+            }
+        }, 1500); // Wait 1.5 seconds for beforeinstallprompt to fire
+
+        return () => {
+            window.removeEventListener('beforeinstallprompt', handler);
+            clearTimeout(installCheckTimeout);
+        };
+    }, [deferredPrompt]);
 
     const handleInstallClick = async () => {
-        if (deferredPrompt) {
+        if (deferredPrompt && installPromptType === 'browser') {
             deferredPrompt.prompt();
             const { outcome } = await deferredPrompt.userChoice;
             if (outcome === 'accepted') {
@@ -197,11 +256,14 @@ function App() {
                 setDeferredPrompt(null);
             }
         }
+        // For iOS and manual, the prompt shows instructions, no action needed
     };
 
     const dismissInstallPrompt = () => {
         setShowInstallPrompt(false);
         setDeferredPrompt(null);
+        // Remember dismissal for 6 hours
+        localStorage.setItem('pwa-install-dismissed', Date.now().toString());
     };
 
     // Service Worker Registration
@@ -408,15 +470,37 @@ function App() {
                     {showInstallPrompt && (
                         <div className={styles.installPrompt}>
                             <div className={styles.installContent}>
-                                <span>📱 Install ReaperGT for a better experience</span>
-                                <div className={styles.installActions}>
-                                    <button onClick={handleInstallClick} className={styles.installButton}>
-                                        Install
-                                    </button>
-                                    <button onClick={dismissInstallPrompt} className={styles.dismissButton}>
-                                        Not now
-                                    </button>
-                                </div>
+                                {installPromptType === 'ios' ? (
+                                    <>
+                                        <span>📱 Install Reaper: Tap <strong>Share</strong> → <strong>Add to Home Screen</strong></span>
+                                        <div className={styles.installActions}>
+                                            <button onClick={dismissInstallPrompt} className={styles.dismissButton}>
+                                                Got it
+                                            </button>
+                                        </div>
+                                    </>
+                                ) : installPromptType === 'browser' ? (
+                                    <>
+                                        <span>📱 Install Reaper for a better experience</span>
+                                        <div className={styles.installActions}>
+                                            <button onClick={handleInstallClick} className={styles.installButton}>
+                                                Install
+                                            </button>
+                                            <button onClick={dismissInstallPrompt} className={styles.dismissButton}>
+                                                Not now
+                                            </button>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <span>📱 Install Reaper: Look for "Add to Home Screen" or "Install" in your browser menu</span>
+                                        <div className={styles.installActions}>
+                                            <button onClick={dismissInstallPrompt} className={styles.dismissButton}>
+                                                Got it
+                                            </button>
+                                        </div>
+                                    </>
+                                )}
                             </div>
                         </div>
                     )}
@@ -435,15 +519,37 @@ function App() {
                     {showInstallPrompt && (
                         <div className={styles.installPrompt}>
                             <div className={styles.installContent}>
-                                <span>📱 Install ReaperGT for a better experience</span>
-                                <div className={styles.installActions}>
-                                    <button onClick={handleInstallClick} className={styles.installButton}>
-                                        Install
-                                    </button>
-                                    <button onClick={dismissInstallPrompt} className={styles.dismissButton}>
-                                        Not now
-                                    </button>
-                                </div>
+                                {installPromptType === 'ios' ? (
+                                    <>
+                                        <span>📱 Install Reaper: Tap <strong>Share</strong> → <strong>Add to Home Screen</strong></span>
+                                        <div className={styles.installActions}>
+                                            <button onClick={dismissInstallPrompt} className={styles.dismissButton}>
+                                                Got it
+                                            </button>
+                                        </div>
+                                    </>
+                                ) : installPromptType === 'browser' ? (
+                                    <>
+                                        <span>📱 Install Reaper for a better experience</span>
+                                        <div className={styles.installActions}>
+                                            <button onClick={handleInstallClick} className={styles.installButton}>
+                                                Install
+                                            </button>
+                                            <button onClick={dismissInstallPrompt} className={styles.dismissButton}>
+                                                Not now
+                                            </button>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <span>📱 Install Reaper: Look for "Add to Home Screen" or "Install" in your browser menu</span>
+                                        <div className={styles.installActions}>
+                                            <button onClick={dismissInstallPrompt} className={styles.dismissButton}>
+                                                Got it
+                                            </button>
+                                        </div>
+                                    </>
+                                )}
                             </div>
                         </div>
                     )}
@@ -469,15 +575,37 @@ function App() {
                     {showInstallPrompt && (
                         <div className={styles.installPrompt}>
                             <div className={styles.installContent}>
-                                <span>📱 Install ReaperGT for a better experience</span>
-                                <div className={styles.installActions}>
-                                    <button onClick={handleInstallClick} className={styles.installButton}>
-                                        Install
-                                    </button>
-                                    <button onClick={dismissInstallPrompt} className={styles.dismissButton}>
-                                        Not now
-                                    </button>
-                                </div>
+                                {installPromptType === 'ios' ? (
+                                    <>
+                                        <span>📱 Install Reaper: Tap <strong>Share</strong> → <strong>Add to Home Screen</strong></span>
+                                        <div className={styles.installActions}>
+                                            <button onClick={dismissInstallPrompt} className={styles.dismissButton}>
+                                                Got it
+                                            </button>
+                                        </div>
+                                    </>
+                                ) : installPromptType === 'browser' ? (
+                                    <>
+                                        <span>📱 Install Reaper for a better experience</span>
+                                        <div className={styles.installActions}>
+                                            <button onClick={handleInstallClick} className={styles.installButton}>
+                                                Install
+                                            </button>
+                                            <button onClick={dismissInstallPrompt} className={styles.dismissButton}>
+                                                Not now
+                                            </button>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <span>📱 Install Reaper: Look for "Add to Home Screen" or "Install" in your browser menu</span>
+                                        <div className={styles.installActions}>
+                                            <button onClick={dismissInstallPrompt} className={styles.dismissButton}>
+                                                Got it
+                                            </button>
+                                        </div>
+                                    </>
+                                )}
                             </div>
                         </div>
                     )}
@@ -506,13 +634,14 @@ function App() {
                                         }
                                     >
                                         <div className={styles.crnInfo}>
-                                            <div className={styles.crnText}>{crnData.course_id || 'Loading...'} - {crnData.course_name || 'Loading...'}</div>
+                                            <div className={styles.crnText}>{crnData.course_id || 'Loading...'}</div>
+                                            <div className={styles.courseName}>{crnData.course_name || 'Loading...'}</div>
                                             <div className={styles.courseDetails}>
-                                                <span className={styles.detailBox}>Section: {crnData.course_section || 'Loading...'}</span>
-                                                <span className={styles.detailBox}>CRN: {crnData.crn}</span>
+                                                <span className={styles.detailBox}>Sec {crnData.course_section || '?'}</span>
+                                                <span className={styles.detailBox}>CRN {crnData.crn}</span>
                                                 {crnData.total_seats > 0 && (
                                                     <span className={`${styles.detailBox} ${crnData.isOpen ? styles.seatsOpen : styles.seatsClosed}`}>
-                                                        Seats: {crnData.seats_remaining || 0}/{crnData.total_seats}
+                                                        {crnData.seats_remaining || 0}/{crnData.total_seats} seats
                                                     </span>
                                                 )}
                                             </div>
@@ -578,12 +707,12 @@ function App() {
                             title={adding ? 'Adding...' : 'Add CRN'}
                         >
                             {adding ? (
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M12 2V6M12 18V22M4.93 4.93L7.76 7.76M16.24 16.24L19.07 19.07M2 12H6M18 12H22M4.93 19.07L7.76 16.24M16.24 7.76L19.07 4.93" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 2V6M12 18V22M4.93 4.93L7.76 7.76M16.24 16.24L19.07 19.07M2 12H6M18 12H22M4.93 19.07L7.76 16.24M16.24 7.76L19.07 4.93" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
                                 </svg>
                             ) : (
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
                                 </svg>
                             )}
                         </button>
@@ -619,15 +748,37 @@ function App() {
                 {showInstallPrompt && (
                     <div className={styles.installPrompt}>
                         <div className={styles.installContent}>
-                            <span>📱 Install ReaperGT for a better experience</span>
-                            <div className={styles.installActions}>
-                                <button onClick={handleInstallClick} className={styles.installButton}>
-                                    Install
-                                </button>
-                                <button onClick={dismissInstallPrompt} className={styles.dismissButton}>
-                                    Not now
-                                </button>
-                            </div>
+                            {installPromptType === 'ios' ? (
+                                <>
+                                    <span>📱 Install Reaper: Tap <strong>Share</strong> → <strong>Add to Home Screen</strong></span>
+                                    <div className={styles.installActions}>
+                                        <button onClick={dismissInstallPrompt} className={styles.dismissButton}>
+                                            Got it
+                                        </button>
+                                    </div>
+                                </>
+                            ) : installPromptType === 'browser' ? (
+                                <>
+                                    <span>📱 Install Reaper for a better experience</span>
+                                    <div className={styles.installActions}>
+                                        <button onClick={handleInstallClick} className={styles.installButton}>
+                                            Install
+                                        </button>
+                                        <button onClick={dismissInstallPrompt} className={styles.dismissButton}>
+                                            Not now
+                                        </button>
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <span>📱 Install Reaper: Look for "Add to Home Screen" or "Install" in your browser menu</span>
+                                    <div className={styles.installActions}>
+                                        <button onClick={dismissInstallPrompt} className={styles.dismissButton}>
+                                            Got it
+                                        </button>
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </div>
                 )}
