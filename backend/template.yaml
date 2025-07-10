@@ -10,7 +10,101 @@ Resources:
             DefinitionBody:
                 openapi: "3.0"
                 info:
-                    title: ReaperGT API
+                    title: 
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                     API
                     version: 1.0.0
                 paths:
                     /crns:
@@ -20,16 +114,12 @@ Resources:
                                 type: aws_proxy
                                 uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${AppFunction.Arn}/invocations
                             responses: {}
-                            security:
-                                - CognitoAuthorizer: []
                         post:
                             x-amazon-apigateway-integration:
                                 httpMethod: POST
                                 type: aws_proxy
                                 uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${AppFunction.Arn}/invocations
                             responses: {}
-                            security:
-                                - CognitoAuthorizer: []
                     /crns/{crn}:
                         delete:
                             x-amazon-apigateway-integration:
@@ -37,8 +127,6 @@ Resources:
                                 type: aws_proxy
                                 uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${AppFunction.Arn}/invocations
                             responses: {}
-                            security:
-                                - CognitoAuthorizer: []
                             parameters:
                                 - name: crn
                                   in: path
@@ -52,8 +140,6 @@ Resources:
                                 type: aws_proxy
                                 uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${AppFunction.Arn}/invocations
                             responses: {}
-                            security:
-                                - CognitoAuthorizer: []
                             parameters:
                                 - name: crn
                                   in: path
@@ -67,20 +153,8 @@ Resources:
                                 type: aws_proxy
                                 uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${AppFunction.Arn}/invocations
                             responses: {}
-                            security:
-                                - CognitoAuthorizer: []
                 components:
-                    securitySchemes:
-                        CognitoAuthorizer:
-                            type: apiKey
-                            name: Authorization
-                            in: header
-                            x-amazon-apigateway-authorizer:
-                                type: jwt
-                                jwtConfiguration:
-                                    issuer: !Ref CognitoUserPool
-                                    audience:
-                                        - !Ref CognitoUserPoolClient
+                    securitySchemes: {}
             EndpointConfiguration: REGIONAL
             TracingEnabled: true
             Cors:
@@ -96,7 +170,7 @@ Resources:
                 - Stack ${AWS::StackName} Function ${ResourceName}
                 - ResourceName: AppFunction
             CodeUri: src
-            Handler: api.lambda_handler
+            Handler: test_api.lambda_handler
             Runtime: python3.12
             MemorySize: 512
             Timeout: 30
@@ -124,25 +198,7 @@ Resources:
         Properties:
             LogGroupName: !Sub /aws/lambda/${AppFunction}
 
-    CognitoUserPool:
-        Type: AWS::Cognito::UserPool
-        Properties:
-            UserPoolName: !Sub ${AWS::StackName}-user-pool
-            AutoVerifiedAttributes:
-                - email
-            UsernameAttributes:
-                - email
 
-    CognitoUserPoolClient:
-        Type: AWS::Cognito::UserPoolClient
-        Properties:
-            UserPoolId: !Ref CognitoUserPool
-            ClientName: !Sub ${AWS::StackName}-client
-            GenerateSecret: false
-            ExplicitAuthFlows:
-                - ALLOW_USER_PASSWORD_AUTH
-                - ALLOW_REFRESH_TOKEN_AUTH
-                - ALLOW_USER_SRP_AUTH
 
     DynamoDBUsersTable:
         Type: AWS::DynamoDB::Table
@@ -313,14 +369,5 @@ Outputs:
         Export:
             Name: !Sub ${AWS::StackName}-ApiUrl
 
-    CognitoUserPoolId:
-        Description: Cognito User Pool ID
-        Value: !Ref CognitoUserPool
-        Export:
-            Name: !Sub ${AWS::StackName}-UserPoolId
 
-    CognitoUserPoolClientId:
-        Description: Cognito User Pool Client ID
-        Value: !Ref CognitoUserPoolClient
-        Export:
-            Name: !Sub ${AWS::StackName}-UserPoolClientId
+# Force update Wed Jul  9 20:22:52 EDT 2025

@@ -251,12 +251,18 @@
     transform: translateY(0);
 }
 
-.modalBody {
-    padding: 24px;
+.modalBodyScrollable {
+    padding: 20px;
+    max-height: 70vh;
+    overflow-y: auto;
 }
 
 .settingSection {
-    margin-bottom: 32px;
+    margin-bottom: 24px;
+}
+
+.settingSection:last-child {
+    margin-bottom: 0;
 }
 
 .settingTitle {
@@ -270,44 +276,45 @@
 .settingDescription {
     color: #888;
     font-size: 14px;
-    margin: 0 0 16px 0;
+    margin: 0 0 12px 0;
     line-height: 1.5;
 }
 
-.notificationToggle {
-    margin-top: 16px;
-}
-
-.notificationButton {
+/* Unified setting button style */
+.settingButton {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 12px 16px;
+    gap: 10px;
+    padding: 10px 16px;
     background: rgba(203, 161, 53, 0.1);
     color: #CBA135;
-    border: 2px solid #CBA135;
-    border-radius: 12px;
-    font-weight: 600;
+    border: 1px solid rgba(203, 161, 53, 0.3);
+    border-radius: 10px;
+    font-weight: 500;
     font-size: 14px;
     cursor: pointer;
     transition: all 0.18s cubic-bezier(.4, 2, .6, 1);
-    width: 100%;
-    justify-content: center;
+    text-decoration: none;
+    width: fit-content;
+    min-width: 140px;
+    justify-content: flex-start;
 }
 
-.notificationButton:hover:not(:disabled) {
-    background: rgba(203, 161, 53, 0.2);
+.settingButton:hover:not(:disabled) {
+    background: rgba(203, 161, 53, 0.15);
     border-color: #CBA135;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(203, 161, 53, 0.3);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(203, 161, 53, 0.2);
+    color: #CBA135;
+    text-decoration: none;
 }
 
-.notificationButton:active:not(:disabled) {
+.settingButton:active:not(:disabled) {
     transform: translateY(0);
-    box-shadow: 0 2px 8px rgba(203, 161, 53, 0.4);
+    box-shadow: 0 1px 4px rgba(203, 161, 53, 0.3);
 }
 
-.notificationButton:disabled {
+.settingButton:disabled {
     opacity: 0.5;
     cursor: not-allowed;
     background: rgba(136, 136, 136, 0.1);
@@ -315,76 +322,46 @@
     color: #666;
 }
 
-.notificationButton svg {
-    width: 18px;
-    height: 18px;
+.settingButton svg {
+    width: 16px;
+    height: 16px;
     transition: transform 0.18s cubic-bezier(.4, 2, .6, 1);
 }
 
-.notificationButton:hover:not(:disabled) svg {
+.settingButton:hover:not(:disabled) svg {
     transform: scale(1.1);
 }
 
-.modalActions {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+/* Notification enabled state */
+.notificationEnabled {
+    background: rgba(76, 175, 80, 0.1) !important;
+    color: #4CAF50 !important;
+    border-color: rgba(76, 175, 80, 0.3) !important;
 }
 
-.signOutButton {
-    background: linear-gradient(90deg, #f44336 0%, #e53935 100%);
-    color: white;
-    border: none;
-    border-radius: 12px;
-    padding: 14px 20px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.18s cubic-bezier(.4, 2, .6, 1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    letter-spacing: 0.3px;
-    box-shadow: 0 4px 12px rgba(244, 67, 54, 0.2);
+.notificationEnabled:hover {
+    background: rgba(76, 175, 80, 0.15) !important;
+    border-color: #4CAF50 !important;
+    color: #4CAF50 !important;
 }
 
-.signOutButton:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(244, 67, 54, 0.3);
-    outline: 2px solid #f44336;
+
+
+/* Override for sign out button */
+.settingButton.signOutButton {
+    background: rgba(244, 67, 54, 0.1) !important;
+    color: #f44336 !important;
+    border-color: rgba(244, 67, 54, 0.3) !important;
 }
 
-.signOutButton:active {
-    transform: translateY(0);
-    box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4);
+.settingButton.signOutButton:hover {
+    background: rgba(244, 67, 54, 0.15) !important;
+    border-color: #f44336 !important;
+    color: #f44336 !important;
+    box-shadow: 0 3px 8px rgba(244, 67, 54, 0.2) !important;
 }
 
-.cancelButton {
-    background: none;
-    color: #888;
-    border: 2px solid #333;
-    border-radius: 12px;
-    padding: 14px 20px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.18s cubic-bezier(.4, 2, .6, 1);
-    letter-spacing: 0.3px;
-}
 
-.cancelButton:hover {
-    border-color: #CBA135;
-    color: #ECECEC;
-    background: rgba(203, 161, 53, 0.05);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(203, 161, 53, 0.1);
-}
-
-.cancelButton:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 8px rgba(203, 161, 53, 0.15);
-}
 
 .inputContainer {
     display: flex;
@@ -433,11 +410,48 @@
     outline: 2px solid #CBA135;
 }
 
+.googleSignInButton {
+    height: 56px;
+    min-width: 280px;
+    padding: 0 24px;
+    border-radius: 16px;
+    background: rgba(26, 26, 26, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    border: 2px solid #333;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    transition: all 0.18s cubic-bezier(.4, 2, .6, 1);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    backdrop-filter: blur(8px);
+}
+
+.googleSignInButton:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(203, 161, 53, 0.3);
+    border-color: #CBA135;
+    background: rgba(203, 161, 53, 0.1);
+}
+
+.googleSignInButton:active {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(203, 161, 53, 0.4);
+}
+
 .subscribeText {
     color: #000;
     font-weight: 700;
     font-size: 17px;
     letter-spacing: 0.5px;
+}
+
+.googleSignInText {
+    color: #ECECEC;
+    font-weight: 500;
+    font-size: 16px;
+    letter-spacing: 0.25px;
 }
 
 .listContainer {
@@ -487,6 +501,19 @@
     font-size: 13px;
     font-weight: 500;
     border: 1px solid rgba(203, 161, 53, 0.3);
+}
+
+.seatsOpen {
+    background: rgba(76, 175, 80, 0.15) !important;
+    color: #4CAF50 !important;
+    border: 1px solid rgba(76, 175, 80, 0.3) !important;
+    font-weight: 600 !important;
+}
+
+.seatsClosed {
+    background: rgba(244, 67, 54, 0.15) !important;
+    color: #f44336 !important;
+    border: 1px solid rgba(244, 67, 54, 0.3) !important;
 }
 
 .crnText {
@@ -629,6 +656,12 @@
 .openCard {
     border: 2px solid #4CAF50 !important;
     box-shadow: 0 8px 24px #4CAF5055, 0 2px 8px #4CAF5055 !important;
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.05) 0%, rgba(76, 175, 80, 0.02) 100%) !important;
+}
+
+.openCard:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(76, 175, 80, 0.4), 0 2px 8px rgba(76, 175, 80, 0.2) !important;
     outline: 2px solid #4CAF50 !important;
 }
 
@@ -655,6 +688,18 @@
 
     100% {
         transform: scale(1) rotate(0deg);
+    }
+}
+
+@keyframes slideUp {
+    0% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(20px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
     }
 }
 
@@ -721,27 +766,112 @@
     transform: translateY(-1px);
 }
 
+/* Mobile-friendly input container at bottom */
+.inputContainerBottom {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    gap: 12px;
+    padding: 16px 20px;
+    background: rgba(10, 10, 10, 0.95);
+    backdrop-filter: blur(8px);
+    border-top: 1px solid #222;
+    z-index: 50;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.inputMobile {
+    flex: 1;
+    height: 48px;
+    border: 1px solid #333;
+    border-radius: 12px;
+    padding: 0 16px;
+    color: #ECECEC;
+    background: #111;
+    font-size: 16px;
+    outline: none;
+    transition: border 0.2s, box-shadow 0.2s;
+}
+
+.inputMobile:focus {
+    border: 1px solid #CBA135;
+    box-shadow: 0 0 0 2px #CBA13533;
+}
+
+.addButton {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: linear-gradient(90deg, #CBA135 0%, #D4B44A 100%);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(203, 161, 53, 0.3);
+    transition: all 0.18s cubic-bezier(.4, 2, .6, 1);
+}
+
+.addButton:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(203, 161, 53, 0.4);
+}
+
+.addButton:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 4px 12px rgba(203, 161, 53, 0.3);
+}
+
+.addButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: 0 2px 6px rgba(203, 161, 53, 0.2);
+}
+
+.addButton svg {
+    color: #000;
+    transition: transform 0.18s cubic-bezier(.4, 2, .6, 1);
+}
+
+.addButton:hover:not(:disabled) svg {
+    transform: scale(1.1);
+}
+
+
+
 @media (max-width: 600px) {
     .container {
-        padding: 32px 8px 16px 8px;
+        padding: 16px;
+        padding-bottom: 80px;
+        /* Space for bottom input */
     }
 
     .input {
         margin-right: 8px;
+        font-size: 16px;
+        /* Prevent zoom on iOS */
     }
 
     .logo {
-        width: 40px;
-        height: 40px;
-        margin-right: 8px;
+        width: 32px;
+        height: 32px;
+        margin-right: 12px;
     }
 
     .title {
-        font-size: 1.5rem;
+        font-size: 22px;
     }
 
     .crnCard {
-        padding: 14px;
+        padding: 16px;
+        margin: 0 4px 16px 4px;
+        /* Add side margins on mobile */
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
     }
 
     .installContent {
@@ -756,6 +886,55 @@
     }
 
     .listContainer {
-        padding-bottom: 56px;
+        padding: 12px 0;
+        padding-bottom: 100px;
+        /* More space for bottom input */
+        margin: 0 4px;
+        /* Add margins for mobile */
+    }
+
+    .inputContainerBottom {
+        padding: 12px 16px;
+        gap: 10px;
+    }
+
+    .inputMobile {
+        height: 44px;
+        font-size: 16px;
+        /* Prevent zoom on iOS */
+        border-radius: 10px;
+        padding: 0 14px;
+    }
+
+    .addButton {
+        width: 44px;
+        height: 44px;
+        border-radius: 10px;
+    }
+
+    .actionButtons {
+        gap: 6px;
+        width: 100%;
+        justify-content: flex-end;
+        margin-top: 8px;
+    }
+
+    .actionButton {
+        min-width: 36px;
+        height: 36px;
+        padding: 8px;
+    }
+
+    .copyButton {
+        min-width: 36px;
+        height: 36px;
+    }
+
+    .crnInfo {
+        width: 100%;
+    }
+
+    .courseDetails {
+        margin-top: 4px;
     }
 }

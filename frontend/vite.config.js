@@ -8,8 +8,7 @@ export default defineConfig({
         rollupOptions: {
             output: {
                 manualChunks: {
-                    vendor: ['react', 'react-dom'],
-                    auth: ['react-oidc-context']
+                    vendor: ['react', 'react-dom']
                 }
             }
         }

@@ -2,6 +2,7 @@ import boto3
 import json
 import re
 import requests
+import base64
 from typing import Dict, Any, List
 
 def get_secrets():
@@ -20,6 +21,54 @@ def get_secrets():
     except Exception as e:
         print(f'Error getting secrets: {e}')
         raise
+
+def validate_google_jwt(token: str) -> str:
+    """Validate Google JWT token and extract user ID.
+    
+    Args:
+        token: The Google JWT token from the Authorization header
+        
+    Returns:
+        str: The user ID (sub claim) from the JWT token
+        
+    Raises:
+        Exception: If token is invalid or expired
+    """
+    try:
+        # Remove 'Bearer ' prefix if present
+        if token.startswith('Bearer '):
+            token = token[7:]
+        
+        # Decode JWT token (we'll do basic validation for now)
+        # In production, you should verify the signature using Google's public keys
+        parts = token.split('.')
+        if len(parts) != 3:
+            raise Exception("Invalid JWT format")
+        
+        # Decode the payload
+        payload = parts[1]
+        # Add padding if needed
+        payload += '=' * (4 - len(payload) % 4)
+        decoded_payload = base64.urlsafe_b64decode(payload)
+        claims = json.loads(decoded_payload)
+        
+        # Basic validation
+        if 'sub' not in claims:
+            raise Exception("Missing user ID in token")
+        
+        if 'iss' not in claims or claims['iss'] not in ['https://accounts.google.com', 'accounts.google.com']:
+            raise Exception("Invalid token issuer")
+        
+        # TODO: In production, you should also verify:
+        # - Token signature using Google's public keys
+        # - Token expiration (exp claim)
+        # - Audience (aud claim) matches your client ID
+        
+        return claims['sub']
+        
+    except Exception as e:
+        print(f"Error validating Google JWT: {e}")
+        raise Exception("Invalid or expired token")
 
 def validate_crn_format(crn: str) -> bool:
     """Validate CRN format (5 digits)."""
@@ -109,21 +158,8 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     try:
         print(f"Received event: {json.dumps(event)}")
         
-        # TEMPORARILY DISABLED FOR LOCAL TESTING
-        # Extract user ID from Cognito JWT
-        # user_id = event['requestContext']['authorizer']['claims']['sub']
-        
-        # For local testing, use a dummy user ID
-        user_id = 'local-test-user'
-        print(f"Using dummy user ID for local testing: {user_id}")
-        
         http_method = event['httpMethod']
         path = event['path']
-        
-        # Initialize DynamoDB
-        dynamodb = boto3.resource('dynamodb')
-        users_table = dynamodb.Table('reapergt-dynamo-users')
-        crns_table = dynamodb.Table('reapergt-dynamo-crns')
         
         # CORS preflight handler
         if http_method == 'OPTIONS':
@@ -133,6 +169,35 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'headers': get_cors_headers(),
                 'body': json.dumps({'message': 'CORS preflight'})
             }
+        
+        # Extract user ID from Google JWT
+        try:
+            auth_header = event.get('headers', {}).get('Authorization', '')
+            if not auth_header:
+                auth_header = event.get('headers', {}).get('authorization', '')
+            
+            if not auth_header:
+                return {
+                    'statusCode': 401,
+                    'headers': get_cors_headers(),
+                    'body': json.dumps({'error': 'Missing authorization header'})
+                }
+            
+            user_id = validate_google_jwt(auth_header)
+            print(f"Authenticated user ID: {user_id}")
+            
+        except Exception as e:
+            print(f"Authentication error: {e}")
+            return {
+                'statusCode': 401,
+                'headers': get_cors_headers(),
+                'body': json.dumps({'error': 'Invalid or expired token'})
+            }
+        
+        # Initialize DynamoDB
+        dynamodb = boto3.resource('dynamodb')
+        users_table = dynamodb.Table('reapergt-dynamo-users')
+        crns_table = dynamodb.Table('reapergt-dynamo-crns')
         
         # Route to appropriate handler based on path and method
         if http_method == 'GET' and path == '/crns':

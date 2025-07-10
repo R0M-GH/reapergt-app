@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'https://xv3or5zxu6.execute-api.us-east-1.amazonaws.com/Prod';
+const API_BASE_URL = 'https://pxqw7ufbci.execute-api.us-east-1.amazonaws.com/Prod';
 
 const api = axios.create({
     baseURL: API_BASE_URL,
@@ -9,16 +9,9 @@ const api = axios.create({
 
 // Add auth token to requests
 api.interceptors.request.use((config) => {
-    const token = localStorage.getItem('oidc.user:https://us-east-1cagrtsvtf.auth.us-east-1.amazoncognito.com:7d3t35plvsbnv0a2dkt8ic24ls');
+    const token = localStorage.getItem('google_access_token');
     if (token) {
-        try {
-            const userData = JSON.parse(token);
-            if (userData.access_token) {
-                config.headers.Authorization = `Bearer ${userData.access_token}`;
-            }
-        } catch (error) {
-            console.error('Error parsing auth token:', error);
-        }
+        config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
 });
@@ -26,22 +19,15 @@ api.interceptors.request.use((config) => {
 // Get all CRNs for the user
 async function getCRNs() {
     const res = await api.get('/crns');
-    // The backend now returns { crns: [{ crn, course_id, course_name, course_section, isOpen }, ...] }
-    return res.data.crns || [];
+    // The backend returns the CRNs array directly
+    return res.data || [];
 }
 
 // Add a CRN (returns new CRN info)
 async function addCRN(crn) {
     const res = await api.post('/crns', { crn });
-    // The backend should now return the full CRN object with isOpen status
-    // If it doesn't, we'll need to fetch the updated CRN list
-    return {
-        crn: res.data.crn,
-        course_id: res.data.course_info.course_id,
-        course_name: res.data.course_info.course_name,
-        course_section: res.data.course_info.course_section,
-        isOpen: res.data.isOpen || false // Use backend value if available
-    };
+    // The backend returns the CRN object directly
+    return res.data;
 }
 
 // Remove a CRN

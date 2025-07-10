@@ -17,7 +17,7 @@ self.addEventListener('install', (event) => {
 // Fetch event - serve from cache if available
 self.addEventListener('fetch', (event) => {
     // Skip caching for authentication and API requests
-    if (event.request.url.includes('auth.us-east-1.amazoncognito.com') ||
+    if (event.request.url.includes('accounts.google.com') ||
         event.request.url.includes('127.0.0.1:3000') ||
         event.request.url.includes('api') ||
         event.request.url.includes('.well-known')) {

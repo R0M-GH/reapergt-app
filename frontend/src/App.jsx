@@ -1,6 +1,6 @@
-import { useAuth } from "react-oidc-context";
 import React, { useState, useEffect } from "react";
 import { crnService } from "./services/api";
+import { useGoogleAuth } from "./hooks/useGoogleAuth";
 import styles from "./App.module.css";
 
 function Header({ onSettings, showSettings }) {
@@ -44,63 +44,66 @@ function SettingsModal({ open, onClose, onSignOut, notificationPermission, notif
                     </button>
                 </div>
 
-                <div className={styles.modalBody}>
+                <div className={styles.modalBodyScrollable}>
                     <div className={styles.settingSection}>
                         <h3 className={styles.settingTitle}>Notifications</h3>
                         <p className={styles.settingDescription}>
-                            Get notified when courses you're tracking become available.
+                            Get notified when courses become available.
                         </p>
-                        <div className={styles.notificationToggle}>
-                            {notificationPermission === 'granted' && notificationSubscription ? (
-                                <button
-                                    onClick={onToggleNotifications}
-                                    className={styles.notificationButton}
-                                >
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M18 8A6 6 0 0 0 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                        <path d="M13.73 21A2 2 0 0 1 10.27 21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                    </svg>
-                                    Disable Notifications
-                                </button>
-                            ) : (
-                                <button
-                                    onClick={onToggleNotifications}
-                                    className={styles.notificationButton}
-                                    disabled={notificationPermission === 'denied'}
-                                >
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M18 8A6 6 0 0 0 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                        <path d="M13.73 21A2 2 0 0 1 10.27 21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                    </svg>
-                                    {notificationPermission === 'denied' ? 'Notifications Blocked' : 'Enable Notifications'}
-                                </button>
-                            )}
-                        </div>
+                        {notificationPermission === 'granted' && notificationSubscription ? (
+                            <button
+                                onClick={onToggleNotifications}
+                                className={`${styles.settingButton} ${styles.notificationEnabled}`}
+                            >
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M18 8A6 6 0 0 0 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                    <path d="M13.73 21A2 2 0 0 1 10.27 21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                </svg>
+                                Disable Notifications
+                            </button>
+                        ) : (
+                            <button
+                                onClick={onToggleNotifications}
+                                className={styles.settingButton}
+                                disabled={notificationPermission === 'denied'}
+                            >
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M18 8A6 6 0 0 0 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                    <path d="M13.73 21A2 2 0 0 1 10.27 21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                </svg>
+                                {notificationPermission === 'denied' ? 'Blocked' : 'Enable Notifications'}
+                            </button>
+                        )}
+                    </div>
+
+                    <div className={styles.settingSection}>
+                        <h3 className={styles.settingTitle}>Quick Links</h3>
+                        <a
+                            href="https://registration.banner.gatech.edu/StudentRegistrationSsb/ssb/registration/registration"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={styles.settingButton}
+                        >
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M18 13V6A6 6 0 0 0 6 6V13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                <rect x="2" y="11" width="20" height="11" rx="2" ry="2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                            OSCAR Registration
+                        </a>
                     </div>
 
                     <div className={styles.settingSection}>
                         <h3 className={styles.settingTitle}>Account</h3>
-                        <p className={styles.settingDescription}>Manage your account settings and preferences.</p>
-                    </div>
-
-                    <div className={styles.modalActions}>
                         <button
                             onClick={onSignOut}
-                            className={styles.signOutButton}
+                            className={`${styles.settingButton} ${styles.signOutButton}`}
                         >
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M9 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                 <path d="M16 17L21 12L16 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                 <path d="M21 12H9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
-                            Sign out
-                        </button>
-
-                        <button
-                            onClick={onClose}
-                            className={styles.cancelButton}
-                        >
-                            Cancel
+                            Sign Out
                         </button>
                     </div>
                 </div>
@@ -118,22 +121,24 @@ function Message({ message, type, onClose }) {
     return (
         <div style={{
             position: 'fixed',
-            bottom: '24px',
+            bottom: '84px', // Just above the input container (16px padding + 48px height + 20px gap)
             left: '50%',
             transform: 'translateX(-50%)',
             color: textColor,
-            fontSize: '13px',
+            fontSize: '14px',
             fontWeight: 500,
-            padding: '8px 16px',
+            padding: '12px 20px',
             border: `1px solid ${borderColor}`,
-            borderRadius: '8px',
-            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            borderRadius: '12px',
+            backgroundColor: 'rgba(0, 0, 0, 0.95)',
             backdropFilter: 'blur(8px)',
             display: 'flex',
             alignItems: 'center',
-            gap: '8px',
+            gap: '12px',
             zIndex: 1000,
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
+            boxShadow: '0 6px 20px rgba(0, 0, 0, 0.4)',
+            maxWidth: '90%',
+            animation: 'slideUp 0.3s ease-out'
         }}>
             <span>{message}</span>
             <button
@@ -143,11 +148,11 @@ function Message({ message, type, onClose }) {
                     border: 'none',
                     color: textColor,
                     cursor: 'pointer',
-                    fontSize: 14,
+                    fontSize: 16,
                     padding: 0,
                     display: 'flex',
                     alignItems: 'center',
-                    marginLeft: '4px'
+                    fontWeight: 'bold'
                 }}
             >
                 ×
@@ -157,7 +162,7 @@ function Message({ message, type, onClose }) {
 }
 
 function App() {
-    const auth = useAuth();
+    const auth = useGoogleAuth();
     const [settingsOpen, setSettingsOpen] = useState(false);
     const [crn, setCrn] = useState('');
     const [crns, setCrns] = useState([]);
@@ -391,9 +396,6 @@ function App() {
 
     const handleSignOut = () => {
         auth.removeUser();
-        // Use a more explicit sign out approach
-        const logoutUrl = `https://us-east-1cagrtsvtf.auth.us-east-1.amazoncognito.com/logout?client_id=7d3t35plvsbnv0a2dkt8ic24ls&logout_uri=https://app.getreaper.com/`;
-        window.location.href = logoutUrl;
     };
 
     if (auth.isLoading) {
@@ -479,31 +481,6 @@ function App() {
                             </div>
                         </div>
                     )}
-                    <div className={styles.inputContainer}>
-                        <input
-                            type="text"
-                            value={crn}
-                            onChange={(e) => setCrn(e.target.value)}
-                            placeholder="Enter CRN (5 digits)"
-                            maxLength={5}
-                            pattern="[0-9]{5}"
-                            disabled={adding}
-                            className={styles.input}
-                            onKeyPress={(e) => {
-                                if (e.key === 'Enter') {
-                                    addCRN();
-                                }
-                            }}
-                        />
-                        <button
-                            onClick={addCRN}
-                            disabled={!crn.trim() || adding}
-                            className={styles.subscribeButton}
-                        >
-                            <span className={styles.subscribeText}>{adding ? 'Adding...' : 'Add CRN'}</span>
-                        </button>
-                        <Message message={message} type={messageType} onClose={() => setMessage(null)} />
-                    </div>
                     <div className={styles.listContainer}>
                         {loading ? (
                             <div style={{ color: '#ECECEC', textAlign: 'center', padding: 40 }}>Loading your CRNs...</div>
@@ -533,6 +510,11 @@ function App() {
                                             <div className={styles.courseDetails}>
                                                 <span className={styles.detailBox}>Section: {crnData.course_section || 'Loading...'}</span>
                                                 <span className={styles.detailBox}>CRN: {crnData.crn}</span>
+                                                {crnData.total_seats > 0 && (
+                                                    <span className={`${styles.detailBox} ${crnData.isOpen ? styles.seatsOpen : styles.seatsClosed}`}>
+                                                        Seats: {crnData.seats_remaining || 0}/{crnData.total_seats}
+                                                    </span>
+                                                )}
                                             </div>
                                         </div>
                                         <div className={styles.actionButtons}>
@@ -572,15 +554,42 @@ function App() {
                         )}
                     </div>
 
-                    {/* Oscar Button */}
-                    <a
-                        href="https://registration.banner.gatech.edu/StudentRegistrationSsb/ssb/registration/registration"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={styles.oscarBottomButton}
-                    >
-                        <span>OSCAR</span>
-                    </a>
+                    {/* Input container moved to bottom for better mobile UX */}
+                    <div className={styles.inputContainerBottom}>
+                        <input
+                            type="text"
+                            value={crn}
+                            onChange={(e) => setCrn(e.target.value)}
+                            placeholder="Enter CRN (5 digits)"
+                            maxLength={5}
+                            pattern="[0-9]{5}"
+                            disabled={adding}
+                            className={styles.inputMobile}
+                            onKeyPress={(e) => {
+                                if (e.key === 'Enter') {
+                                    addCRN();
+                                }
+                            }}
+                        />
+                        <button
+                            onClick={addCRN}
+                            disabled={!crn.trim() || adding}
+                            className={styles.addButton}
+                            title={adding ? 'Adding...' : 'Add CRN'}
+                        >
+                            {adding ? (
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 2V6M12 18V22M4.93 4.93L7.76 7.76M16.24 16.24L19.07 19.07M2 12H6M18 12H22M4.93 19.07L7.76 16.24M16.24 7.76L19.07 4.93" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                </svg>
+                            ) : (
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                                </svg>
+                            )}
+                        </button>
+                    </div>
+                    <Message message={message} type={messageType} onClose={() => setMessage(null)} />
+
                 </div>
             </div>
         );
@@ -593,11 +602,17 @@ function App() {
                 <Header />
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
                     <button
-                        onClick={() => auth.signinRedirect()}
-                        className={styles.subscribeButton}
+                        onClick={() => auth.signInWithGoogle()}
+                        className={styles.googleSignInButton}
                         style={{ marginTop: 48 }}
                     >
-                        <span className={styles.subscribeText}>Sign in</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+                            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+                            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+                        </svg>
+                        <span className={styles.googleSignInText}>Sign in with Google</span>
                     </button>
                 </div>
                 {/* PWA Install Prompt */}
