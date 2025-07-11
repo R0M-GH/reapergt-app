@@ -2,7 +2,8 @@ const CACHE_NAME = 'reaper-v2';
 const urlsToCache = [
     '/',
     '/index.html',
-    '/logo.png?v=2',
+    '/logo.png',
+    '/favicon.ico',
     '/manifest.json'
 ];
 
@@ -54,8 +55,8 @@ self.addEventListener('push', (event) => {
         const data = event.data.json();
         const options = {
             body: data.body || 'A course you\'re tracking has an update!',
-            icon: '/logo.png?v=2',
-            badge: '/logo.png?v=2',
+            icon: '/logo.png',
+            badge: '/logo.png',
             vibrate: [200, 100, 200],
             data: {
                 url: data.url || '/',
@@ -65,7 +66,7 @@ self.addEventListener('push', (event) => {
                 {
                     action: 'view',
                     title: 'View Course',
-                    icon: '/logo.png?v=2'
+                    icon: '/logo.png'
                 },
                 {
                     action: 'dismiss',

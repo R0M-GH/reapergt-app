@@ -29,49 +29,49 @@
   "dir": "ltr",
   "icons": [
     {
-      "src": "/logo.png?v=2",
+      "src": "/logo.png",
       "sizes": "120x120",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/logo.png?v=2",
+      "src": "/logo.png",
       "sizes": "152x152",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/logo.png?v=2",
+      "src": "/logo.png",
       "sizes": "167x167",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/logo.png?v=2",
+      "src": "/logo.png",
       "sizes": "180x180",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/logo.png?v=2",
+      "src": "/logo.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/logo.png?v=2",
+      "src": "/logo.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/logo.png?v=2",
+      "src": "/logo.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "/logo.png?v=2",
+      "src": "/logo.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
@@ -79,14 +79,14 @@
   ],
   "screenshots": [
     {
-      "src": "/logo.png?v=2",
+      "src": "/logo.png",
       "sizes": "512x512",
       "type": "image/png",
       "form_factor": "wide",
       "label": "Reaper - Course Availability Tracker"
     },
     {
-      "src": "/logo.png?v=2", 
+      "src": "/logo.png", 
       "sizes": "512x512",
       "type": "image/png",
       "form_factor": "narrow",

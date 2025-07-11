@@ -305,7 +305,7 @@ function App() {
 
             if (permission === 'granted') {
                 await subscribeToNotifications();
-                showMessage('Notifications enabled!', 'success');
+                showMessage('Notifications enabled! You\'ll get alerts when courses open up.', 'success');
             } else if (permission === 'denied') {
                 showMessage('Notifications blocked. Please enable them in your browser settings.', 'error');
             }
@@ -329,13 +329,13 @@ function App() {
             // Create new subscription
             const subscription = await registration.pushManager.subscribe({
                 userVisibleOnly: true,
-                applicationServerKey: urlBase64ToUint8Array('YOUR_VAPID_PUBLIC_KEY') // You'll need to replace this with your actual VAPID key
+                applicationServerKey: urlBase64ToUint8Array('BDTHy3bjuAY5MDItHoC3KkMp01mqrhUfOAH4pqvul7WLltqYqZ5CTIqVqR6hwsPc-DJ1F2WT8JdG8EWJFSWNFpA')
             });
 
             setNotificationSubscription(subscription);
 
-            // Send subscription to your backend
-            // await sendSubscriptionToServer(subscription);
+            // Send subscription to backend
+            await crnService.registerPushSubscription(subscription);
 
         } catch (error) {
             console.error('Error subscribing to notifications:', error);
@@ -575,7 +575,7 @@ function App() {
 
                     {/* Phase 2 Notice */}
                     <div className={styles.phaseNotice}>
-                        <span>Add courses now, course notifications begin on phase 2 (August 11th)</span>
+                        <span>📋 Add courses now to track them! Course notifications start August 11th (Phase 2)</span>
                     </div>
                     <SettingsModal
                         open={settingsOpen}

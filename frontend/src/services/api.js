@@ -35,8 +35,17 @@ async function removeCRN(crn) {
     await api.delete(`/crns/${crn}`);
 }
 
+// Register push notification subscription
+async function registerPushSubscription(subscription) {
+    const res = await api.post('/register-push', {
+        push_subscription: subscription
+    });
+    return res.data;
+}
+
 export const crnService = {
     getCRNs,
     addCRN,
     removeCRN,
+    registerPushSubscription,
 }; 
