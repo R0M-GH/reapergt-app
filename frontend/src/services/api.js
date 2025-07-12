@@ -55,6 +55,14 @@ async function refreshCRNs() {
     return res.data;
 }
 
+// Register phone number for SMS notifications
+async function registerPhoneNumber(phoneNumber) {
+    const res = await api.post('/register-phone', {
+        phone_number: phoneNumber
+    });
+    return res.data;
+}
+
 export const crnService = {
     getCRNs,
     addCRN,
@@ -62,4 +70,5 @@ export const crnService = {
     registerPushSubscription,
     sendTestNotification,
     refreshCRNs,
+    registerPhoneNumber,
 }; 

@@ -55,15 +55,26 @@ function SettingsModal({ open, onClose, onSignOut, notificationPermission, notif
                             type="tel"
                             inputMode="numeric"
                             placeholder="Enter phone number (e.g. 555-123-4567)"
+                            value={phoneNumber}
+                            onChange={handlePhoneNumberChange}
                             className={styles.phoneInput}
+                            maxLength={14} // (XXX) XXX-XXXX format
                         />
                         <button
+                            onClick={savePhoneNumber}
+                            disabled={savingPhone || !phoneNumber.trim()}
                             className={styles.settingButton}
                         >
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M22 16.92V19a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h2.09a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9a16 16 0 0 0 6 6l.36-.36a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                            </svg>
-                            Save Phone Number
+                            {savingPhone ? (
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ animation: 'spin 1s linear infinite' }}>
+                                    <path d="M12 2V6M12 18V22M4.93 4.93L7.76 7.76M16.24 16.24L19.07 19.07M2 12H6M18 12H22M4.93 19.07L7.76 16.24M16.24 7.76L19.07 4.93" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                </svg>
+                            ) : (
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M22 16.92V19a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h2.09a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9a16 16 0 0 0 6 6l.36-.36a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                </svg>
+                            )}
+                            {savingPhone ? 'Saving...' : 'Save Phone Number'}
                         </button>
                     </div>
 
@@ -168,6 +179,8 @@ function App() {
     const [installPromptType, setInstallPromptType] = useState('browser'); // 'browser', 'ios', 'manual'
     const [notificationPermission, setNotificationPermission] = useState('default');
     const [notificationSubscription, setNotificationSubscription] = useState(null);
+    const [phoneNumber, setPhoneNumber] = useState('');
+    const [savingPhone, setSavingPhone] = useState(false);
 
     // Detect device and browser for PWA install
     const detectInstallability = () => {
@@ -527,6 +540,58 @@ function App() {
 
     const handleSignOut = () => {
         auth.removeUser();
+    };
+
+    // Phone number formatting and validation
+    const formatPhoneNumber = (value) => {
+        // Remove all non-digits
+        const phoneNumber = value.replace(/\D/g, '');
+
+        // Limit to 10 digits for US numbers
+        const limitedPhoneNumber = phoneNumber.slice(0, 10);
+
+        // Format as (XXX) XXX-XXXX
+        if (limitedPhoneNumber.length >= 6) {
+            return `(${limitedPhoneNumber.slice(0, 3)}) ${limitedPhoneNumber.slice(3, 6)}-${limitedPhoneNumber.slice(6)}`;
+        } else if (limitedPhoneNumber.length >= 3) {
+            return `(${limitedPhoneNumber.slice(0, 3)}) ${limitedPhoneNumber.slice(3)}`;
+        } else {
+            return limitedPhoneNumber;
+        }
+    };
+
+    const validatePhoneNumber = (phone) => {
+        const digits = phone.replace(/\D/g, '');
+        return digits.length === 10;
+    };
+
+    const handlePhoneNumberChange = (e) => {
+        const formatted = formatPhoneNumber(e.target.value);
+        setPhoneNumber(formatted);
+    };
+
+    const savePhoneNumber = async () => {
+        if (!phoneNumber.trim()) {
+            showMessage('Please enter a phone number', 'error');
+            return;
+        }
+
+        if (!validatePhoneNumber(phoneNumber)) {
+            showMessage('Please enter a valid 10-digit US phone number', 'error');
+            return;
+        }
+
+        setSavingPhone(true);
+        try {
+            const result = await crnService.registerPhoneNumber(phoneNumber);
+            showMessage('Phone number saved successfully! You\'ll receive SMS notifications when courses open.', 'success');
+        } catch (error) {
+            console.error('Error saving phone number:', error);
+            const errorMsg = error.response?.data?.error || 'Failed to save phone number';
+            showMessage(errorMsg, 'error');
+        } finally {
+            setSavingPhone(false);
+        }
     };
 
     if (auth.isLoading) {
