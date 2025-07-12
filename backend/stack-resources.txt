@@ -1,0 +1,340 @@
+{
+    "StackResources": [
+        {
+            "StackName": "reaper",
+            "StackId": "arn:aws:cloudformation:us-east-1:488900830026:stack/reaper/3358cf80-5ee7-11f0-9e8f-0e96ea209597",
+            "LogicalResourceId": "AppFunction",
+            "PhysicalResourceId": "reaper-AppFunction-89braakWQCjq",
+            "ResourceType": "AWS::Lambda::Function",
+            "Timestamp": "2025-07-12T15:42:06.079000+00:00",
+            "ResourceStatus": "UPDATE_COMPLETE",
+            "DriftInformation": {
+                "StackResourceDriftStatus": "NOT_CHECKED"
+            }
+        },
+        {
+            "StackName": "reaper",
+            "StackId": "arn:aws:cloudformation:us-east-1:488900830026:stack/reaper/3358cf80-5ee7-11f0-9e8f-0e96ea209597",
+            "LogicalResourceId": "AppFunctionCrnGetPermissionProd",
+            "PhysicalResourceId": "reaper-AppFunctionCrnGetPermissionProd-23coJM9wWUc9",
+            "ResourceType": "AWS::Lambda::Permission",
+            "Timestamp": "2025-07-12T06:48:12.771000+00:00",
+            "ResourceStatus": "CREATE_COMPLETE",
+            "DriftInformation": {
+                "StackResourceDriftStatus": "NOT_CHECKED"
+            }
+        },
+        {
+            "StackName": "reaper",
+            "StackId": "arn:aws:cloudformation:us-east-1:488900830026:stack/reaper/3358cf80-5ee7-11f0-9e8f-0e96ea209597",
+            "LogicalResourceId": "AppFunctionCrnOptionsPermissionProd",
+            "PhysicalResourceId": "reaper-AppFunctionCrnOptionsPermissionProd-ojmLKraY23W5",
+            "ResourceType": "AWS::Lambda::Permission",
+            "Timestamp": "2025-07-12T06:48:12.758000+00:00",
+            "ResourceStatus": "CREATE_COMPLETE",
+            "DriftInformation": {
+                "StackResourceDriftStatus": "NOT_CHECKED"
+            }
+        },
+        {
+            "StackName": "reaper",
+            "StackId": "arn:aws:cloudformation:us-east-1:488900830026:stack/reaper/3358cf80-5ee7-11f0-9e8f-0e96ea209597",
+            "LogicalResourceId": "AppFunctionCrnsDeleteOptionsPermissionProd",
+            "PhysicalResourceId": "reaper-AppFunctionCrnsDeleteOptionsPermissionProd-Apgnu6cgafQG",
+            "ResourceType": "AWS::Lambda::Permission",
+            "Timestamp": "2025-07-12T06:48:12.199000+00:00",
+            "ResourceStatus": "CREATE_COMPLETE",
+            "DriftInformation": {
+                "StackResourceDriftStatus": "NOT_CHECKED"
+            }
+        },
+        {
+            "StackName": "reaper",
+            "StackId": "arn:aws:cloudformation:us-east-1:488900830026:stack/reaper/3358cf80-5ee7-11f0-9e8f-0e96ea209597",
+            "LogicalResourceId": "AppFunctionCrnsDeletePermissionProd",
+            "PhysicalResourceId": "reaper-AppFunctionCrnsDeletePermissionProd-PzjD0TRZ3xZc",
+            "ResourceType": "AWS::Lambda::Permission",
+            "Timestamp": "2025-07-12T06:48:12.884000+00:00",
+            "ResourceStatus": "CREATE_COMPLETE",
+            "DriftInformation": {
+                "StackResourceDriftStatus": "NOT_CHECKED"
+            }
+        },
+        {
+            "StackName": "reaper",
+            "StackId": "arn:aws:cloudformation:us-east-1:488900830026:stack/reaper/3358cf80-5ee7-11f0-9e8f-0e96ea209597",
+            "LogicalResourceId": "AppFunctionCrnsGetPermissionProd",
+            "PhysicalResourceId": "reaper-AppFunctionCrnsGetPermissionProd-5Ua3TvF3Tw3u",
+            "ResourceType": "AWS::Lambda::Permission",
+            "Timestamp": "2025-07-12T06:48:12.993000+00:00",
+            "ResourceStatus": "CREATE_COMPLETE",
+            "DriftInformation": {
+                "StackResourceDriftStatus": "NOT_CHECKED"
+            }
+        },
+        {
+            "StackName": "reaper",
+            "StackId": "arn:aws:cloudformation:us-east-1:488900830026:stack/reaper/3358cf80-5ee7-11f0-9e8f-0e96ea209597",
+            "LogicalResourceId": "AppFunctionCrnsOptionsPermissionProd",
+            "PhysicalResourceId": "reaper-AppFunctionCrnsOptionsPermissionProd-dE0Afwhk3l4X",
+            "ResourceType": "AWS::Lambda::Permission",
+            "Timestamp": "2025-07-12T06:48:12.619000+00:00",
+            "ResourceStatus": "CREATE_COMPLETE",
+            "DriftInformation": {
+                "StackResourceDriftStatus": "NOT_CHECKED"
+            }
+        },
+        {
+            "StackName": "reaper",
+            "StackId": "arn:aws:cloudformation:us-east-1:488900830026:stack/reaper/3358cf80-5ee7-11f0-9e8f-0e96ea209597",
+            "LogicalResourceId": "AppFunctionCrnsPostPermissionProd",
+            "PhysicalResourceId": "reaper-AppFunctionCrnsPostPermissionProd-39wFpZMRy3zh",
+            "ResourceType": "AWS::Lambda::Permission",
+            "Timestamp": "2025-07-12T06:48:12.766000+00:00",
+            "ResourceStatus": "CREATE_COMPLETE",
+            "DriftInformation": {
+                "StackResourceDriftStatus": "NOT_CHECKED"
+            }
+        },
+        {
+            "StackName": "reaper",
+            "StackId": "arn:aws:cloudformation:us-east-1:488900830026:stack/reaper/3358cf80-5ee7-11f0-9e8f-0e96ea209597",
+            "LogicalResourceId": "AppFunctionHealthCheckPermissionProd",
+            "PhysicalResourceId": "reaper-AppFunctionHealthCheckPermissionProd-LMjTjQBexNdx",
+            "ResourceType": "AWS::Lambda::Permission",
+            "Timestamp": "2025-07-12T06:48:12.503000+00:00",
+            "ResourceStatus": "CREATE_COMPLETE",
+            "DriftInformation": {
+                "StackResourceDriftStatus": "NOT_CHECKED"
+            }
+        },
+        {
+            "StackName": "reaper",
+            "StackId": "arn:aws:cloudformation:us-east-1:488900830026:stack/reaper/3358cf80-5ee7-11f0-9e8f-0e96ea209597",
+            "LogicalResourceId": "AppFunctionRefreshCrnsOptionsPermissionProd",
+            "PhysicalResourceId": "reaper-AppFunctionRefreshCrnsOptionsPermissionProd-pqnFiFdE2h5l",
+            "ResourceType": "AWS::Lambda::Permission",
+            "Timestamp": "2025-07-12T07:15:33.296000+00:00",
+            "ResourceStatus": "CREATE_COMPLETE",
+            "DriftInformation": {
+                "StackResourceDriftStatus": "NOT_CHECKED"
+            }
+        },
+        {
+            "StackName": "reaper",
+            "StackId": "arn:aws:cloudformation:us-east-1:488900830026:stack/reaper/3358cf80-5ee7-11f0-9e8f-0e96ea209597",
+            "LogicalResourceId": "AppFunctionRefreshCrnsPermissionProd",
+            "PhysicalResourceId": "reaper-AppFunctionRefreshCrnsPermissionProd-jTTEh6RqDDHR",
+            "ResourceType": "AWS::Lambda::Permission",
+            "Timestamp": "2025-07-12T07:15:33.417000+00:00",
+            "ResourceStatus": "CREATE_COMPLETE",
+            "DriftInformation": {
+                "StackResourceDriftStatus": "NOT_CHECKED"
+            }
+        },
+        {
+            "StackName": "reaper",
+            "StackId": "arn:aws:cloudformation:us-east-1:488900830026:stack/reaper/3358cf80-5ee7-11f0-9e8f-0e96ea209597",
+            "LogicalResourceId": "AppFunctionRegisterPushOptionsPermissionProd",
+            "PhysicalResourceId": "reaper-AppFunctionRegisterPushOptionsPermissionProd-JKTKr7DEZPnI",
+            "ResourceType": "AWS::Lambda::Permission",
+            "Timestamp": "2025-07-12T06:48:12.362000+00:00",
+            "ResourceStatus": "CREATE_COMPLETE",
+            "DriftInformation": {
+                "StackResourceDriftStatus": "NOT_CHECKED"
+            }
+        },
+        {
+            "StackName": "reaper",
+            "StackId": "arn:aws:cloudformation:us-east-1:488900830026:stack/reaper/3358cf80-5ee7-11f0-9e8f-0e96ea209597",
+            "LogicalResourceId": "AppFunctionRegisterPushPermissionProd",
+            "PhysicalResourceId": "reaper-AppFunctionRegisterPushPermissionProd-3QbdUX4657oC",
+            "ResourceType": "AWS::Lambda::Permission",
+            "Timestamp": "2025-07-12T06:48:12.407000+00:00",
+            "ResourceStatus": "CREATE_COMPLETE",
+            "DriftInformation": {
+                "StackResourceDriftStatus": "NOT_CHECKED"
+            }
+        },
+        {
+            "StackName": "reaper",
+            "StackId": "arn:aws:cloudformation:us-east-1:488900830026:stack/reaper/3358cf80-5ee7-11f0-9e8f-0e96ea209597",
+            "LogicalResourceId": "AppFunctionRole",
+            "PhysicalResourceId": "reaper-AppFunctionRole-XF0sHZZMOb5E",
+            "ResourceType": "AWS::IAM::Role",
+            "Timestamp": "2025-07-12T15:32:13.494000+00:00",
+            "ResourceStatus": "UPDATE_COMPLETE",
+            "DriftInformation": {
+                "StackResourceDriftStatus": "NOT_CHECKED"
+            }
+        },
+        {
+            "StackName": "reaper",
+            "StackId": "arn:aws:cloudformation:us-east-1:488900830026:stack/reaper/3358cf80-5ee7-11f0-9e8f-0e96ea209597",
+            "LogicalResourceId": "DynamoDBCrnsTable",
+            "PhysicalResourceId": "reaper-crns",
+            "ResourceType": "AWS::DynamoDB::Table",
+            "Timestamp": "2025-07-12T15:32:09.339000+00:00",
+            "ResourceStatus": "CREATE_COMPLETE",
+            "DriftInformation": {
+                "StackResourceDriftStatus": "NOT_CHECKED"
+            }
+        },
+        {
+            "StackName": "reaper",
+            "StackId": "arn:aws:cloudformation:us-east-1:488900830026:stack/reaper/3358cf80-5ee7-11f0-9e8f-0e96ea209597",
+            "LogicalResourceId": "DynamoDBUsersTable",
+            "PhysicalResourceId": "reaper-users",
+            "ResourceType": "AWS::DynamoDB::Table",
+            "Timestamp": "2025-07-12T15:32:09.079000+00:00",
+            "ResourceStatus": "CREATE_COMPLETE",
+            "DriftInformation": {
+                "StackResourceDriftStatus": "NOT_CHECKED"
+            }
+        },
+        {
+            "StackName": "reaper",
+            "StackId": "arn:aws:cloudformation:us-east-1:488900830026:stack/reaper/3358cf80-5ee7-11f0-9e8f-0e96ea209597",
+            "LogicalResourceId": "Notifier",
+            "PhysicalResourceId": "reaper-Notifier-PSmICnKK9Wmo",
+            "ResourceType": "AWS::Lambda::Function",
+            "Timestamp": "2025-07-12T15:32:22.441000+00:00",
+            "ResourceStatus": "UPDATE_COMPLETE",
+            "DriftInformation": {
+                "StackResourceDriftStatus": "NOT_CHECKED"
+            }
+        },
+        {
+            "StackName": "reaper",
+            "StackId": "arn:aws:cloudformation:us-east-1:488900830026:stack/reaper/3358cf80-5ee7-11f0-9e8f-0e96ea209597",
+            "LogicalResourceId": "NotifierRole",
+            "PhysicalResourceId": "reaper-NotifierRole-Zoa326hGh3Bo",
+            "ResourceType": "AWS::IAM::Role",
+            "Timestamp": "2025-07-12T15:32:13.515000+00:00",
+            "ResourceStatus": "UPDATE_COMPLETE",
+            "DriftInformation": {
+                "StackResourceDriftStatus": "NOT_CHECKED"
+            }
+        },
+        {
+            "StackName": "reaper",
+            "StackId": "arn:aws:cloudformation:us-east-1:488900830026:stack/reaper/3358cf80-5ee7-11f0-9e8f-0e96ea209597",
+            "LogicalResourceId": "ReaperApplicationInsights",
+            "PhysicalResourceId": "arn:aws:applicationinsights:us-east-1:488900830026:application/resource-group/ApplicationInsights-SAM-reaper",
+            "ResourceType": "AWS::ApplicationInsights::Application",
+            "Timestamp": "2025-07-12T06:13:12.202000+00:00",
+            "ResourceStatus": "CREATE_COMPLETE",
+            "DriftInformation": {
+                "StackResourceDriftStatus": "NOT_CHECKED"
+            }
+        },
+        {
+            "StackName": "reaper",
+            "StackId": "arn:aws:cloudformation:us-east-1:488900830026:stack/reaper/3358cf80-5ee7-11f0-9e8f-0e96ea209597",
+            "LogicalResourceId": "ReaperResourceGroup",
+            "PhysicalResourceId": "ApplicationInsights-SAM-reaper",
+            "ResourceType": "AWS::ResourceGroups::Group",
+            "Timestamp": "2025-07-12T06:12:44.183000+00:00",
+            "ResourceStatus": "CREATE_COMPLETE",
+            "DriftInformation": {
+                "StackResourceDriftStatus": "NOT_CHECKED"
+            }
+        },
+        {
+            "StackName": "reaper",
+            "StackId": "arn:aws:cloudformation:us-east-1:488900830026:stack/reaper/3358cf80-5ee7-11f0-9e8f-0e96ea209597",
+            "LogicalResourceId": "ReaperSecrets",
+            "PhysicalResourceId": "arn:aws:secretsmanager:us-east-1:488900830026:secret:reaper-secrets-FaQ43x",
+            "ResourceType": "AWS::SecretsManager::Secret",
+            "Timestamp": "2025-07-12T06:42:58.490000+00:00",
+            "ResourceStatus": "CREATE_COMPLETE",
+            "DriftInformation": {
+                "StackResourceDriftStatus": "NOT_CHECKED"
+            }
+        },
+        {
+            "StackName": "reaper",
+            "StackId": "arn:aws:cloudformation:us-east-1:488900830026:stack/reaper/3358cf80-5ee7-11f0-9e8f-0e96ea209597",
+            "LogicalResourceId": "Schedule",
+            "PhysicalResourceId": "reaper-scraper-schedule",
+            "ResourceType": "AWS::Scheduler::Schedule",
+            "Timestamp": "2025-07-12T07:34:17.947000+00:00",
+            "ResourceStatus": "UPDATE_COMPLETE",
+            "DriftInformation": {
+                "StackResourceDriftStatus": "NOT_CHECKED"
+            }
+        },
+        {
+            "StackName": "reaper",
+            "StackId": "arn:aws:cloudformation:us-east-1:488900830026:stack/reaper/3358cf80-5ee7-11f0-9e8f-0e96ea209597",
+            "LogicalResourceId": "ScheduleToScraperRole",
+            "PhysicalResourceId": "reaper-ScheduleToScraperRole-0KA5fr7WMRRD",
+            "ResourceType": "AWS::IAM::Role",
+            "Timestamp": "2025-07-12T07:34:14.908000+00:00",
+            "ResourceStatus": "CREATE_COMPLETE",
+            "DriftInformation": {
+                "StackResourceDriftStatus": "NOT_CHECKED"
+            }
+        },
+        {
+            "StackName": "reaper",
+            "StackId": "arn:aws:cloudformation:us-east-1:488900830026:stack/reaper/3358cf80-5ee7-11f0-9e8f-0e96ea209597",
+            "LogicalResourceId": "Scraper",
+            "PhysicalResourceId": "reaper-Scraper-JZjVyWZFghMl",
+            "ResourceType": "AWS::Lambda::Function",
+            "Timestamp": "2025-07-12T15:42:05.792000+00:00",
+            "ResourceStatus": "UPDATE_COMPLETE",
+            "DriftInformation": {
+                "StackResourceDriftStatus": "NOT_CHECKED"
+            }
+        },
+        {
+            "StackName": "reaper",
+            "StackId": "arn:aws:cloudformation:us-east-1:488900830026:stack/reaper/3358cf80-5ee7-11f0-9e8f-0e96ea209597",
+            "LogicalResourceId": "ScraperRole",
+            "PhysicalResourceId": "reaper-ScraperRole-KQEe4crZ2KTp",
+            "ResourceType": "AWS::IAM::Role",
+            "Timestamp": "2025-07-12T15:32:40.259000+00:00",
+            "ResourceStatus": "UPDATE_COMPLETE",
+            "DriftInformation": {
+                "StackResourceDriftStatus": "NOT_CHECKED"
+            }
+        },
+        {
+            "StackName": "reaper",
+            "StackId": "arn:aws:cloudformation:us-east-1:488900830026:stack/reaper/3358cf80-5ee7-11f0-9e8f-0e96ea209597",
+            "LogicalResourceId": "ServerlessRestApi",
+            "PhysicalResourceId": "i968t9scwl",
+            "ResourceType": "AWS::ApiGateway::RestApi",
+            "Timestamp": "2025-07-12T07:15:31.241000+00:00",
+            "ResourceStatus": "UPDATE_COMPLETE",
+            "DriftInformation": {
+                "StackResourceDriftStatus": "NOT_CHECKED"
+            }
+        },
+        {
+            "StackName": "reaper",
+            "StackId": "arn:aws:cloudformation:us-east-1:488900830026:stack/reaper/3358cf80-5ee7-11f0-9e8f-0e96ea209597",
+            "LogicalResourceId": "ServerlessRestApiDeployment33aba2ffef",
+            "PhysicalResourceId": "95hrqs",
+            "ResourceType": "AWS::ApiGateway::Deployment",
+            "Timestamp": "2025-07-12T07:15:33.541000+00:00",
+            "ResourceStatus": "CREATE_COMPLETE",
+            "DriftInformation": {
+                "StackResourceDriftStatus": "NOT_CHECKED"
+            }
+        },
+        {
+            "StackName": "reaper",
+            "StackId": "arn:aws:cloudformation:us-east-1:488900830026:stack/reaper/3358cf80-5ee7-11f0-9e8f-0e96ea209597",
+            "LogicalResourceId": "ServerlessRestApiProdStage",
+            "PhysicalResourceId": "Prod",
+            "ResourceType": "AWS::ApiGateway::Stage",
+            "Timestamp": "2025-07-12T07:15:35.890000+00:00",
+            "ResourceStatus": "UPDATE_COMPLETE",
+            "DriftInformation": {
+                "StackResourceDriftStatus": "NOT_CHECKED"
+            }
+        }
+    ]
+}

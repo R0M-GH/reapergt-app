@@ -1,373 +1,303 @@
+AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
+Description: >
+  Reaper Course Tracker - Complete System
+
+  Complete course tracking system with automated scraping, notifications, and mobile API
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 3008
+    Runtime: python3.12
+    LoggingConfig:
+      LogFormat: JSON
+    Tracing: Active
+
 Resources:
-    Api:
-        Type: AWS::Serverless::Api
-        Properties:
-            Name: !Sub
-                - ${ResourceName} From Stack ${AWS::StackName}
-                - ResourceName: Api
-            StageName: Prod
-            DefinitionBody:
-                openapi: "3.0"
-                info:
-                    title: 
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                     API
-                    version: 1.0.0
-                paths:
-                    /crns:
-                        get:
-                            x-amazon-apigateway-integration:
-                                httpMethod: POST
-                                type: aws_proxy
-                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${AppFunction.Arn}/invocations
-                            responses: {}
-                        post:
-                            x-amazon-apigateway-integration:
-                                httpMethod: POST
-                                type: aws_proxy
-                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${AppFunction.Arn}/invocations
-                            responses: {}
-                    /crns/{crn}:
-                        delete:
-                            x-amazon-apigateway-integration:
-                                httpMethod: POST
-                                type: aws_proxy
-                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${AppFunction.Arn}/invocations
-                            responses: {}
-                            parameters:
-                                - name: crn
-                                  in: path
-                                  required: true
-                                  schema:
-                                    type: string
-                    /crn/{crn}:
-                        get:
-                            x-amazon-apigateway-integration:
-                                httpMethod: POST
-                                type: aws_proxy
-                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${AppFunction.Arn}/invocations
-                            responses: {}
-                            parameters:
-                                - name: crn
-                                  in: path
-                                  required: true
-                                  schema:
-                                    type: string
-                    /register-push:
-                        post:
-                            x-amazon-apigateway-integration:
-                                httpMethod: POST
-                                type: aws_proxy
-                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${AppFunction.Arn}/invocations
-                            responses: {}
-                components:
-                    securitySchemes: {}
-            EndpointConfiguration: REGIONAL
-            TracingEnabled: true
-            Cors:
-                MaxAge: 5
-                AllowHeaders: "'Content-Type,Authorization'"
-                AllowMethods: "'GET,POST,DELETE,OPTIONS'"
-                AllowOrigin: "'*'"
+  # =================================================================
+  # API GATEWAY AND MAIN API FUNCTION
+  # =================================================================
+  
+  # Main API Lambda Function (handles mobile app requests)
+  AppFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: app_function/
+      Handler: app.lambda_handler
+      Description: Main API handler for Reaper mobile app
+      MemorySize: 512
+      Environment:
+        Variables:
+          DYNAMODB_USERS_TABLE: reaper-users
+          DYNAMODB_CRNS_TABLE: reaper-crns
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: reaper-users
+        - DynamoDBCrudPolicy:
+            TableName: reaper-crns
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - secretsmanager:GetSecretValue
+                - secretsmanager:DescribeSecret
+              Resource: !Ref ReaperSecrets
+      Events:
+        # Health check endpoint
+        HealthCheck:
+          Type: Api
+          Properties:
+            Path: /health
+            Method: get
+        # CRN management endpoints
+        CrnsGet:
+          Type: Api
+          Properties:
+            Path: /crns
+            Method: get
+        CrnsPost:
+          Type: Api
+          Properties:
+            Path: /crns
+            Method: post
+        CrnsOptions:
+          Type: Api
+          Properties:
+            Path: /crns
+            Method: options
+        CrnsDelete:
+          Type: Api
+          Properties:
+            Path: /crns/{crn}
+            Method: delete
+        CrnsDeleteOptions:
+          Type: Api
+          Properties:
+            Path: /crns/{crn}
+            Method: options
+        # Individual CRN lookup
+        CrnGet:
+          Type: Api
+          Properties:
+            Path: /crn/{crn}
+            Method: get
+        CrnOptions:
+          Type: Api
+          Properties:
+            Path: /crn/{crn}
+            Method: options
+        # Push notification endpoints
+        RegisterPush:
+          Type: Api
+          Properties:
+            Path: /register-push
+            Method: post
+        RegisterPushOptions:
+          Type: Api
+          Properties:
+            Path: /register-push
+            Method: options
+        # Manual refresh endpoint for real-time updates
+        RefreshCrns:
+          Type: Api
+          Properties:
+            Path: /refresh
+            Method: post
+        RefreshCrnsOptions:
+          Type: Api
+          Properties:
+            Path: /refresh
+            Method: options
 
-    AppFunction:
-        Type: AWS::Serverless::Function
-        Properties:
-            Description: !Sub
-                - Stack ${AWS::StackName} Function ${ResourceName}
-                - ResourceName: AppFunction
-            CodeUri: src
-            Handler: test_api.lambda_handler
-            Runtime: python3.12
-            MemorySize: 512
-            Timeout: 30
-            Tracing: Active
-            Environment:
-                Variables:
-                    DYNAMODB_USERS_TABLE: !Ref DynamoDBUsersTable
-                    DYNAMODB_CRNS_TABLE: !Ref DynamoDBCrnsTable
-            Policies:
-                - DynamoDBCrudPolicy:
-                      TableName: !Ref DynamoDBUsersTable
-                - DynamoDBCrudPolicy:
-                      TableName: !Ref DynamoDBCrnsTable
-                - Version: '2012-10-17'
-                  Statement:
-                    - Effect: Allow
-                      Action:
-                        - secretsmanager:GetSecretValue
-                        - secretsmanager:DescribeSecret
-                      Resource: !Ref SecretsSecret
+  # =================================================================
+  # AUTOMATED SCRAPING SYSTEM
+  # =================================================================
+  
+  # Scraper - Checks course availability with internal loop
+  Scraper:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: scraper/
+      Handler: scraper.handler
+      Description: Scrapes UGA course data for availability
+      Timeout: 900  # 15 minutes for internal loop
+      Environment:
+        Variables:
+          NOTIFIER_FUNCTION_NAME: !Ref Notifier
+          DYNAMODB_USERS_TABLE: reaper-users
+          DYNAMODB_CRNS_TABLE: reaper-crns
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: reaper-users
+        - DynamoDBCrudPolicy:
+            TableName: reaper-crns
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - secretsmanager:GetSecretValue
+                - secretsmanager:DescribeSecret
+              Resource: !Ref ReaperSecrets
+            - Effect: Allow
+              Action:
+                - lambda:InvokeFunction
+              Resource: !GetAtt Notifier.Arn
+      # No events - triggered directly by EventBridge scheduler
 
-    AppFunctionLogGroup:
-        Type: AWS::Logs::LogGroup
-        DeletionPolicy: Retain
-        Properties:
-            LogGroupName: !Sub /aws/lambda/${AppFunction}
+  # Notifier - Sends notifications when spots are available
+  Notifier:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: notifier/
+      Handler: notifier.handler
+      Description: Sends notifications via Telegram when spots open
+      Environment:
+        Variables:
+          DYNAMODB_USERS_TABLE: reaper-users
+          DYNAMODB_CRNS_TABLE: reaper-crns
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: reaper-users
+        - DynamoDBCrudPolicy:
+            TableName: reaper-crns
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - secretsmanager:GetSecretValue
+                - secretsmanager:DescribeSecret
+              Resource: !Ref ReaperSecrets
+      # No events - triggered directly by scraper Lambda
 
+  # =================================================================
+  # EVENTBRIDGE SCHEDULER
+  # =================================================================
+  
+  # Schedule to run scraper every 13 minutes for continuous coverage
+  Schedule:
+    Type: AWS::Scheduler::Schedule
+    Properties:
+      Name: !Sub "${AWS::StackName}-scraper-schedule"
+      Description: Triggers course scraping every 13 minutes with internal loop for continuous coverage
+      ScheduleExpression: "rate(13 minutes)"
+      ScheduleExpressionTimezone: "America/New_York"
+      FlexibleTimeWindow:
+        Mode: "OFF"
+      Target:
+        Arn: !GetAtt Scraper.Arn
+        RoleArn: !GetAtt ScheduleToScraperRole.Arn
 
+  # IAM Role for EventBridge to invoke Scraper
+  ScheduleToScraperRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: scheduler.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: InvokeScraperPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: lambda:InvokeFunction
+                Resource: !GetAtt Scraper.Arn
 
-    DynamoDBUsersTable:
-        Type: AWS::DynamoDB::Table
-        Properties:
-            TableName: reapergt-dynamo-users
-            BillingMode: PAY_PER_REQUEST
-            AttributeDefinitions:
-                - AttributeName: user_id
-                  AttributeType: S
-            KeySchema:
-                - AttributeName: user_id
-                  KeyType: HASH
+  # =================================================================
+  # DYNAMODB TABLES
+  # =================================================================
+  
+  # Users table (clean reaper naming)
+  DynamoDBUsersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: reaper-users
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: user_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: user_id
+          KeyType: HASH
 
-    DynamoDBCrnsTable:
-        Type: AWS::DynamoDB::Table
-        Properties:
-            TableName: reapergt-dynamo-crns
-            BillingMode: PAY_PER_REQUEST
-            AttributeDefinitions:
-                - AttributeName: crn
-                  AttributeType: S
-            KeySchema:
-                - AttributeName: crn
-                  KeyType: HASH
+  # CRNs table (clean reaper naming)
+  DynamoDBCrnsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: reaper-crns
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: crn
+          AttributeType: S
+      KeySchema:
+        - AttributeName: crn
+          KeyType: HASH
 
-    SecretsSecret:
-        Type: AWS::SecretsManager::Secret
-        Properties:
-            Name: reapergt-secrets-secrets
-            Description: Secrets for ReaperGT application
-            SecretString: !Sub |
-                {
-                    "TELEGRAM_BOT_TOKEN": "7600978427:AAFeuIb7poqoYaab0wh-Z87z4akV2ryfj0c",
-                    "TERM_CODE": "202508",
-                    "CHECK_INTERVAL": "6"
-                }
+  # =================================================================
+  # SECRETS MANAGER
+  # =================================================================
+  
+  # Secrets for application configuration
+  ReaperSecrets:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: reaper-secrets
+      Description: Secrets for Reaper application including VAPID keys and Telegram bot
+      SecretString: !Sub |
+        {
+          "VAPID_PRIVATE_KEY": "lLI-y5QbKayqx-qxb1JpDItn-mOewtgQY5Oohrl6XcU",
+          "VAPID_PUBLIC_KEY": "BDTHy3bjuAY5MDItHoC3KkMp01mqrhUfOAH4pqvul7WLltqYqZ5CTIqVqR6hwsPc-DJ1F2WT8JdG8EWJFSWNFpA",
+          "TELEGRAM_BOT_TOKEN": "7600978427:AAFeuIb7poqoYaab0wh-Z87z4akV2ryfj0c",
+          "TERM_CODE": "202508",
+          "CHECK_INTERVAL": "6"
+        }
 
-    # Keep existing resources for background processing
-    Schedule:
-        Type: AWS::Scheduler::Schedule
-        Properties:
-            ScheduleExpression: rate(1 minute)
-            FlexibleTimeWindow:
-                Mode: "OFF"
-            ScheduleExpressionTimezone: America/New_York
-            Target:
-                Arn: !GetAtt Dispatcher.Arn
-                RoleArn: !GetAtt ScheduleToDispatcherRole.Arn
-
-    Dispatcher:
-        Type: AWS::Serverless::Function
-        Properties:
-            Description: !Sub
-                - Stack ${AWS::StackName} Function ${ResourceName}
-                - ResourceName: Dispatcher
-            CodeUri: src
-            Handler: dispatcher.handler
-            Runtime: python3.12
-            MemorySize: 3008
-            Timeout: 30
-            Tracing: Active
-            Environment:
-                Variables:
-                    SCRAPERQUEUE_QUEUE_NAME: !GetAtt ScraperQueue.QueueName
-                    SCRAPERQUEUE_QUEUE_ARN: !GetAtt ScraperQueue.Arn
-                    SCRAPERQUEUE_QUEUE_URL: !Ref ScraperQueue
-            Policies:
-                - SQSSendMessagePolicy:
-                      QueueName: !GetAtt ScraperQueue.QueueName
-
-    DispatcherLogGroup:
-        Type: AWS::Logs::LogGroup
-        DeletionPolicy: Retain
-        Properties:
-            LogGroupName: !Sub /aws/lambda/${Dispatcher}
-
-    ScheduleToDispatcherRole:
-        Type: AWS::IAM::Role
-        Properties:
-            AssumeRolePolicyDocument:
-                Version: "2012-10-17"
-                Statement:
-                    Effect: Allow
-                    Principal:
-                        Service: scheduler.amazonaws.com
-                    Action: sts:AssumeRole
-            Policies:
-                - PolicyName: StartExecutionPolicy
-                  PolicyDocument:
-                      Version: "2012-10-17"
-                      Statement:
-                          - Effect: Allow
-                            Action: lambda:InvokeFunction
-                            Resource: !GetAtt Dispatcher.Arn
-
-    ScraperQueue:
-        Type: AWS::SQS::Queue
-        Properties:
-            MessageRetentionPeriod: 120
-
-    Scraper:
-        Type: AWS::Serverless::Function
-        Properties:
-            Description: !Sub
-                - Stack ${AWS::StackName} Function ${ResourceName}
-                - ResourceName: Scraper
-            CodeUri: src
-            Handler: scraper.handler
-            Runtime: python3.12
-            MemorySize: 3008
-            Timeout: 30
-            Tracing: Active
-            Events:
-                ScraperQueue:
-                    Type: SQS
-                    Properties:
-                        Queue: !GetAtt ScraperQueue.Arn
-                        BatchSize: 1
-            Environment:
-                Variables:
-                    NOTIFIERQUEUE_QUEUE_NAME: !GetAtt NotifierQueue.QueueName
-                    NOTIFIERQUEUE_QUEUE_ARN: !GetAtt NotifierQueue.Arn
-                    NOTIFIERQUEUE_QUEUE_URL: !Ref NotifierQueue
-            Policies:
-                - SQSSendMessagePolicy:
-                      QueueName: !GetAtt NotifierQueue.QueueName
-
-    ScraperLogGroup:
-        Type: AWS::Logs::LogGroup
-        DeletionPolicy: Retain
-        Properties:
-            LogGroupName: !Sub /aws/lambda/${Scraper}
-
-    NotifierQueue:
-        Type: AWS::SQS::Queue
-        Properties:
-            MessageRetentionPeriod: 345600
-
-    Notifier:
-        Type: AWS::Serverless::Function
-        Properties:
-            Description: !Sub
-                - Stack ${AWS::StackName} Function ${ResourceName}
-                - ResourceName: Notifier
-            CodeUri: src
-            Handler: notifier.handler
-            Runtime: python3.12
-            MemorySize: 3008
-            Timeout: 30
-            Tracing: Active
-            Events:
-                NotifierQueue:
-                    Type: SQS
-                    Properties:
-                        Queue: !GetAtt NotifierQueue.Arn
-                        BatchSize: 1
-
-    NotifierLogGroup:
-        Type: AWS::Logs::LogGroup
-        DeletionPolicy: Retain
-        Properties:
-            LogGroupName: !Sub /aws/lambda/${Notifier}
+  # =================================================================
+  # APPLICATION INSIGHTS
+  # =================================================================
+  
+  # Application Insights for monitoring
+  ReaperResourceGroup:
+    Type: AWS::ResourceGroups::Group
+    Properties:
+      Name: !Sub "ApplicationInsights-SAM-${AWS::StackName}"
+      ResourceQuery:
+        Type: CLOUDFORMATION_STACK_1_0
+        
+  ReaperApplicationInsights:
+    Type: AWS::ApplicationInsights::Application
+    Properties:
+      ResourceGroupName: !Ref ReaperResourceGroup
+      AutoConfigurationEnabled: 'true'
 
 Outputs:
-    ApiUrl:
-        Description: API Gateway endpoint URL
-        Value: !Sub https://${Api}.execute-api.${AWS::Region}.amazonaws.com/Prod/
-        Export:
-            Name: !Sub ${AWS::StackName}-ApiUrl
-
-
-# Force update Wed Jul  9 20:22:52 EDT 2025
+  # API Gateway endpoint URL
+  ApiUrl:
+    Description: API Gateway endpoint URL for Reaper API
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+    Export:
+      Name: !Sub "${AWS::StackName}-ApiUrl"
+      
+  AppFunction:
+    Description: Main API Lambda Function ARN
+    Value: !GetAtt AppFunction.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-AppFunctionArn"
+      
+  Scraper:
+    Description: Scraper Lambda Function ARN
+    Value: !GetAtt Scraper.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-ScraperArn"
+      
+  Notifier:
+    Description: Notifier Lambda Function ARN
+    Value: !GetAtt Notifier.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-NotifierArn"
