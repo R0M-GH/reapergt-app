@@ -1,8 +1,0 @@
-{
-    "TableNames": [
-        "reaper-crns",
-        "reaper-users",
-        "reaperuga-dynamo-crns-dev",
-        "reaperuga-dynamo-crns-prod"
-    ]
-}

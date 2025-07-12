@@ -44,6 +44,10 @@ Resources:
                 - secretsmanager:GetSecretValue
                 - secretsmanager:DescribeSecret
               Resource: !Ref ReaperSecrets
+            - Effect: Allow
+              Action:
+                - sns:Publish
+              Resource: "*"
       Events:
         # Health check endpoint
         HealthCheck:

@@ -175,6 +175,7 @@ function App() {
     const [refreshing, setRefreshing] = useState({});
     const [message, setMessage] = useState(null);
     const [messageType, setMessageType] = useState('success');
+    const [loadingCrns, setLoadingCrns] = useState(true);
     const [showInstallPrompt, setShowInstallPrompt] = useState(false);
     const [deferredPrompt, setDeferredPrompt] = useState(null);
     const [installPromptType, setInstallPromptType] = useState('browser'); // 'browser', 'ios', 'manual'
@@ -419,6 +420,7 @@ function App() {
 
     const loadCRNs = async () => {
         setLoading(true);
+        setLoadingCrns(true);
         try {
             const crnList = await crnService.getCRNs();
             setCrns(crnList);
@@ -426,6 +428,7 @@ function App() {
             showMessage('Failed to load CRNs', 'error');
         } finally {
             setLoading(false);
+            setLoadingCrns(false);
         }
     };
 
@@ -762,7 +765,11 @@ function App() {
                         </div>
                     )}
                     <div className={styles.listContainer}>
-                        {crns.length === 0 ? (
+                        {loadingCrns ? (
+                            <div className={styles.emptyContainer}>
+                                <div className={styles.emptyText}>Loading your courses...</div>
+                            </div>
+                        ) : crns.length === 0 ? (
                             <div className={styles.emptyContainer}>
                                 <div className={styles.emptyText}>No CRNs tracked yet</div>
                             </div>

@@ -3,15 +3,18 @@
 	Auto resolution of buckets can be turned off by setting resolve_s3=False
 	To use a specific S3 bucket, set --s3-bucket=<bucket_name>
 	Above settings can be stored in samconfig.toml
-	Uploading to reaper/556ab7956badf4a3d1224e2a2e2658e7  1048576 / 22877920  (4.58%)	Uploading to reaper/556ab7956badf4a3d1224e2a2e2658e7  2097152 / 22877920  (9.17%)	Uploading to reaper/556ab7956badf4a3d1224e2a2e2658e7  3145728 / 22877920  (13.75%)	Uploading to reaper/556ab7956badf4a3d1224e2a2e2658e7  4194304 / 22877920  (18.33%)	Uploading to reaper/556ab7956badf4a3d1224e2a2e2658e7  5242880 / 22877920  (22.92%)	Uploading to reaper/556ab7956badf4a3d1224e2a2e2658e7  6291456 / 22877920  (27.50%)	Uploading to reaper/556ab7956badf4a3d1224e2a2e2658e7  7340032 / 22877920  (32.08%)	Uploading to reaper/556ab7956badf4a3d1224e2a2e2658e7  8388608 / 22877920  (36.67%)	Uploading to reaper/556ab7956badf4a3d1224e2a2e2658e7  9437184 / 22877920  (41.25%)	Uploading to reaper/556ab7956badf4a3d1224e2a2e2658e7  10485760 / 22877920  (45.83%)	Uploading to reaper/556ab7956badf4a3d1224e2a2e2658e7  11534336 / 22877920  (50.42%)	Uploading to reaper/556ab7956badf4a3d1224e2a2e2658e7  12582912 / 22877920  (55.00%)	Uploading to reaper/556ab7956badf4a3d1224e2a2e2658e7  13631488 / 22877920  (59.58%)	Uploading to reaper/556ab7956badf4a3d1224e2a2e2658e7  14680064 / 22877920  (64.17%)	Uploading to reaper/556ab7956badf4a3d1224e2a2e2658e7  15728640 / 22877920  (68.75%)	Uploading to reaper/556ab7956badf4a3d1224e2a2e2658e7  16777216 / 22877920  (73.33%)	Uploading to reaper/556ab7956badf4a3d1224e2a2e2658e7  17825792 / 22877920  (77.92%)	Uploading to reaper/556ab7956badf4a3d1224e2a2e2658e7  18874368 / 22877920  (82.50%)	Uploading to reaper/556ab7956badf4a3d1224e2a2e2658e7  19922944 / 22877920  (87.08%)	Uploading to reaper/556ab7956badf4a3d1224e2a2e2658e7  20971520 / 22877920  (91.67%)	Uploading to reaper/556ab7956badf4a3d1224e2a2e2658e7  22020096 / 22877920  (96.25%)	Uploading to reaper/556ab7956badf4a3d1224e2a2e2658e7  22877920 / 22877920  (100.00%)
-	Uploading to reaper/85e338e2e187729a5cb3d8ec4e7f9d7e  1048576 / 22828943  (4.59%)	Uploading to reaper/85e338e2e187729a5cb3d8ec4e7f9d7e  2097152 / 22828943  (9.19%)	Uploading to reaper/85e338e2e187729a5cb3d8ec4e7f9d7e  3145728 / 22828943  (13.78%)	Uploading to reaper/85e338e2e187729a5cb3d8ec4e7f9d7e  4194304 / 22828943  (18.37%)	Uploading to reaper/85e338e2e187729a5cb3d8ec4e7f9d7e  5242880 / 22828943  (22.97%)	Uploading to reaper/85e338e2e187729a5cb3d8ec4e7f9d7e  6291456 / 22828943  (27.56%)	Uploading to reaper/85e338e2e187729a5cb3d8ec4e7f9d7e  7340032 / 22828943  (32.15%)	Uploading to reaper/85e338e2e187729a5cb3d8ec4e7f9d7e  8388608 / 22828943  (36.75%)	Uploading to reaper/85e338e2e187729a5cb3d8ec4e7f9d7e  9437184 / 22828943  (41.34%)	Uploading to reaper/85e338e2e187729a5cb3d8ec4e7f9d7e  10485760 / 22828943  (45.93%)	Uploading to reaper/85e338e2e187729a5cb3d8ec4e7f9d7e  11534336 / 22828943  (50.53%)	Uploading to reaper/85e338e2e187729a5cb3d8ec4e7f9d7e  12582912 / 22828943  (55.12%)	Uploading to reaper/85e338e2e187729a5cb3d8ec4e7f9d7e  13391759 / 22828943  (58.66%)	Uploading to reaper/85e338e2e187729a5cb3d8ec4e7f9d7e  14440335 / 22828943  (63.25%)	Uploading to reaper/85e338e2e187729a5cb3d8ec4e7f9d7e  15488911 / 22828943  (67.85%)	Uploading to reaper/85e338e2e187729a5cb3d8ec4e7f9d7e  16537487 / 22828943  (72.44%)	Uploading to reaper/85e338e2e187729a5cb3d8ec4e7f9d7e  17586063 / 22828943  (77.03%)	Uploading to reaper/85e338e2e187729a5cb3d8ec4e7f9d7e  18634639 / 22828943  (81.63%)	Uploading to reaper/85e338e2e187729a5cb3d8ec4e7f9d7e  19683215 / 22828943  (86.22%)	Uploading to reaper/85e338e2e187729a5cb3d8ec4e7f9d7e  20731791 / 22828943  (90.81%)	Uploading to reaper/85e338e2e187729a5cb3d8ec4e7f9d7e  21780367 / 22828943  (95.41%)	Uploading to reaper/85e338e2e187729a5cb3d8ec4e7f9d7e  22828943 / 22828943  (100.00%)
-	Uploading to reaper/dc3fdee3222b7341018e15c021cfd1fa  1048576 / 19901776  (5.27%)	Uploading to reaper/dc3fdee3222b7341018e15c021cfd1fa  2097152 / 19901776  (10.54%)	Uploading to reaper/dc3fdee3222b7341018e15c021cfd1fa  3145728 / 19901776  (15.81%)	Uploading to reaper/dc3fdee3222b7341018e15c021cfd1fa  4194304 / 19901776  (21.08%)	Uploading to reaper/dc3fdee3222b7341018e15c021cfd1fa  5242880 / 19901776  (26.34%)	Uploading to reaper/dc3fdee3222b7341018e15c021cfd1fa  6291456 / 19901776  (31.61%)	Uploading to reaper/dc3fdee3222b7341018e15c021cfd1fa  7340032 / 19901776  (36.88%)	Uploading to reaper/dc3fdee3222b7341018e15c021cfd1fa  8367440 / 19901776  (42.04%)	Uploading to reaper/dc3fdee3222b7341018e15c021cfd1fa  9416016 / 19901776  (47.31%)	Uploading to reaper/dc3fdee3222b7341018e15c021cfd1fa  10464592 / 19901776  (52.58%)	Uploading to reaper/dc3fdee3222b7341018e15c021cfd1fa  11513168 / 19901776  (57.85%)	Uploading to reaper/dc3fdee3222b7341018e15c021cfd1fa  12561744 / 19901776  (63.12%)	Uploading to reaper/dc3fdee3222b7341018e15c021cfd1fa  13610320 / 19901776  (68.39%)	Uploading to reaper/dc3fdee3222b7341018e15c021cfd1fa  14658896 / 19901776  (73.66%)	Uploading to reaper/dc3fdee3222b7341018e15c021cfd1fa  15707472 / 19901776  (78.92%)	Uploading to reaper/dc3fdee3222b7341018e15c021cfd1fa  16756048 / 19901776  (84.19%)	Uploading to reaper/dc3fdee3222b7341018e15c021cfd1fa  17804624 / 19901776  (89.46%)	Uploading to reaper/dc3fdee3222b7341018e15c021cfd1fa  18853200 / 19901776  (94.73%)	Uploading to reaper/dc3fdee3222b7341018e15c021cfd1fa  19901776 / 19901776  (100.00%)
+
+	File with same data already exists at reaper/d43d8cf56fcbd91ad6d628c710fca833, skipping upload
+
+	File with same data already exists at reaper/85e338e2e187729a5cb3d8ec4e7f9d7e, skipping upload
+
+	File with same data already exists at reaper/619ba3668ae1eb2bdda1e9120137c8f5, skipping upload
 
 	Deploying with following values
 	===============================
 	Stack name                   : reaper
 	Region                       : us-east-1
-	Confirm changeset            : True
+	Confirm changeset            : False
 	Disable rollback             : True
 	Deployment s3 bucket         : aws-sam-cli-managed-default-samclisourcebucket-tm92uk9hgjl7
 	Capabilities                 : ["CAPABILITY_IAM"]
@@ -21,7 +24,8 @@
 Initiating deployment
 =====================
 
-	Uploading to reaper/4672a372bea591414b695c91ce55757e.template  8385 / 8385  (100.00%)
+
+	File with same data already exists at reaper/e25f179fb56cdb25bb374a709e2bd123.template, skipping upload
 
 
 Waiting for changeset to be created..

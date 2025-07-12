@@ -221,11 +221,11 @@ def add_crn_to_user(user_id: str, crn: str, course_info: Dict[str, Any]) -> Dict
         current_crns.append(new_crn_data)
         print(f"Updated CRNs list: {current_crns}")
         
-        # Update user's CRN list
-        users_table.put_item(Item={
-            'user_id': user_id,
-            'crns': current_crns
-        })
+        # Update user's CRN list while preserving all existing data
+        user_item = response.get('Item', {})
+        user_item['user_id'] = user_id
+        user_item['crns'] = current_crns
+        users_table.put_item(Item=user_item)
         print(f"Successfully stored user CRNs in users table")
         
         # Update global CRN tracking
@@ -392,6 +392,9 @@ def send_test_sms_notification(user_id: str, crn: str, course_info: Dict[str, An
         user_data = user_response.get('Item', {})
         
         phone_number = user_data.get('phone_number')
+        print(f"User data for SMS: {user_data}")
+        print(f"Phone number found: {phone_number}")
+        
         if not phone_number:
             print(f"No phone number found for user {user_id}")
             return {

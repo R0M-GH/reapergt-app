@@ -1,0 +1,25 @@
+Starting Build use cache
+Manifest is not changed for (AppFunction), running incremental build
+Building codeuri: /home/rohan/Projects/reaper/reapergt-app/backend/app_function runtime: python3.12 architecture: x86_64 functions: AppFunction
+Manifest is not changed for (Scraper), running incremental build
+Building codeuri: /home/rohan/Projects/reaper/reapergt-app/backend/scraper runtime: python3.12 architecture: x86_64 functions: Scraper
+Manifest is not changed for (Notifier), running incremental build
+Building codeuri: /home/rohan/Projects/reaper/reapergt-app/backend/notifier runtime: python3.12 architecture: x86_64 functions: Notifier
+ Running PythonPipBuilder:CopySource
+ Running PythonPipBuilder:CopySource
+ Running PythonPipBuilder:CopySource
+ Running PythonPipBuilder:CopySource
+ Running PythonPipBuilder:CopySource
+ Running PythonPipBuilder:CopySource
+
+Build Succeeded
+
+Built Artifacts  : .aws-sam/build
+Built Template   : .aws-sam/build/template.yaml
+
+Commands you can use next
+=========================
+[*] Validate SAM template: sam validate
+[*] Invoke Function: sam local invoke
+[*] Test Function in the Cloud: sam sync --stack-name {{stack-name}} --watch
+[*] Deploy: sam deploy --guided
