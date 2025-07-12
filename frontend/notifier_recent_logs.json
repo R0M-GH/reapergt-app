@@ -1,0 +1,51 @@
+{
+    "events": [
+        {
+            "timestamp": 1752335323764,
+            "message": "{\"time\":\"2025-07-12T15:48:43.764Z\",\"type\":\"platform.initStart\",\"record\":{\"initializationType\":\"on-demand\",\"phase\":\"init\",\"runtimeVersion\":\"python:3.12.v73\",\"runtimeVersionArn\":\"arn:aws:lambda:us-east-1::runtime:328d20742c3122ae6ce3d7de682cc7c281f90f98486a5e552e4849d3a1838c05\",\"functionName\":\"reaper-Notifier-PSmICnKK9Wmo\",\"functionVersion\":\"$LATEST\",\"instanceId\":\"2025/07/12/[$LATEST]48610813e0c041959f2d9587d8c468ec\",\"instanceMaxMemory\":3154116608}}",
+            "ingestionTime": 1752335327486
+        },
+        {
+            "timestamp": 1752335324562,
+            "message": "{\"timestamp\": \"2025-07-12T15:48:44Z\", \"level\": \"INFO\", \"message\": \"Found credentials in environment variables.\", \"logger\": \"botocore.credentials\", \"requestId\": \"\"}\n",
+            "ingestionTime": 1752335327486
+        },
+        {
+            "timestamp": 1752335324660,
+            "message": "{\"time\":\"2025-07-12T15:48:44.660Z\",\"type\":\"platform.start\",\"record\":{\"requestId\":\"e480c9b7-2161-463d-999e-cb9595d6b098\",\"functionArn\":\"arn:aws:lambda:us-east-1:488900830026:function:reaper-Notifier-PSmICnKK9Wmo\",\"version\":\"$LATEST\",\"tracing\":{\"spanId\":\"0130599b9a66254d\",\"type\":\"X-Amzn-Trace-Id\",\"value\":\"Root=1-687283d9-20be0950490983004760264a;Parent=6a583447dda8fc04;Sampled=1;Lineage=2:288f7a65:0\"}}}",
+            "ingestionTime": 1752335327486
+        },
+        {
+            "timestamp": 1752335324660,
+            "message": "{\"timestamp\": \"2025-07-12T15:48:44Z\", \"level\": \"INFO\", \"message\": \"Notifier started\", \"logger\": \"root\", \"requestId\": \"e480c9b7-2161-463d-999e-cb9595d6b098\"}\n",
+            "ingestionTime": 1752335327486
+        },
+        {
+            "timestamp": 1752335324660,
+            "message": "{\"timestamp\": \"2025-07-12T15:48:44Z\", \"level\": \"INFO\", \"message\": \"Processing notification: {'notification_type': 'course_available', 'crn': '91575', 'availability': {'crn': '91575', 'course_name': 'Intro to Data Science for Econ', 'course_id': 'ECON 4803', 'course_section': 'SF1', 'is_open': True, 'seats_remaining': 6, 'total_seats': 30, 'last_checked': '2025-07-12T15:48:43.070707'}, 'timestamp': '2025-07-12T15:48:43.088321'}\", \"logger\": \"root\", \"requestId\": \"e480c9b7-2161-463d-999e-cb9595d6b098\"}\n",
+            "ingestionTime": 1752335327486
+        },
+        {
+            "timestamp": 1752335324725,
+            "message": "{\"timestamp\": \"2025-07-12T15:48:44Z\", \"level\": \"INFO\", \"message\": \"Telegram notification prepared: 🎉 Course Available!\\n\\nCRN: 91575\\nSpots Available: 0\\nTotal Spots: 0\\nChecked: 2025-07-12T15:48:43.070707\\n\\nRegister now before spots fill up!\", \"logger\": \"root\", \"requestId\": \"e480c9b7-2161-463d-999e-cb9595d6b098\"}\n",
+            "ingestionTime": 1752335327486
+        },
+        {
+            "timestamp": 1752335324725,
+            "message": "{\"timestamp\": \"2025-07-12T15:48:44Z\", \"level\": \"INFO\", \"message\": \"Telegram notification would be sent here\", \"logger\": \"root\", \"requestId\": \"e480c9b7-2161-463d-999e-cb9595d6b098\"}\n",
+            "ingestionTime": 1752335327486
+        },
+        {
+            "timestamp": 1752335324725,
+            "message": "{\"timestamp\": \"2025-07-12T15:48:44Z\", \"level\": \"INFO\", \"message\": \"Telegram notification sent for CRN 91575\", \"logger\": \"root\", \"requestId\": \"e480c9b7-2161-463d-999e-cb9595d6b098\"}\n",
+            "ingestionTime": 1752335327486
+        },
+        {
+            "timestamp": 1752335324728,
+            "message": "{\"time\":\"2025-07-12T15:48:44.728Z\",\"type\":\"platform.report\",\"record\":{\"requestId\":\"e480c9b7-2161-463d-999e-cb9595d6b098\",\"metrics\":{\"durationMs\":67.053,\"billedDurationMs\":68,\"memorySizeMB\":3008,\"maxMemoryUsedMB\":83,\"initDurationMs\":891.823},\"tracing\":{\"spanId\":\"0130599b9a66254d\",\"type\":\"X-Amzn-Trace-Id\",\"value\":\"Root=1-687283d9-20be0950490983004760264a;Parent=6a583447dda8fc04;Sampled=1;Lineage=2:288f7a65:0\"},\"status\":\"success\"}}",
+            "ingestionTime": 1752335327486
+        }
+    ],
+    "nextForwardToken": "f/39078383579143546333293627805932741384356830734440464392/s",
+    "nextBackwardToken": "b/39078383557645627961910107097492308969523810242675343360/s"
+}

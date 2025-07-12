@@ -383,6 +383,71 @@ def register_phone_number(user_id: str, body: str) -> Dict[str, Any]:
             'body': json.dumps({'error': f'Failed to register phone number: {str(e)}'})
         }
 
+def send_test_sms_notification(user_id: str, crn: str, course_info: Dict[str, Any]) -> Dict[str, Any]:
+    """Send a test SMS notification when a CRN is added."""
+    try:
+        # Get user's phone number from database
+        users_table = get_dynamodb_table(os.environ['DYNAMODB_USERS_TABLE'])
+        user_response = users_table.get_item(Key={'user_id': user_id})
+        user_data = user_response.get('Item', {})
+        
+        phone_number = user_data.get('phone_number')
+        if not phone_number:
+            print(f"No phone number found for user {user_id}")
+            return {
+                'statusCode': 400,
+                'body': json.dumps({'error': 'No phone number registered. Please add your phone number in settings.'})
+            }
+        
+        # Create test SMS message
+        course_name = course_info.get('course_name', f'CRN {crn}')
+        seats_remaining = course_info.get('seats_remaining', 0)
+        total_seats = course_info.get('total_seats', 0)
+        
+        message = f"📚 TEST: Course Added Successfully!\n\n{course_name}\nCRN: {crn}\nSeats: {seats_remaining}/{total_seats}\n\nYou'll get SMS alerts when this course opens up! 🎉"
+        
+        # Send SMS using AWS SNS
+        import boto3
+        sns_client = boto3.client('sns')
+        
+        try:
+            response = sns_client.publish(
+                PhoneNumber=phone_number,
+                Message=message,
+                MessageAttributes={
+                    'AWS.SNS.SMS.SenderID': {
+                        'DataType': 'String',
+                        'StringValue': 'Reaper'
+                    },
+                    'AWS.SNS.SMS.SMSType': {
+                        'DataType': 'String',
+                        'StringValue': 'Transactional'
+                    }
+                }
+            )
+            
+            print(f'Successfully sent test SMS to user {user_id} at {phone_number}')
+            return {
+                'statusCode': 200,
+                'body': json.dumps({
+                    'message': 'Test SMS sent successfully!'
+                })
+            }
+            
+        except Exception as e:
+            print(f'SNS error sending test SMS: {e}')
+            return {
+                'statusCode': 500,
+                'body': json.dumps({'error': 'Failed to send test SMS'})
+            }
+    
+    except Exception as e:
+        print(f"Failed to send test SMS for {user_id}: {e}")
+        return {
+            'statusCode': 500,
+            'body': json.dumps({'error': f'Failed to send test SMS: {str(e)}'})
+        }
+
 def send_test_push_notification(user_id: str) -> Dict[str, Any]:
     """Send a test push notification to the user."""
     try:
@@ -570,12 +635,12 @@ def lambda_handler(event, context):
                         'body': json.dumps(result)
                     }
                 
-                # Send test push notification when course is added
+                # Send test SMS notification when course is added
                 try:
-                    test_notification_result = send_test_push_notification(user_id)
-                    print(f"Test notification result: {test_notification_result}")
+                    test_sms_result = send_test_sms_notification(user_id, crn, crn_check['course_info'])
+                    print(f"Test SMS notification result: {test_sms_result}")
                 except Exception as e:
-                    print(f"Failed to send test notification: {e}")
+                    print(f"Failed to send test SMS notification: {e}")
                 
                 return {
                     'statusCode': 201,

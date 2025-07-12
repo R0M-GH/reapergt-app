@@ -27,7 +27,7 @@ function Header({ onSettings, showSettings }) {
     );
 }
 
-function SettingsModal({ open, onClose, onSignOut, notificationPermission, notificationSubscription, onToggleNotifications, onTestNotification, phoneNumber, onPhoneNumberChange, onSavePhoneNumber, savingPhone }) {
+function SettingsModal({ open, onClose, onSignOut, notificationPermission, notificationSubscription, onToggleNotifications, onTestNotification, phoneNumber, onPhoneNumberChange, onPhoneNumberBlur, onSavePhoneNumber, savingPhone, displayPhone }) {
     if (!open) return null;
     return (
         <div className={styles.modalOverlay}>
@@ -55,8 +55,9 @@ function SettingsModal({ open, onClose, onSignOut, notificationPermission, notif
                             type="tel"
                             inputMode="numeric"
                             placeholder="Enter phone number (e.g. 555-123-4567)"
-                            value={phoneNumber}
+                            value={displayPhone}
                             onChange={onPhoneNumberChange}
+                            onBlur={onPhoneNumberBlur}
                             className={styles.phoneInput}
                             maxLength={14} // (XXX) XXX-XXXX format
                         />
@@ -180,6 +181,7 @@ function App() {
     const [notificationPermission, setNotificationPermission] = useState('default');
     const [notificationSubscription, setNotificationSubscription] = useState(null);
     const [phoneNumber, setPhoneNumber] = useState('');
+    const [displayPhone, setDisplayPhone] = useState('');
     const [savingPhone, setSavingPhone] = useState(false);
 
     // Detect device and browser for PWA install
@@ -565,22 +567,24 @@ function App() {
         return digits.length === 10;
     };
 
+    // Only allow digits on input
     const handlePhoneNumberChange = (e) => {
-        const formatted = formatPhoneNumber(e.target.value);
-        setPhoneNumber(formatted);
+        const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
+        setPhoneNumber(digits);
+        setDisplayPhone(digits);
     };
 
-    const savePhoneNumber = async () => {
-        if (!phoneNumber.trim()) {
-            showMessage('Please enter a phone number', 'error');
-            return;
-        }
+    // Format on blur
+    const handlePhoneNumberBlur = () => {
+        setDisplayPhone(formatPhoneNumber(phoneNumber));
+    };
 
-        if (!validatePhoneNumber(phoneNumber)) {
+    // On save, send only digits
+    const savePhoneNumber = async () => {
+        if (phoneNumber.length !== 10) {
             showMessage('Please enter a valid 10-digit US phone number', 'error');
             return;
         }
-
         setSavingPhone(true);
         try {
             const result = await crnService.registerPhoneNumber(phoneNumber);
@@ -713,7 +717,9 @@ function App() {
                         onToggleNotifications={notificationSubscription ? unsubscribeFromNotifications : requestNotificationPermission}
                         onTestNotification={sendTestNotification}
                         phoneNumber={phoneNumber}
+                        displayPhone={displayPhone}
                         onPhoneNumberChange={handlePhoneNumberChange}
+                        onPhoneNumberBlur={handlePhoneNumberBlur}
                         onSavePhoneNumber={savePhoneNumber}
                         savingPhone={savingPhone}
                     />
