@@ -1,6 +1,0 @@
-{
-  "buildCommand": "cd frontend && npm ci && npm run build",
-  "outputDirectory": "frontend/dist",
-  "installCommand": "npm --version",
-  "framework": null
-} 
