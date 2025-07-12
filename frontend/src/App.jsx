@@ -27,7 +27,7 @@ function Header({ onSettings, showSettings }) {
     );
 }
 
-function SettingsModal({ open, onClose, onSignOut, notificationPermission, notificationSubscription, onToggleNotifications, onTestNotification }) {
+function SettingsModal({ open, onClose, onSignOut, notificationPermission, notificationSubscription, onToggleNotifications, onTestNotification, phoneNumber, onPhoneNumberChange, onSavePhoneNumber, savingPhone }) {
     if (!open) return null;
     return (
         <div className={styles.modalOverlay}>
@@ -56,12 +56,12 @@ function SettingsModal({ open, onClose, onSignOut, notificationPermission, notif
                             inputMode="numeric"
                             placeholder="Enter phone number (e.g. 555-123-4567)"
                             value={phoneNumber}
-                            onChange={handlePhoneNumberChange}
+                            onChange={onPhoneNumberChange}
                             className={styles.phoneInput}
                             maxLength={14} // (XXX) XXX-XXXX format
                         />
                         <button
-                            onClick={savePhoneNumber}
+                            onClick={onSavePhoneNumber}
                             disabled={savingPhone || !phoneNumber.trim()}
                             className={styles.settingButton}
                         >
@@ -712,6 +712,10 @@ function App() {
                         notificationSubscription={notificationSubscription}
                         onToggleNotifications={notificationSubscription ? unsubscribeFromNotifications : requestNotificationPermission}
                         onTestNotification={sendTestNotification}
+                        phoneNumber={phoneNumber}
+                        onPhoneNumberChange={handlePhoneNumberChange}
+                        onSavePhoneNumber={savePhoneNumber}
+                        savingPhone={savingPhone}
                     />
                     {/* PWA Install Prompt */}
                     {showInstallPrompt && (
