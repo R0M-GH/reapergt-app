@@ -99,6 +99,17 @@ Resources:
           Properties:
             Path: /register-push
             Method: options
+        # Test notification endpoint
+        TestNotification:
+          Type: Api
+          Properties:
+            Path: /test-notification
+            Method: post
+        TestNotificationOptions:
+          Type: Api
+          Properties:
+            Path: /test-notification
+            Method: options
         # Manual refresh endpoint for real-time updates
         RefreshCrns:
           Type: Api

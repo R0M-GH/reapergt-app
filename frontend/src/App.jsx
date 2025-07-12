@@ -298,12 +298,26 @@ function App() {
     useEffect(() => {
         if ('serviceWorker' in navigator && 'PushManager' in window) {
             checkNotificationPermission();
+            checkExistingSubscription();
         }
     }, []);
 
     const checkNotificationPermission = () => {
         if ('Notification' in window) {
             setNotificationPermission(Notification.permission);
+        }
+    };
+
+    const checkExistingSubscription = async () => {
+        try {
+            const registration = await navigator.serviceWorker.ready;
+            const existingSubscription = await registration.pushManager.getSubscription();
+            if (existingSubscription) {
+                console.log('Found existing push subscription on load:', existingSubscription);
+                setNotificationSubscription(existingSubscription);
+            }
+        } catch (error) {
+            console.error('Error checking existing subscription:', error);
         }
     };
 
