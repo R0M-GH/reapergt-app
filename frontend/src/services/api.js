@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'https://pxqw7ufbci.execute-api.us-east-1.amazonaws.com/Prod';
+const API_BASE_URL = 'https://i968t9scwl.execute-api.us-east-1.amazonaws.com/Prod';
 
 const api = axios.create({
     baseURL: API_BASE_URL,
@@ -43,9 +43,23 @@ async function registerPushSubscription(subscription) {
     return res.data;
 }
 
+// Send test notification
+async function sendTestNotification() {
+    const res = await api.post('/test-notification');
+    return res.data;
+}
+
+// Manually refresh all CRNs for real-time updates
+async function refreshCRNs() {
+    const res = await api.post('/refresh');
+    return res.data;
+}
+
 export const crnService = {
     getCRNs,
     addCRN,
     removeCRN,
     registerPushSubscription,
+    sendTestNotification,
+    refreshCRNs,
 }; 

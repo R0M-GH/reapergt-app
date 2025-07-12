@@ -27,7 +27,7 @@ function Header({ onSettings, showSettings }) {
     );
 }
 
-function SettingsModal({ open, onClose, onSignOut, notificationPermission, notificationSubscription, onToggleNotifications }) {
+function SettingsModal({ open, onClose, onSignOut, notificationPermission, notificationSubscription, onToggleNotifications, onTestNotification }) {
     if (!open) return null;
     return (
         <div className={styles.modalOverlay}>
@@ -52,16 +52,29 @@ function SettingsModal({ open, onClose, onSignOut, notificationPermission, notif
                             Get notified when courses become available.
                         </p>
                         {notificationPermission === 'granted' && notificationSubscription ? (
-                            <button
-                                onClick={onToggleNotifications}
-                                className={`${styles.settingButton} ${styles.notificationEnabled}`}
-                            >
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M18 8A6 6 0 0 0 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                    <path d="M13.73 21A2 2 0 0 1 10.27 21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                </svg>
-                                Disable Notifications
-                            </button>
+                            <>
+                                <button
+                                    onClick={onToggleNotifications}
+                                    className={`${styles.settingButton} ${styles.notificationEnabled}`}
+                                >
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M18 8A6 6 0 0 0 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                        <path d="M13.73 21A2 2 0 0 1 10.27 21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                    </svg>
+                                    Disable Notifications
+                                </button>
+                                <button
+                                    onClick={onTestNotification}
+                                    className={styles.settingButton}
+                                    style={{ marginTop: '8px' }}
+                                >
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M9 11L12 14L22 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                        <path d="M21 12V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                    </svg>
+                                    Send Test Notification
+                                </button>
+                            </>
                         ) : (
                             <button
                                 onClick={onToggleNotifications}
@@ -122,7 +135,7 @@ function Message({ message, type, onClose }) {
     return (
         <div style={{
             position: 'fixed',
-            bottom: '84px', // Just above the input container (16px padding + 48px height + 20px gap)
+            bottom: 'calc(88px + env(safe-area-inset-bottom))', // Just above the input container with safe area support
             left: '50%',
             transform: 'translateX(-50%)',
             color: textColor,
@@ -170,6 +183,7 @@ function App() {
     const [loading, setLoading] = useState(false);
     const [adding, setAdding] = useState(false);
     const [removing, setRemoving] = useState({});
+    const [refreshing, setRefreshing] = useState({});
     const [message, setMessage] = useState(null);
     const [messageType, setMessageType] = useState('success');
     const [showInstallPrompt, setShowInstallPrompt] = useState(false);
@@ -294,8 +308,23 @@ function App() {
     };
 
     const requestNotificationPermission = async () => {
-        if (!('Notification' in window)) {
-            showMessage('Notifications are not supported in this browser', 'error');
+        // Check for notification support more comprehensively
+        const hasNotificationAPI = 'Notification' in window;
+        const hasServiceWorker = 'serviceWorker' in navigator;
+        const hasPushManager = 'PushManager' in window;
+
+        // Detect iOS Safari specifically
+        const isIOSSafari = /iPhone|iPad|iPod/.test(navigator.userAgent) && /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
+
+        console.log('Notification support check:', { hasNotificationAPI, hasServiceWorker, hasPushManager, isIOSSafari, userAgent: navigator.userAgent });
+
+        if (isIOSSafari) {
+            showMessage('iOS Safari has limited notification support. Use Chrome or add to Home Screen for better experience.', 'error');
+            return;
+        }
+
+        if (!hasNotificationAPI || !hasServiceWorker || !hasPushManager) {
+            showMessage('Push notifications not fully supported in this browser. Try Chrome, Firefox, or Edge.', 'error');
             return;
         }
 
@@ -311,7 +340,7 @@ function App() {
             }
         } catch (error) {
             console.error('Error requesting notification permission:', error);
-            showMessage('Failed to enable notifications', 'error');
+            showMessage('Failed to enable notifications. Try a different browser.', 'error');
         }
     };
 
@@ -408,7 +437,19 @@ function App() {
             const newCRN = await crnService.addCRN(crn.trim());
             setCrns(prev => [...prev, newCRN]);
             setCrn('');
-            showMessage(`CRN ${crn.trim()} added successfully!`, 'success');
+
+            // Show success message with status
+            const statusMsg = newCRN.isOpen ?
+                `🎉 CRN ${crn.trim()} added - SPOTS AVAILABLE!` :
+                `CRN ${crn.trim()} added successfully!`;
+            showMessage(statusMsg, newCRN.isOpen ? 'success' : 'success');
+
+            // If course is open, trigger a small celebration
+            if (newCRN.isOpen) {
+                setTimeout(() => {
+                    showMessage('This course has spots available right now!', 'success');
+                }, 2000);
+            }
         } catch (error) {
             const errorMsg = error.response?.data?.error || 'Failed to add CRN';
             showMessage(errorMsg, 'error');
@@ -461,6 +502,36 @@ function App() {
         }
         // Always remove the CRN from tracking
         removeCRN(crnData.crn);
+    };
+
+    const sendTestNotification = async () => {
+        try {
+            await crnService.sendTestNotification();
+            showMessage('Test notification sent! Check your notifications.', 'success');
+        } catch (error) {
+            console.error('Error sending test notification:', error);
+            showMessage('Failed to send test notification', 'error');
+        }
+    };
+
+    const refreshCRNs = async () => {
+        // Set all CRNs to refreshing state
+        const refreshingState = {};
+        crns.forEach(crn => {
+            refreshingState[crn.crn] = true;
+        });
+        setRefreshing(refreshingState);
+
+        try {
+            const result = await crnService.refreshCRNs();
+            setCrns(result.crns);
+            showMessage('Course status refreshed', 'success');
+        } catch (error) {
+            console.error('Error refreshing CRNs:', error);
+            showMessage('Failed to refresh CRNs', 'error');
+        } finally {
+            setRefreshing({});
+        }
     };
 
     const handleSignOut = () => {
@@ -575,7 +646,7 @@ function App() {
 
                     {/* Phase 2 Notice */}
                     <div className={styles.phaseNotice}>
-                        <span>📋 Add courses now to track them! Course notifications start August 11th (Phase 2)</span>
+                        <span>Add courses now to track them! Course notifications start August 11th (Phase 2)</span>
                     </div>
                     <SettingsModal
                         open={settingsOpen}
@@ -584,6 +655,7 @@ function App() {
                         notificationPermission={notificationPermission}
                         notificationSubscription={notificationSubscription}
                         onToggleNotifications={notificationSubscription ? unsubscribeFromNotifications : requestNotificationPermission}
+                        onTestNotification={sendTestNotification}
                     />
                     {/* PWA Install Prompt */}
                     {showInstallPrompt && (
@@ -624,76 +696,101 @@ function App() {
                         </div>
                     )}
                     <div className={styles.listContainer}>
-                        {loading ? (
-                            <div style={{ color: '#ECECEC', textAlign: 'center', padding: 40 }}>Loading your CRNs...</div>
-                        ) : crns.length === 0 ? (
+                        {crns.length === 0 ? (
                             <div className={styles.emptyContainer}>
                                 <div className={styles.emptyText}>No CRNs tracked yet</div>
                             </div>
                         ) : (
-                            // Sort CRNs: open courses first, then closed courses
-                            crns
-                                .sort((a, b) => {
-                                    // First sort by open status (open courses first)
-                                    if (a.isOpen && !b.isOpen) return -1;
-                                    if (!a.isOpen && b.isOpen) return 1;
-                                    // Then sort alphabetically by course name
-                                    return (a.course_name || '').localeCompare(b.course_name || '');
-                                })
-                                .map((crnData) => (
-                                    <div
-                                        key={crnData.crn}
-                                        className={
-                                            `${styles.crnCard} ${crnData.isOpen ? styles.openCard : ''}`
-                                        }
+                            <>
+                                <div className={styles.listHeader}>
+                                    <span className={styles.listTitle}>Your Courses</span>
+                                    <button
+                                        onClick={refreshCRNs}
+                                        disabled={Object.keys(refreshing).length > 0}
+                                        className={styles.refreshButton}
+                                        title="Refresh course status"
                                     >
-                                        <div className={styles.crnInfo}>
-                                            <div className={styles.crnText}>{crnData.course_id || 'Loading...'}</div>
-                                            <div className={styles.courseName}>{crnData.course_name || 'Loading...'}</div>
-                                            <div className={styles.courseDetails}>
-                                                <span className={styles.detailBox}>Sec {crnData.course_section || '?'}</span>
-                                                <span className={styles.detailBox}>CRN {crnData.crn}</span>
-                                                {crnData.total_seats > 0 && (
-                                                    <span className={`${styles.detailBox} ${crnData.isOpen ? styles.seatsOpen : styles.seatsClosed}`}>
-                                                        {crnData.seats_remaining || 0}/{crnData.total_seats} seats
-                                                    </span>
-                                                )}
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ animation: Object.keys(refreshing).length > 0 ? 'spin 1s linear infinite' : 'none' }}>
+                                            <path d="M1 4V10H7M23 20V14H17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                            <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10M23 14L18.36 18.36A9 9 0 0 1 3.51 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                        </svg>
+                                        {Object.keys(refreshing).length > 0 ? 'Refreshing...' : 'Refresh'}
+                                    </button>
+                                </div>
+                                {/* Sort CRNs: open courses first, then closed courses */}
+                                {crns
+                                    .sort((a, b) => {
+                                        // First sort by open status (open courses first)
+                                        if (a.isOpen && !b.isOpen) return -1;
+                                        if (!a.isOpen && b.isOpen) return 1;
+                                        // Then sort alphabetically by course name
+                                        return (a.course_name || '').localeCompare(b.course_name || '');
+                                    })
+                                    .map((crnData) => (
+                                        <div
+                                            key={crnData.crn}
+                                            className={
+                                                `${styles.crnCard} ${crnData.isOpen ? styles.openCard : ''}`
+                                            }
+                                        >
+                                            <div className={styles.crnInfo}>
+                                                <div className={styles.crnText}>{crnData.course_id || 'Loading...'}</div>
+                                                <div className={styles.courseName}>{crnData.course_name || 'Loading...'}</div>
+                                                <div className={styles.courseDetails}>
+                                                    <span className={styles.detailBox}>Sec {crnData.course_section || '?'}</span>
+                                                    <span className={styles.detailBox}>CRN {crnData.crn}</span>
+                                                    {crnData.total_seats > 0 && (
+                                                        <span className={`${styles.detailBox} ${crnData.isOpen ? styles.seatsOpen : styles.seatsClosed}`}>
+                                                            {refreshing[crnData.crn] ? (
+                                                                <>
+                                                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ animation: 'spin 1s linear infinite', marginRight: '4px' }}>
+                                                                        <path d="M12 2V6M12 18V22M4.93 4.93L7.76 7.76M16.24 16.24L19.07 19.07M2 12H6M18 12H22M4.93 19.07L7.76 16.24M16.24 7.76L19.07 4.93" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                                                    </svg>
+                                                                    checking...
+                                                                </>
+                                                            ) : (
+                                                                `${crnData.seats_remaining || 0}/${crnData.total_seats} seats`
+                                                            )}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <div className={styles.actionButtons}>
+                                                <button
+                                                    onClick={() => copyToClipboard(crnData.crn)}
+                                                    className={styles.copyButton}
+                                                    title="Copy CRN to clipboard"
+                                                >
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <path d="M8 4V16C8 17.1046 8.89543 18 10 18H18C19.1046 18 20 17.1046 20 16V7.24264C20 6.97742 19.8946 6.7228 19.7071 6.53553L16.4645 3.29289C16.2772 3.10536 16.0226 3 15.7574 3H10C8.89543 3 8 3.89543 8 5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                                        <path d="M16 18V20C16 21.1046 15.1046 22 14 22H6C4.89543 22 4 21.1046 4 20V8C4 6.89543 4.89543 6 6 6H8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                                    </svg>
+                                                </button>
+                                                <button
+                                                    onClick={(e) => crnData.isOpen ? handleCheckClick(crnData, e) : removeCRN(crnData.crn)}
+                                                    disabled={removing[crnData.crn]}
+                                                    className={`${styles.actionButton} ${crnData.isOpen ? styles.checkButton : styles.trashButton}`}
+                                                    title={crnData.isOpen ? "Course is open!" : "Remove CRN"}
+                                                >
+                                                    {removing[crnData.crn] ? (
+                                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                            <path d="M12 2V6M12 18V22M4.93 4.93L7.76 7.76M16.24 16.24L19.07 19.07M2 12H6M18 12H22M4.93 19.07L7.76 16.24M16.24 7.76L19.07 4.93" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                                        </svg>
+                                                    ) : crnData.isOpen ? (
+                                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                            <path d="M20 6L9 17L4 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                                        </svg>
+                                                    ) : (
+                                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                            <path d="M3 6H5H21M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                                        </svg>
+                                                    )}
+                                                </button>
                                             </div>
                                         </div>
-                                        <div className={styles.actionButtons}>
-                                            <button
-                                                onClick={() => copyToClipboard(crnData.crn)}
-                                                className={styles.copyButton}
-                                                title="Copy CRN to clipboard"
-                                            >
-                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                    <path d="M8 4V16C8 17.1046 8.89543 18 10 18H18C19.1046 18 20 17.1046 20 16V7.24264C20 6.97742 19.8946 6.7228 19.7071 6.53553L16.4645 3.29289C16.2772 3.10536 16.0226 3 15.7574 3H10C8.89543 3 8 3.89543 8 5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                                    <path d="M16 18V20C16 21.1046 15.1046 22 14 22H6C4.89543 22 4 21.1046 4 20V8C4 6.89543 4.89543 6 6 6H8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                                </svg>
-                                            </button>
-                                            <button
-                                                onClick={(e) => crnData.isOpen ? handleCheckClick(crnData, e) : removeCRN(crnData.crn)}
-                                                disabled={removing[crnData.crn]}
-                                                className={`${styles.actionButton} ${crnData.isOpen ? styles.checkButton : styles.trashButton}`}
-                                                title={crnData.isOpen ? "Course is open!" : "Remove CRN"}
-                                            >
-                                                {removing[crnData.crn] ? (
-                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path d="M12 2V6M12 18V22M4.93 4.93L7.76 7.76M16.24 16.24L19.07 19.07M2 12H6M18 12H22M4.93 19.07L7.76 16.24M16.24 7.76L19.07 4.93" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                                    </svg>
-                                                ) : crnData.isOpen ? (
-                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path d="M20 6L9 17L4 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                                    </svg>
-                                                ) : (
-                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path d="M3 6H5H21M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                                    </svg>
-                                                )}
-                                            </button>
-                                        </div>
-                                    </div>
-                                ))
+                                    ))
+                                }
+                            </>
                         )}
                     </div>
 

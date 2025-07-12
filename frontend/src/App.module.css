@@ -4,6 +4,8 @@
     background: linear-gradient(180deg, #1a1a1a 0%, #000 100%);
     display: flex;
     flex-direction: column;
+    /* Only add safe area support for top on mobile devices */
+    padding-top: env(safe-area-inset-top);
 }
 
 /* Improve mobile keyboard behavior */
@@ -514,11 +516,61 @@
     /* minimal buffer for bottom bar */
 }
 
+.listHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding: 0 8px;
+}
+
+.listTitle {
+    color: #ECECEC;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+.refreshButton {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border: 1px solid #333;
+    border-radius: 8px;
+    background: rgba(17, 17, 17, 0.8);
+    color: #CBA135;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    backdrop-filter: blur(8px);
+}
+
+.refreshButton:hover:not(:disabled) {
+    border-color: #CBA135;
+    background: rgba(203, 161, 53, 0.1);
+    transform: translateY(-1px);
+}
+
+.refreshButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.refreshButton svg {
+    transition: transform 0.2s;
+}
+
+.refreshButton:hover:not(:disabled) svg {
+    transform: rotate(180deg);
+}
+
 .crnCard {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     padding: 16px;
     background: #0A0A0A;
     border-radius: 16px;
@@ -526,6 +578,7 @@
     border: 1px solid #222;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
     transition: transform 0.18s cubic-bezier(.4, 2, .6, 1), box-shadow 0.18s;
+    min-height: 80px;
 }
 
 .crnCard:hover {
@@ -602,6 +655,8 @@
     display: flex;
     gap: 8px;
     align-items: center;
+    flex-shrink: 0;
+    margin-left: 12px;
 }
 
 .actionButton {
@@ -712,13 +767,13 @@
 
 .openCard {
     border: 2px solid #4CAF50 !important;
-    box-shadow: 0 8px 24px rgba(76, 175, 80, 0.3), 0 2px 8px rgba(76, 175, 80, 0.2) !important;
-    background: linear-gradient(135deg, rgba(76, 175, 80, 0.08) 0%, rgba(76, 175, 80, 0.03) 100%) !important;
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.15), 0 2px 6px rgba(76, 175, 80, 0.1) !important;
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.05) 0%, rgba(76, 175, 80, 0.02) 100%) !important;
 }
 
 .openCard:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 32px rgba(76, 175, 80, 0.4), 0 4px 16px rgba(76, 175, 80, 0.3) !important;
+    box-shadow: 0 8px 20px rgba(76, 175, 80, 0.2), 0 4px 12px rgba(76, 175, 80, 0.15) !important;
     outline: 2px solid #4CAF50 !important;
 }
 
@@ -748,6 +803,16 @@
     }
 }
 
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
 @keyframes slideUp {
     0% {
         opacity: 0;
@@ -763,7 +828,7 @@
 /* Message styling */
 .message {
     position: fixed;
-    bottom: 80px;
+    bottom: calc(88px + env(safe-area-inset-bottom));
     left: 50%;
     transform: translateX(-50%);
     font-size: 14px;
@@ -793,6 +858,8 @@
     background: linear-gradient(90deg, #CBA135 0%, #D4B44A 100%);
     color: #000;
     padding: 12px 24px;
+    /* Only add safe area support for top */
+    padding-top: max(12px, calc(12px + env(safe-area-inset-top)));
     z-index: 1001;
     box-shadow: 0 4px 12px rgba(203, 161, 53, 0.3);
 }
@@ -858,6 +925,8 @@
     flex-direction: column;
     gap: 8px;
     padding: 16px 20px;
+    /* Add safe area padding for bottom only */
+    padding-bottom: max(16px, calc(16px + env(safe-area-inset-bottom)));
     background: transparent;
     z-index: 50;
 }
@@ -984,9 +1053,9 @@
         padding: 16px;
         margin: 0 4px 16px 4px;
         /* Add side margins on mobile */
-        flex-direction: column;
+        flex-direction: row;
         align-items: flex-start;
-        gap: 12px;
+        min-height: 70px;
     }
 
     .installContent {
@@ -1013,6 +1082,8 @@
         padding: 12px 16px;
         gap: 6px;
         background: transparent;
+        /* Enhanced safe area support for mobile bottom bar */
+        padding-bottom: max(20px, calc(20px + env(safe-area-inset-bottom)));
     }
 
     .inputRow {
@@ -1040,9 +1111,9 @@
 
     .actionButtons {
         gap: 6px;
-        width: 100%;
-        justify-content: flex-end;
-        margin-top: 8px;
+        flex-shrink: 0;
+        margin-left: 8px;
+        margin-top: 0;
     }
 
     .actionButton {
