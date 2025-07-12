@@ -11,12 +11,13 @@ logger.setLevel(logging.INFO)
 # Initialize AWS clients
 secrets_client = boto3.client('secretsmanager')
 dynamodb = boto3.resource('dynamodb')
+sns_client = boto3.client('sns')
 
 def handler(event, context):
     """
     Notifier Lambda function
     Triggered directly by scraper Lambda
-    Sends push notifications when course spots are available
+    Sends SMS notifications when course spots are available
     """
     try:
         logger.info("Notifier started")
@@ -27,9 +28,9 @@ def handler(event, context):
             crn = event.get('crn')
             availability = event.get('availability')
             
-            # Send push notifications to all users tracking this CRN
-            send_push_notifications(crn, availability)
-            logger.info(f"Push notifications sent for CRN {crn}")
+            # Send SMS notifications to all users tracking this CRN
+            send_sms_notifications(crn, availability)
+            logger.info(f"SMS notifications sent for CRN {crn}")
         
         return {
             'statusCode': 200,
@@ -60,117 +61,116 @@ def get_secrets():
         raise
 
 def get_users_tracking_crn(crn):
-    """Get all users who are tracking this CRN"""
+    """Get all users who are tracking this CRN and have phone numbers"""
     try:
         users_table = dynamodb.Table(os.environ.get('DYNAMODB_USERS_TABLE', 'reaper-users'))
         
         # Scan all users to find who has this CRN
         response = users_table.scan()
-        users_with_push = []
+        users_with_phone = []
         
         for user_item in response.get('Items', []):
             user_id = user_item.get('user_id')
             crns_list = user_item.get('crns', [])
-            push_subscription = user_item.get('push_subscription')
+            phone_number = user_item.get('phone_number')
             
-            # Check if this user has the CRN and push subscription
-            if push_subscription:
+            # Check if this user has the CRN and phone number
+            if phone_number:
                 for crn_data in crns_list:
                     if crn_data.get('crn') == crn:
-                        users_with_push.append({
+                        users_with_phone.append({
                             'user_id': user_id,
-                            'push_subscription': push_subscription
+                            'phone_number': phone_number
                         })
                         break
         
-        logger.info(f"Found {len(users_with_push)} users tracking CRN {crn} with push subscriptions")
-        return users_with_push
+        logger.info(f"Found {len(users_with_phone)} users tracking CRN {crn} with phone numbers")
+        return users_with_phone
         
     except Exception as e:
         logger.error(f"Error getting users for CRN {crn}: {str(e)}")
         return []
 
-def send_push_notifications(crn, availability):
-    """Send push notifications to all users tracking this CRN"""
+def send_sms_notifications(crn, availability):
+    """Send SMS notifications to all users tracking this CRN"""
     try:
         # Get users tracking this CRN
         users = get_users_tracking_crn(crn)
         
         if not users:
-            logger.info(f"No users with push subscriptions found for CRN {crn}")
+            logger.info(f"No users with phone numbers found for CRN {crn}")
             return
         
-        # Get VAPID keys from secrets
-        secrets = get_secrets()
-        vapid_private_key = secrets.get('VAPID_PRIVATE_KEY')
-        vapid_public_key = secrets.get('VAPID_PUBLIC_KEY')
-        
-        if not vapid_private_key or not vapid_public_key:
-            logger.error('VAPID keys not found in secrets')
-            return
-        
-        # Create notification payload
+        # Create SMS message
         course_name = availability.get('course_name', f'CRN {crn}')
         seats_remaining = availability.get('seats_remaining', 0)
         total_seats = availability.get('total_seats', 0)
         
-        notification_payload = {
-            'title': '🎉 Course Available!',
-            'body': f'{course_name} has {seats_remaining}/{total_seats} seats available!',
-            'icon': '/logo.png',
-            'badge': '/logo.png',
-            'data': {
-                'crn': crn,
-                'course_name': course_name,
-                'seats_remaining': seats_remaining,
-                'total_seats': total_seats,
-                'url': f'https://oscar.gatech.edu/pls/bprod/bwckschd.p_disp_detail_sched?term_in=202508&crn_in={crn}'
-            },
-            'tag': f'crn-{crn}',
-            'requireInteraction': True,
-            'actions': [
-                {
-                    'action': 'register',
-                    'title': 'Register Now',
-                    'icon': '/logo.png'
-                },
-                {
-                    'action': 'dismiss',
-                    'title': 'Dismiss'
-                }
-            ]
-        }
+        message = f"🎉 COURSE AVAILABLE!\n\n{course_name}\nCRN: {crn}\nSeats: {seats_remaining}/{total_seats}\n\nRegister now at OSCAR before spots fill up!"
         
-        # Send notifications to all users
-        from pywebpush import webpush, WebPushException
-        
+        # Send SMS to all users
         successful_sends = 0
         failed_sends = 0
         
         for user in users:
             try:
-                response = webpush(
-                    subscription_info=user['push_subscription'],
-                    data=json.dumps(notification_payload),
-                    vapid_private_key=vapid_private_key,
-                    vapid_claims={
-                        "sub": "mailto:support@getreaper.com",
-                        "aud": user['push_subscription']['endpoint']
+                # Format phone number (ensure it starts with +1 for US numbers)
+                phone = user['phone_number']
+                if not phone.startswith('+'):
+                    if phone.startswith('1'):
+                        phone = '+' + phone
+                    else:
+                        phone = '+1' + phone
+                
+                # Send SMS using SNS
+                response = sns_client.publish(
+                    PhoneNumber=phone,
+                    Message=message,
+                    MessageAttributes={
+                        'AWS.SNS.SMS.SenderID': {
+                            'DataType': 'String',
+                            'StringValue': 'Reaper'
+                        },
+                        'AWS.SNS.SMS.SMSType': {
+                            'DataType': 'String',
+                            'StringValue': 'Transactional'
+                        }
                     }
                 )
                 
-                logger.info(f'Successfully sent push notification to user {user["user_id"]} for CRN {crn}')
+                logger.info(f'Successfully sent SMS to user {user["user_id"]} at {phone} for CRN {crn}')
                 successful_sends += 1
                 
-            except WebPushException as e:
-                logger.error(f'WebPush error sending notification to user {user["user_id"]}: {e}')
-                failed_sends += 1
+                # Mark user as notified for this CRN (so they don't get multiple SMS)
+                mark_user_notified(user['user_id'], crn)
+                
             except Exception as e:
-                logger.error(f'Error sending notification to user {user["user_id"]}: {e}')
+                logger.error(f'Error sending SMS to user {user["user_id"]}: {e}')
                 failed_sends += 1
         
-        logger.info(f'Push notification summary for CRN {crn}: {successful_sends} successful, {failed_sends} failed')
+        logger.info(f'SMS notification summary for CRN {crn}: {successful_sends} successful, {failed_sends} failed')
         
     except Exception as e:
-        logger.error(f"Error sending push notifications: {str(e)}")
-        raise 
+        logger.error(f"Error sending SMS notifications: {str(e)}")
+        raise
+
+def mark_user_notified(user_id, crn):
+    """Mark that a user has been notified for this CRN to prevent duplicate SMS"""
+    try:
+        users_table = dynamodb.Table(os.environ.get('DYNAMODB_USERS_TABLE', 'reaper-users'))
+        
+        # Get current user data
+        response = users_table.get_item(Key={'user_id': user_id})
+        user_item = response.get('Item', {})
+        
+        # Add to notified_crns list
+        notified_crns = user_item.get('notified_crns', [])
+        if crn not in notified_crns:
+            notified_crns.append(crn)
+            user_item['notified_crns'] = notified_crns
+            
+            users_table.put_item(Item=user_item)
+            logger.info(f"Marked user {user_id} as notified for CRN {crn}")
+            
+    except Exception as e:
+        logger.error(f"Error marking user {user_id} as notified for CRN {crn}: {str(e)}") 

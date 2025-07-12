@@ -23,7 +23,7 @@ codeuri = "/home/rohan/Projects/reaper/reapergt-app/backend/notifier"
 runtime = "python3.12"
 architecture = "x86_64"
 handler = "notifier.handler"
-manifest_hash = "398624fe48b27d8d004026b3536b9391"
+manifest_hash = "03a3ca9aab74e66230769dc4a315d1a6"
 packagetype = "Zip"
 functions = ["Notifier"]
 

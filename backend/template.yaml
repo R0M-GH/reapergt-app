@@ -99,6 +99,17 @@ Resources:
           Properties:
             Path: /register-push
             Method: options
+        # Phone number registration endpoint
+        RegisterPhone:
+          Type: Api
+          Properties:
+            Path: /register-phone
+            Method: post
+        RegisterPhoneOptions:
+          Type: Api
+          Properties:
+            Path: /register-phone
+            Method: options
         # Test notification endpoint
         TestNotification:
           Type: Api
@@ -157,13 +168,13 @@ Resources:
               Resource: !GetAtt Notifier.Arn
       # No events - triggered directly by EventBridge scheduler
 
-  # Notifier - Sends notifications when spots are available
+  # Notifier - Sends SMS notifications when spots are available
   Notifier:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: notifier/
       Handler: notifier.handler
-      Description: Sends notifications via Telegram when spots open
+      Description: Sends SMS notifications when spots open
       Environment:
         Variables:
           DYNAMODB_USERS_TABLE: reaper-users
@@ -180,6 +191,10 @@ Resources:
                 - secretsmanager:GetSecretValue
                 - secretsmanager:DescribeSecret
               Resource: !Ref ReaperSecrets
+            - Effect: Allow
+              Action:
+                - sns:Publish
+              Resource: "*"
       # No events - triggered directly by scraper Lambda
 
   # =================================================================

@@ -322,6 +322,67 @@ def register_push_notification(user_id: str, body: str) -> Dict[str, Any]:
             'body': json.dumps({'error': f'Failed to register push notification: {str(e)}'})
         }
 
+def register_phone_number(user_id: str, body: str) -> Dict[str, Any]:
+    """Register phone number for SMS notifications."""
+    try:
+        # Parse request body
+        request_data = json.loads(body)
+        phone_number = request_data.get('phone_number', '').strip()
+        
+        if not phone_number:
+            return {
+                'statusCode': 400,
+                'body': json.dumps({'error': 'Phone number is required'})
+            }
+        
+        # Basic phone number validation
+        import re
+        # Remove all non-digits
+        digits_only = re.sub(r'\D', '', phone_number)
+        
+        # Check if it's a valid US phone number (10 or 11 digits)
+        if len(digits_only) == 10:
+            formatted_phone = f"+1{digits_only}"
+        elif len(digits_only) == 11 and digits_only.startswith('1'):
+            formatted_phone = f"+{digits_only}"
+        else:
+            return {
+                'statusCode': 400,
+                'body': json.dumps({'error': 'Invalid phone number format. Please use a US phone number.'})
+            }
+        
+        # Get current user data
+        users_table = get_dynamodb_table(os.environ['DYNAMODB_USERS_TABLE'])
+        user_response = users_table.get_item(Key={'user_id': user_id})
+        user_item = user_response.get('Item', {})
+        
+        # Update user with phone number
+        user_item['user_id'] = user_id
+        user_item['phone_number'] = formatted_phone
+        user_item['crns'] = user_item.get('crns', [])
+        
+        users_table.put_item(Item=user_item)
+        
+        return {
+            'statusCode': 200,
+            'body': json.dumps({
+                'message': 'Phone number registered successfully for SMS notifications',
+                'phone_number': formatted_phone
+            })
+        }
+    
+    except json.JSONDecodeError:
+        return {
+            'statusCode': 400,
+            'body': json.dumps({'error': 'Invalid JSON in request body'})
+        }
+    except Exception as e:
+        print(f"Failed to register phone number for {user_id}: {e}")
+        return {
+            'statusCode': 500,
+            'body': json.dumps({'error': f'Failed to register phone number: {str(e)}'})
+        }
+
 def send_test_push_notification(user_id: str) -> Dict[str, Any]:
     """Send a test push notification to the user."""
     try:
@@ -559,8 +620,18 @@ def lambda_handler(event, context):
     
     elif path == '/register-push':
         if http_method == 'POST':
-            # Register push notification subscription
+            # Register push notification subscription (legacy)
             result = register_push_notification(user_id, event.get('body', '{}'))
+            return {
+                'statusCode': result['statusCode'],
+                'headers': get_cors_headers(),
+                'body': result['body']
+            }
+    
+    elif path == '/register-phone':
+        if http_method == 'POST':
+            # Register phone number for SMS notifications
+            result = register_phone_number(user_id, event.get('body', '{}'))
             return {
                 'statusCode': result['statusCode'],
                 'headers': get_cors_headers(),
