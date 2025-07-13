@@ -61,28 +61,36 @@ def get_secrets():
         raise
 
 def get_users_tracking_crn(crn):
-    """Get all users who are tracking this CRN and have phone numbers"""
+    """Get all users who are tracking this CRN and have phone numbers using normalized structure"""
     try:
         users_table = dynamodb.Table(os.environ.get('DYNAMODB_USERS_TABLE', 'reaper-users'))
+        crns_table = dynamodb.Table(os.environ.get('DYNAMODB_CRNS_TABLE', 'reaper-crns'))
         
-        # Scan all users to find who has this CRN
-        response = users_table.scan()
+        # Get the CRN record to find users tracking it
+        crn_response = crns_table.get_item(Key={'crn': crn})
+        if 'Item' not in crn_response:
+            logger.warning(f"CRN {crn} not found in CRNs table")
+            return []
+        
+        tracking_users = crn_response['Item'].get('users', [])
         users_with_phone = []
         
-        for user_item in response.get('Items', []):
-            user_id = user_item.get('user_id')
-            crns_list = user_item.get('crns', [])
-            phone_number = user_item.get('phone_number')
-            
-            # Check if this user has the CRN and phone number
-            if phone_number:
-                for crn_data in crns_list:
-                    if crn_data.get('crn') == crn:
+        # Get phone numbers for users tracking this CRN
+        for user_id in tracking_users:
+            try:
+                user_response = users_table.get_item(Key={'user_id': user_id})
+                if 'Item' in user_response:
+                    user_item = user_response['Item']
+                    phone_number = user_item.get('phone_number')
+                    
+                    # Check if user has phone number and is still tracking this CRN
+                    if phone_number and crn in user_item.get('crns', []):
                         users_with_phone.append({
                             'user_id': user_id,
                             'phone_number': phone_number
                         })
-                        break
+            except Exception as e:
+                logger.error(f"Error getting user {user_id} data: {str(e)}")
         
         logger.info(f"Found {len(users_with_phone)} users tracking CRN {crn} with phone numbers")
         return users_with_phone
@@ -103,7 +111,7 @@ def send_sms_notifications(crn, availability):
         seats_remaining = availability.get('seats_remaining', 0)
         
         # Create concise SMS message with alert emoji and better formatting
-        message = f"🚨 {course_name} (CRN {crn}) - Seats open: {seats_remaining}! Register: oscar.gatech.edu - Update your courses in Reaper app"
+        message = f"⚠️ COURSE OPEN ⚠️\n\n{course_name} - (CRN {crn})\nSeats open: {seats_remaining}\n\nRegister in OSCAR and update your courses in the Reaper app"
         
         logger.info(f'Sending SMS to {len(users)} users for CRN {crn}: "{message}"')
         

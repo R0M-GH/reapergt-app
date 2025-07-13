@@ -176,20 +176,47 @@ def get_dynamodb_table(table_name: str):
     return dynamodb.Table(table_name)
 
 def get_user_crns(user_id: str) -> List[Dict[str, Any]]:
-    """Get all CRNs for a user."""
+    """Get all CRNs for a user with full course info from CRNs table."""
     try:
         users_table = get_dynamodb_table(os.environ['DYNAMODB_USERS_TABLE'])
+        crns_table = get_dynamodb_table(os.environ['DYNAMODB_CRNS_TABLE'])
+        
         print(f"Getting CRNs for user: {user_id}")
         response = users_table.get_item(Key={'user_id': user_id})
-        print(f"DynamoDB response: {response}")
+        print(f"DynamoDB users response: {response}")
         
         if 'Item' not in response:
             print(f"No user found with ID: {user_id}")
             return []
         
-        crn_list = response['Item'].get('crns', [])
-        print(f"Found {len(crn_list)} CRNs for user: {crn_list}")
-        return crn_list
+        # Get user's CRN list (just strings now)
+        user_crns = response['Item'].get('crns', [])
+        print(f"Found {len(user_crns)} CRNs for user: {user_crns}")
+        
+        # Get full course info for each CRN
+        crn_details = []
+        for crn in user_crns:
+            try:
+                crn_response = crns_table.get_item(Key={'crn': crn})
+                if 'Item' in crn_response:
+                    crn_data = crn_response['Item']
+                    # Format for frontend compatibility
+                    crn_details.append({
+                        'crn': crn_data.get('crn'),
+                        'course_name': crn_data.get('course_name'),
+                        'course_id': crn_data.get('course_id'),
+                        'course_section': crn_data.get('course_section'),
+                        'isOpen': crn_data.get('isOpen', False),
+                        'seats_remaining': crn_data.get('seats_remaining', 0),
+                        'total_seats': crn_data.get('total_seats', 0)
+                    })
+                else:
+                    print(f"CRN {crn} not found in CRNs table")
+            except Exception as e:
+                print(f"Error getting CRN {crn} details: {e}")
+        
+        print(f"Returning {len(crn_details)} CRN details")
+        return crn_details
         
     except Exception as e:
         print(f"Error getting user CRNs: {e}")
@@ -212,7 +239,7 @@ def get_user_profile(user_id: str) -> Dict[str, Any]:
             'user_id': user_data.get('user_id'),
             'phone_number': user_data.get('phone_number'),
             'push_subscription': user_data.get('push_subscription'),
-            'crns_count': len(user_data.get('crns', []))
+            'crns_count': len(user_data.get('crns', []))  # CRNs are now just strings
         }
         print(f"User profile: {profile}")
         return profile
@@ -222,7 +249,7 @@ def get_user_profile(user_id: str) -> Dict[str, Any]:
         return {}
 
 def add_crn_to_user(user_id: str, crn: str, course_info: Dict[str, Any]) -> Dict[str, Any]:
-    """Add CRN to user's list."""
+    """Add CRN to user's list using normalized structure."""
     try:
         users_table = get_dynamodb_table(os.environ['DYNAMODB_USERS_TABLE'])
         crns_table = get_dynamodb_table(os.environ['DYNAMODB_CRNS_TABLE'])
@@ -235,14 +262,52 @@ def add_crn_to_user(user_id: str, crn: str, course_info: Dict[str, Any]) -> Dict
         current_crns = response.get('Item', {}).get('crns', [])
         print(f"Current CRNs: {current_crns}")
         
-        # Check if CRN already exists
-        for existing_crn in current_crns:
-            if existing_crn['crn'] == crn:
-                print(f"CRN {crn} already exists for user {user_id}")
-                return {'error': 'CRN already exists in your list'}
+        # Check if CRN already exists (now just checking strings)
+        if crn in current_crns:
+            print(f"CRN {crn} already exists for user {user_id}")
+            return {'error': 'CRN already exists in your list'}
         
-        # Add new CRN
-        new_crn_data = {
+        # Add CRN to user's list (just the CRN string)
+        current_crns.append(crn)
+        print(f"Updated CRNs list: {current_crns}")
+        
+        # Update user's CRN list while preserving all existing data
+        user_item = response.get('Item', {})
+        user_item['user_id'] = user_id
+        user_item['crns'] = current_crns
+        users_table.put_item(Item=user_item)
+        print(f"Successfully stored user CRNs in users table")
+        
+        # Update/create CRN record in CRNs table with full course info
+        try:
+            # Get existing CRN record
+            crn_response = crns_table.get_item(Key={'crn': crn})
+            existing_users = crn_response.get('Item', {}).get('users', [])
+            
+            # Add user to list if not already there
+            if user_id not in existing_users:
+                existing_users.append(user_id)
+            
+            # Update the CRN record with full course info
+            crns_table.put_item(Item={
+                'crn': crn,
+                'course_name': course_info['course_name'],
+                'course_id': course_info['course_id'],
+                'course_section': course_info['course_section'],
+                'isOpen': course_info.get('is_open', False),
+                'seats_remaining': course_info.get('seats_remaining', 0),
+                'total_seats': course_info.get('total_seats', 0),
+                'users': existing_users,
+                'last_updated': course_info.get('last_checked')
+            })
+            print(f"Successfully added user {user_id} to CRN {crn} in crns table (total users: {len(existing_users)})")
+            
+        except Exception as e:
+            print(f"Error updating CRN tracking table: {e}")
+            # Don't fail the whole operation if this fails
+        
+        # Return the course info for frontend compatibility
+        return {
             'crn': crn,
             'course_name': course_info['course_name'],
             'course_id': course_info['course_id'],
@@ -252,33 +317,12 @@ def add_crn_to_user(user_id: str, crn: str, course_info: Dict[str, Any]) -> Dict
             'total_seats': course_info.get('total_seats', 0)
         }
         
-        current_crns.append(new_crn_data)
-        print(f"Updated CRNs list: {current_crns}")
-        
-        # Update user's CRN list while preserving all existing data
-        user_item = response.get('Item', {})
-        user_item['user_id'] = user_id
-        user_item['crns'] = current_crns
-        # The user_item already contains all existing fields from get_item
-        # No need to explicitly preserve them - they're already there
-        users_table.put_item(Item=user_item)
-        print(f"Successfully stored user CRNs in users table")
-        
-        # Update global CRN tracking
-        crns_table.put_item(Item={
-            'crn': crn,
-            'users': [user_id]
-        })
-        print(f"Successfully stored CRN {crn} in crns table")
-        
-        return new_crn_data
-        
     except Exception as e:
         print(f"Error adding CRN: {e}")
         return {'error': 'Failed to add CRN'}
 
 def remove_crn_from_user(user_id: str, crn: str) -> Dict[str, Any]:
-    """Remove CRN from user's list."""
+    """Remove CRN from user's list using normalized structure."""
     try:
         users_table = get_dynamodb_table(os.environ['DYNAMODB_USERS_TABLE'])
         crns_table = get_dynamodb_table(os.environ['DYNAMODB_CRNS_TABLE'])
@@ -290,11 +334,11 @@ def remove_crn_from_user(user_id: str, crn: str) -> Dict[str, Any]:
         
         current_crns = response['Item'].get('crns', [])
         
-        # Remove CRN from user's list
-        updated_crns = [c for c in current_crns if c['crn'] != crn]
-        
-        if len(updated_crns) == len(current_crns):
+        # Remove CRN from user's list (now just strings)
+        if crn not in current_crns:
             return {'error': 'CRN not found in your list'}
+        
+        updated_crns = [c for c in current_crns if c != crn]
         
         # Update user's CRN list while preserving all existing data
         user_item = response['Item']
@@ -304,9 +348,30 @@ def remove_crn_from_user(user_id: str, crn: str) -> Dict[str, Any]:
         
         # Remove user from global CRN tracking
         try:
-            crns_table.delete_item(Key={'crn': crn})
-        except:
-            pass  # Ignore if CRN doesn't exist in global table
+            # Get existing CRN record
+            crn_response = crns_table.get_item(Key={'crn': crn})
+            if 'Item' in crn_response:
+                existing_users = crn_response['Item'].get('users', [])
+                
+                # Remove user from list
+                if user_id in existing_users:
+                    existing_users.remove(user_id)
+                
+                # Update or delete the CRN record
+                if existing_users:
+                    # Still have users tracking this CRN - preserve all course info
+                    crn_item = crn_response['Item']
+                    crn_item['users'] = existing_users
+                    crns_table.put_item(Item=crn_item)
+                    print(f"Removed user {user_id} from CRN {crn} tracking (remaining users: {len(existing_users)})")
+                else:
+                    # No users left tracking this CRN
+                    crns_table.delete_item(Key={'crn': crn})
+                    print(f"Deleted CRN {crn} from tracking table (no users left)")
+                
+        except Exception as e:
+            print(f"Error updating CRN tracking table during removal: {e}")
+            # Don't fail the whole operation if this fails
         
         return {'message': 'CRN removed successfully'}
         
@@ -362,7 +427,7 @@ def send_welcome_sms(user_id: str, phone_number: str) -> Dict[str, Any]:
     """Send welcome SMS when user registers phone number."""
     try:
         # Create welcome message
-        message = f"🎉 Welcome to Reaper! You'll get SMS alerts when your tracked courses open up. Manage courses at app.getreaper.com - Reply STOP to opt out"
+        message = f"🎉 Welcome to Reaper! You'll get SMS alerts when your tracked courses open up. Manage courses in the app - Reply STOP to opt out"
         
         # Send SMS using Textbelt
         import requests
@@ -446,7 +511,7 @@ def register_phone_number(user_id: str, body: str) -> Dict[str, Any]:
         # Update user with phone number
         user_item['user_id'] = user_id
         user_item['phone_number'] = formatted_phone
-        user_item['crns'] = user_item.get('crns', [])
+        user_item['crns'] = user_item.get('crns', [])  # CRNs are now just strings
         print(f"DEBUG: updated user item before save: {user_item}")
         
         users_table.put_item(Item=user_item)
@@ -493,7 +558,7 @@ def remove_phone_number(user_id: str) -> Dict[str, Any]:
         # Remove phone number by setting it to None
         user_item.pop('phone_number', None)
         user_item['user_id'] = user_id
-        user_item['crns'] = user_item.get('crns', [])
+        user_item['crns'] = user_item.get('crns', [])  # CRNs are now just strings
         
         users_table.put_item(Item=user_item)
         print(f"Phone number removed successfully for user {user_id}")
@@ -597,7 +662,7 @@ def send_manual_test_sms(user_id: str) -> Dict[str, Any]:
             }
         
         # Create test message
-        message = f"🧪 TEST: Reaper SMS working! You'll get alerts when courses open. Manage at app.getreaper.com - Reply STOP to opt out"
+        message = f"🧪 TEST: Reaper SMS working! You'll get alerts when courses open. Reply STOP to opt out"
         
         # Send SMS using Textbelt
         import requests
@@ -932,35 +997,52 @@ def lambda_handler(event, context):
     
     elif path == '/refresh':
         if http_method == 'POST':
-            # Manually refresh all user's CRNs
+            # Manually refresh all user's CRNs using normalized structure
             try:
-                crns = get_user_crns(user_id)
-                updated_crns = []
+                users_table = get_dynamodb_table(os.environ['DYNAMODB_USERS_TABLE'])
+                crns_table = get_dynamodb_table(os.environ['DYNAMODB_CRNS_TABLE'])
                 
-                for crn_data in crns:
-                    crn = crn_data.get('crn')
-                    if crn:
+                # Get user's CRN list (just strings)
+                user_response = users_table.get_item(Key={'user_id': user_id})
+                if 'Item' not in user_response:
+                    return {
+                        'statusCode': 404,
+                        'headers': get_cors_headers(),
+                        'body': json.dumps({'error': 'User not found'})
+                    }
+                
+                user_crns = user_response['Item'].get('crns', [])
+                
+                # Refresh each CRN's data in the CRNs table
+                for crn in user_crns:
+                    try:
                         # Check current availability
                         crn_check = check_crn_exists(crn)
                         if crn_check.get('exists'):
                             course_info = crn_check['course_info']
-                            # Update the CRN data
-                            crn_data.update({
+                            
+                            # Get existing CRN record to preserve users list
+                            crn_response = crns_table.get_item(Key={'crn': crn})
+                            existing_users = crn_response.get('Item', {}).get('users', [])
+                            
+                            # Update the CRN record with fresh data
+                            crns_table.put_item(Item={
+                                'crn': crn,
+                                'course_name': course_info.get('course_name'),
+                                'course_id': course_info.get('course_id'),
+                                'course_section': course_info.get('course_section'),
                                 'isOpen': course_info.get('is_open', False),
                                 'seats_remaining': course_info.get('seats_remaining', 0),
                                 'total_seats': course_info.get('total_seats', 0),
-                                'course_name': course_info.get('course_name', crn_data.get('course_name')),
-                                'course_id': course_info.get('course_id', crn_data.get('course_id')),
-                                'course_section': course_info.get('course_section', crn_data.get('course_section')),
+                                'users': existing_users,
+                                'last_updated': course_info.get('last_checked')
                             })
-                    updated_crns.append(crn_data)
+                            print(f"Refreshed CRN {crn} data")
+                    except Exception as e:
+                        print(f"Error refreshing CRN {crn}: {e}")
                 
-                # Update user's CRN list
-                users_table = get_dynamodb_table(os.environ['DYNAMODB_USERS_TABLE'])
-                users_table.put_item(Item={
-                    'user_id': user_id,
-                    'crns': updated_crns
-                })
+                # Get updated CRN data for response
+                updated_crns = get_user_crns(user_id)
                 
                 return {
                     'statusCode': 200,
