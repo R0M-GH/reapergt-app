@@ -21,11 +21,44 @@
     border: 1px solid rgba(203, 161, 53, 0.2);
     border-radius: 8px;
     padding: 8px 16px;
-    margin: 0 4px 20px 4px;
+    margin: 16px 0 8px 0;
+    /* Add top margin after header, reduce bottom margin */
     text-align: center;
     font-size: 13px;
     color: #CBA135;
     font-weight: 500;
+}
+
+.phaseNoticeContent {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.infoIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    background: rgba(203, 161, 53, 0.2);
+    border: 1px solid rgba(203, 161, 53, 0.4);
+    border-radius: 50%;
+    font-size: 10px;
+    font-weight: 600;
+    color: #CBA135;
+    flex-shrink: 0;
+}
+
+/* Global focus styles for theme consistency */
+*:focus {
+    outline: none;
+}
+
+*:focus-visible {
+    outline: 2px solid #CBA135;
+    outline-offset: 2px;
 }
 
 /* Ensure header stays in place on mobile when keyboard opens */
@@ -42,30 +75,41 @@
     }
 
     .phaseNotice {
-        margin: 0 8px 16px 8px;
+        margin: 12px 0 6px 0;
+        /* Consistent with desktop spacing adjustments */
         font-size: 12px;
         padding: 6px 12px;
     }
 }
 
 .container {
-    flex: 1;
-    width: 100%;
-    padding: 56px 24px 24px 24px;
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 0 4px;
+    /* Set consistent padding to maintain width */
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    box-sizing: border-box;
+    position: relative;
 }
 
 .header {
-    margin-bottom: 36px;
-    padding: 0 4px;
-    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: transparent;
+    padding: 16px 20px;
+    padding-left: max(20px, calc(20px + env(safe-area-inset-left)));
+    padding-right: max(20px, calc(20px + env(safe-area-inset-right)));
     display: flex;
     justify-content: space-between;
-    width: 100%;
-    position: relative;
+    align-items: center;
+    transition: background-color 0.3s ease, backdrop-filter 0.3s ease;
+}
+
+.header.scrolled {
+    background: rgba(26, 26, 26, 0.8);
+    backdrop-filter: blur(10px);
 }
 
 .headerContent {
@@ -77,14 +121,14 @@
 }
 
 .logo {
-    width: 52px;
-    height: 52px;
+    width: 60px;
+    height: 60px;
     margin-right: 16px;
 }
 
 .title {
     color: #ECECEC;
-    font-size: 2.2rem;
+    font-size: 2.53rem;
     font-weight: 800;
     letter-spacing: 0.5px;
 }
@@ -116,6 +160,12 @@
     box-shadow: 0 2px 8px rgba(203, 161, 53, 0.3);
 }
 
+.settingsButton:focus {
+    outline: none;
+    border-color: #CBA135;
+    box-shadow: 0 0 0 2px rgba(203, 161, 53, 0.2);
+}
+
 .settingsButton svg {
     width: 24px;
     height: 24px;
@@ -133,17 +183,18 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    padding: 12px;
+    gap: 6px;
+    padding: 8px 12px;
     background: transparent;
     color: #CBA135;
     border: 2px solid #CBA135;
-    border-radius: 12px;
+    border-radius: 10px;
     font-weight: 600;
-    font-size: 14px;
+    font-size: 13px;
     cursor: pointer;
     transition: all 0.18s cubic-bezier(.4, 2, .6, 1);
-    height: 48px;
+    height: auto;
+    white-space: nowrap;
 }
 
 .oscarButton:hover {
@@ -156,6 +207,12 @@
 .oscarButton:active {
     transform: translateY(0);
     box-shadow: 0 2px 8px rgba(203, 161, 53, 0.4);
+}
+
+.oscarButton:focus {
+    outline: none;
+    border-color: #CBA135;
+    box-shadow: 0 0 0 2px rgba(203, 161, 53, 0.2);
 }
 
 .oscarButton svg {
@@ -205,6 +262,12 @@
     box-shadow: 0 2px 8px rgba(203, 161, 53, 0.4);
 }
 
+.oscarBottomButton:focus {
+    outline: none;
+    border-color: #CBA135;
+    box-shadow: 0 0 0 2px rgba(203, 161, 53, 0.2);
+}
+
 .oscarBottomButton svg {
     width: 16px;
     height: 16px;
@@ -232,12 +295,12 @@
 
 .modalContent {
     background: #0A0A0A;
-    border-radius: 20px;
+    border-radius: 16px;
     border: 1px solid #222;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-    max-width: 420px;
+    max-width: 360px;
     width: 90%;
-    max-height: 90vh;
+    max-height: 60vh;
     overflow: hidden;
     animation: modalSlideIn 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -258,9 +321,9 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 24px 24px 0 24px;
+    padding: 20px 20px 0 20px;
     border-bottom: 1px solid #222;
-    padding-bottom: 20px;
+    padding-bottom: 16px;
 }
 
 .modalTitle {
@@ -295,14 +358,20 @@
     transform: translateY(0);
 }
 
+.modalCloseButton:focus {
+    outline: none;
+    border-color: #CBA135;
+    box-shadow: 0 0 0 2px rgba(203, 161, 53, 0.2);
+}
+
 .modalBodyScrollable {
-    padding: 20px;
-    max-height: 70vh;
+    padding: 12px 20px 16px 20px;
+    max-height: 40vh;
     overflow-y: auto;
 }
 
 .settingSection {
-    margin-bottom: 24px;
+    margin-bottom: 16px;
 }
 
 .settingSection:last-child {
@@ -311,25 +380,26 @@
 
 .settingTitle {
     color: #ECECEC;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 600;
-    margin: 0 0 8px 0;
+    margin: 0 0 6px 0;
     letter-spacing: 0.3px;
 }
 
 .settingDescription {
     color: #888;
-    font-size: 14px;
-    margin: 0 0 12px 0;
-    line-height: 1.5;
+    font-size: 13px;
+    margin: 0 0 10px 0;
+    line-height: 1.4;
 }
 
 /* Unified setting button style */
 .settingButton {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 10px 16px;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 16px;
     background: rgba(203, 161, 53, 0.1);
     color: #CBA135;
     border: 1px solid rgba(203, 161, 53, 0.3);
@@ -339,9 +409,8 @@
     cursor: pointer;
     transition: all 0.18s cubic-bezier(.4, 2, .6, 1);
     text-decoration: none;
-    width: fit-content;
-    min-width: 140px;
-    justify-content: flex-start;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .settingButton:hover:not(:disabled) {
@@ -356,6 +425,12 @@
 .settingButton:active:not(:disabled) {
     transform: translateY(0);
     box-shadow: 0 1px 4px rgba(203, 161, 53, 0.3);
+}
+
+.settingButton:focus {
+    outline: none;
+    border-color: #CBA135;
+    box-shadow: 0 0 0 2px rgba(203, 161, 53, 0.2);
 }
 
 .settingButton:disabled {
@@ -406,15 +481,22 @@
 }
 
 /* Phone input field styling */
-.phoneInput {
-    width: 100%;
-    padding: 12px 16px;
+.phoneInputContainer {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
     margin-bottom: 12px;
+}
+
+.phoneInput {
+    flex: 1;
+    min-width: 0;
+    padding: 12px 14px;
     border: 1px solid #333;
     border-radius: 10px;
     background: #111;
     color: #ECECEC;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 400;
     outline: none;
     transition: all 0.2s cubic-bezier(.4, 2, .6, 1);
@@ -439,59 +521,92 @@
     background: rgba(17, 17, 17, 0.5);
 }
 
-.removePhoneButton {
+.phoneActionButton {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    width: 100%;
-    padding: 12px 16px;
-    margin-top: 8px;
-    background: rgba(220, 53, 69, 0.1);
-    color: #dc3545;
-    border: 1px solid rgba(220, 53, 69, 0.3);
+    gap: 6px;
+    padding: 12px 12px;
+    background: rgba(203, 161, 53, 0.1);
+    color: #CBA135;
+    border: 1px solid rgba(203, 161, 53, 0.3);
     border-radius: 10px;
-    font-size: 14px;
     font-weight: 500;
+    font-size: 13px;
     cursor: pointer;
-    transition: all 0.2s cubic-bezier(.4, 2, .6, 1);
-    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    transition: all 0.18s cubic-bezier(.4, 2, .6, 1);
+    text-decoration: none;
+    box-sizing: border-box;
+    white-space: nowrap;
+    min-width: 90px;
+    flex-shrink: 0;
 }
 
-.removePhoneButton:hover {
-    background: rgba(220, 53, 69, 0.2);
-    border-color: rgba(220, 53, 69, 0.5);
+.phoneActionButton:hover:not(:disabled) {
+    background: rgba(203, 161, 53, 0.15);
+    border-color: #CBA135;
     transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(203, 161, 53, 0.2);
+    color: #CBA135;
+    text-decoration: none;
 }
 
-.removePhoneButton:disabled {
-    opacity: 0.6;
+.phoneActionButton:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 1px 4px rgba(203, 161, 53, 0.3);
+}
+
+.phoneActionButton:focus {
+    outline: none;
+    border-color: #CBA135;
+    box-shadow: 0 0 0 2px rgba(203, 161, 53, 0.2);
+}
+
+.phoneActionButton:disabled {
+    opacity: 0.5;
     cursor: not-allowed;
-    transform: none;
+    background: rgba(136, 136, 136, 0.1);
+    border-color: #666;
+    color: #666;
 }
 
-.removePhoneButton:disabled:hover {
-    background: rgba(220, 53, 69, 0.1);
-    border-color: rgba(220, 53, 69, 0.3);
-    transform: none;
+.phoneActionButton svg {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.18s cubic-bezier(.4, 2, .6, 1);
 }
 
-.phoneButtonsContainer {
-    display: flex;
-    gap: 12px;
-    align-items: center;
+.phoneActionButton:hover:not(:disabled) svg {
+    transform: scale(1.1);
 }
 
-.phoneButtonsContainer .settingButton {
-    flex: 1;
+.phoneActionButton.unsubscribe {
+    background: rgba(244, 67, 54, 0.1);
+    color: #f44336;
+    border-color: rgba(244, 67, 54, 0.3);
 }
+
+.phoneActionButton.unsubscribe:hover:not(:disabled) {
+    background: rgba(244, 67, 54, 0.15);
+    border-color: #f44336;
+    color: #f44336;
+    box-shadow: 0 3px 8px rgba(244, 67, 54, 0.2);
+}
+
+.phoneActionButton.unsubscribe:focus {
+    outline: none;
+    border-color: #f44336;
+    box-shadow: 0 0 0 2px rgba(244, 67, 54, 0.2);
+}
+
+
 
 .unsubscribeButton {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    flex: 1;
+    width: 100%;
     padding: 12px 16px;
     background: rgba(244, 67, 54, 0.1);
     color: #f44336;
@@ -500,8 +615,9 @@
     font-size: 14px;
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.2s cubic-bezier(.4, 2, .6, 1);
-    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    transition: all 0.18s cubic-bezier(.4, 2, .6, 1);
+    font-family: inherit;
+    box-sizing: border-box;
 }
 
 .unsubscribeButton:hover {
@@ -525,31 +641,13 @@
     box-shadow: none;
 }
 
-.testButton {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    width: 100%;
-    padding: 10px 16px;
-    margin-top: 8px;
-    background: rgba(108, 117, 125, 0.1);
-    color: #6c757d;
-    border: 1px solid rgba(108, 117, 125, 0.3);
-    border-radius: 10px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s cubic-bezier(.4, 2, .6, 1);
-    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+.unsubscribeButton:focus {
+    outline: none;
+    border-color: #f44336;
+    box-shadow: 0 0 0 2px rgba(244, 67, 54, 0.2);
 }
 
-.testButton:hover {
-    background: rgba(108, 117, 125, 0.2);
-    border-color: rgba(108, 117, 125, 0.5);
-    color: #5a6268;
-    transform: translateY(-1px);
-}
+
 
 .inputContainer {
     display: flex;
@@ -596,6 +694,11 @@
     transform: translateY(-4px);
     box-shadow: 0 8px 24px #CBA13555, 0 2px 8px #CBA13555;
     outline: 2px solid #CBA135;
+}
+
+.subscribeButton:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(203, 161, 53, 0.2);
 }
 
 .googleSignInButton {
@@ -655,24 +758,49 @@
 }
 
 .listContainer {
-    padding: 12px 4px;
-    padding-bottom: 20px;
-    /* minimal buffer for bottom bar */
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 24px 20px 120px 20px;
+    padding-left: max(20px, calc(20px + env(safe-area-inset-left)));
+    padding-right: max(20px, calc(20px + env(safe-area-inset-right)));
+    /* Added bottom padding for input space */
+    overflow-y: auto;
 }
 
 .listHeader {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 16px;
-    padding: 0 8px;
+    margin-bottom: 20px;
+    padding: 0 4px;
+    /* Add padding to move content away from edges */
+}
+
+.listTitleContainer {
+    display: flex;
+    align-items: center;
 }
 
 .listTitle {
+    font-size: 24px;
+    font-weight: 700;
     color: #ECECEC;
-    font-size: 18px;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.crnCount {
+    background: rgba(203, 161, 53, 0.1);
+    color: #CBA135;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
     font-weight: 600;
-    letter-spacing: 0.3px;
+    border: 1px solid rgba(203, 161, 53, 0.2);
+    letter-spacing: 0.5px;
 }
 
 .refreshButton {
@@ -700,6 +828,17 @@
 .refreshButton:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+}
+
+.refreshButton:focus {
+    outline: none;
+    border-color: #CBA135;
+    box-shadow: 0 0 0 2px rgba(203, 161, 53, 0.2);
+}
+
+.refreshButton:active {
+    transform: translateY(0);
+    background: rgba(203, 161, 53, 0.15);
 }
 
 .refreshButton svg {
@@ -785,14 +924,14 @@
 }
 
 .seatsInfo {
-    color: #60a5fa;
+    color: #ECECEC;
     font-size: 14px;
     font-weight: 500;
-    background: rgba(96, 165, 250, 0.1);
+    background: rgba(236, 236, 236, 0.1);
     padding: 4px 8px;
     border-radius: 6px;
     display: inline-block;
-    border: 1px solid rgba(96, 165, 250, 0.2);
+    border: 1px solid rgba(236, 236, 236, 0.2);
 }
 
 .actionButtons {
@@ -877,6 +1016,29 @@
 .actionButton:disabled:hover {
     transform: none;
     box-shadow: none;
+}
+
+.actionButton:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(203, 161, 53, 0.2);
+}
+
+.copyButton:focus {
+    outline: none;
+    border-color: #CBA135;
+    box-shadow: 0 0 0 2px rgba(203, 161, 53, 0.2);
+}
+
+.trashButton:focus {
+    outline: none;
+    border-color: #f44336;
+    box-shadow: 0 0 0 2px rgba(244, 67, 54, 0.2);
+}
+
+.checkButton:focus {
+    outline: none;
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
 }
 
 .emptyContainer {
@@ -1042,6 +1204,11 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
+.installButton:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(203, 161, 53, 0.2);
+}
+
 .dismissButton {
     background: transparent;
     color: #000;
@@ -1059,37 +1226,27 @@
     transform: translateY(-1px);
 }
 
+.dismissButton:focus {
+    outline: none;
+    background: rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.2);
+}
+
 /* Mobile-friendly input container at bottom */
 .inputContainerBottom {
-    position: fixed;
+    position: sticky;
     bottom: 0;
-    left: 0;
-    right: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding: 16px 20px;
-    /* Add safe area padding for bottom only */
-    padding-bottom: max(16px, calc(16px + env(safe-area-inset-bottom)));
     background: transparent;
+    padding: 16px 20px;
+    padding-left: max(20px, calc(20px + env(safe-area-inset-left)));
+    padding-right: max(20px, calc(20px + env(safe-area-inset-right)));
+    padding-bottom: max(16px, calc(16px + env(safe-area-inset-bottom)));
+    margin-top: auto;
     z-index: 50;
 }
 
 .inputHeader {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.crnCount {
-    background: rgba(203, 161, 53, 0.1);
-    color: #CBA135;
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 600;
-    border: 1px solid rgba(203, 161, 53, 0.2);
-    letter-spacing: 0.5px;
+    display: none;
 }
 
 .inputRow {
@@ -1159,13 +1316,57 @@
     transform: scale(1.1);
 }
 
+.addButton:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(203, 161, 53, 0.2);
+}
+
 
 
 @media (max-width: 600px) {
     .container {
+        padding: 0 env(safe-area-inset-left) 0 env(safe-area-inset-right);
+        min-height: 100vh;
+        min-height: 100dvh;
+        /* Use dynamic viewport height on mobile */
+    }
+
+    .header {
+        padding: 12px 16px;
+        padding-left: max(16px, calc(16px + env(safe-area-inset-left)));
+        padding-right: max(16px, calc(16px + env(safe-area-inset-right)));
+    }
+
+    .listContainer {
+        padding: 16px 16px 100px 16px;
+        padding-left: max(16px, calc(16px + env(safe-area-inset-left)));
+        padding-right: max(16px, calc(16px + env(safe-area-inset-right)));
+        flex: 1;
+        overflow-y: auto;
+    }
+
+    .listTitle {
+        font-size: 20px;
+        gap: 8px;
+    }
+
+    .crnCount {
+        font-size: 11px;
+        padding: 3px 6px;
+    }
+
+    .inputContainerBottom {
         padding: 16px;
-        padding-bottom: 20px;
-        /* Minimal space for floating input */
+        padding-left: max(16px, calc(16px + env(safe-area-inset-left)));
+        padding-right: max(16px, calc(16px + env(safe-area-inset-right)));
+        padding-bottom: max(16px, calc(16px + env(safe-area-inset-bottom)));
+        background: transparent;
+        position: sticky;
+        bottom: 0;
+    }
+
+    .inputHeader h3 {
+        font-size: 16px;
     }
 
     /* Mobile-specific message styling */
@@ -1184,13 +1385,13 @@
     }
 
     .logo {
-        width: 32px;
-        height: 32px;
+        width: 37px;
+        height: 37px;
         margin-right: 12px;
     }
 
     .title {
-        font-size: 22px;
+        font-size: 25px;
     }
 
     .crnCard {
@@ -1280,10 +1481,71 @@
     }
 
     /* Mobile phone input styling */
+    .phoneInputContainer {
+        flex-direction: column;
+        gap: 10px;
+    }
+
     .phoneInput {
-        font-size: 16px;
-        /* Prevent zoom on iOS */
-        padding: 12px 14px;
-        border-radius: 8px;
+        font-size: 14px;
+        padding: 10px 14px;
+    }
+
+    .phoneActionButton {
+        min-width: 100px;
+        font-size: 13px;
+        padding: 10px 14px;
+    }
+
+    .settingSection {
+        margin-bottom: 16px;
+    }
+
+    .settingTitle {
+        font-size: 15px;
+        margin-bottom: 6px;
+    }
+
+    .settingDescription {
+        font-size: 13px;
+        margin-bottom: 10px;
+    }
+
+    .settingButton {
+        padding: 12px 16px;
+        font-size: 14px;
+    }
+
+    .unsubscribeButton {
+        padding: 12px 16px;
+        font-size: 14px;
+    }
+
+
+
+    .modalContent {
+        max-width: 340px;
+        max-height: 55vh;
+    }
+
+    .modalBodyScrollable {
+        padding: 10px 16px 14px 16px;
+        max-height: 35vh;
+    }
+
+    .testButton {
+        padding: 8px 14px;
+        font-size: 13px;
+        margin-top: 6px;
+    }
+
+    .modalContent {
+        margin: 10px;
+        max-height: 85vh;
+    }
+
+    .modalBodyScrollable {
+        max-height: 70vh;
+        padding: 16px;
     }
 }

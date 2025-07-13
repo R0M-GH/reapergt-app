@@ -4,9 +4,9 @@ import { crnService } from "./services/api";
 import { useGoogleAuth } from "./hooks/useGoogleAuth";
 import styles from "./App.module.css";
 
-function Header({ onSettings, showSettings }) {
+function Header({ onSettings, showSettings, headerScrolled }) {
     return (
-        <header className={styles.header}>
+        <header className={`${styles.header} ${headerScrolled ? styles.scrolled : ''}`}>
             <div className={styles.headerContent}>
                 <img src="/logo.png" alt="Reaper Logo" className={styles.logo} />
                 <span className={styles.title}>Reaper</span>
@@ -19,7 +19,7 @@ function Header({ onSettings, showSettings }) {
                 >
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                        <path d="M19.4 15C19.2669 15.3016 19.2272 15.6362 19.286 15.9606C19.3448 16.285 19.4995 16.5843 19.73 16.82L19.79 16.88C19.976 17.0657 20.1235 17.2863 20.2241 17.5291C20.3248 17.7719 20.3766 18.0322 20.3766 18.295C20.3766 18.5578 20.3248 18.8181 20.2241 19.0609C20.1235 19.3037 19.976 19.5243 19.79 19.71C19.6043 19.896 19.3837 20.0435 19.1409 20.1441C18.8981 20.2448 18.6378 20.2966 18.375 20.2966C18.1122 20.2966 17.8519 20.2448 17.6091 20.1441C17.3663 20.0435 17.1457 19.896 16.96 19.71L16.9 19.65C16.6643 19.4195 16.365 19.2648 16.0406 19.206C15.7162 19.1472 15.3816 19.1869 15.08 19.32C14.7842 19.4468 14.532 19.6572 14.3543 19.9255C14.1766 20.1938 14.0813 20.5082 14.08 20.83V21C14.08 21.5304 13.8693 22.0391 13.4942 22.4142C13.1191 22.7893 12.6104 23 12.08 23C11.5496 23 11.0409 22.7893 10.6658 22.4142C10.2907 22.0391 10.08 21.5304 10.08 21V20.91C10.0723 20.579 9.96512 20.2579 9.77251 19.9887C9.5799 19.7195 9.31074 19.5149 9 19.4C8.69838 19.2669 8.36381 19.2272 8.03941 19.286C7.71502 19.3448 7.41568 19.4995 7.18 19.73L7.12 19.79C6.93425 19.976 6.71368 20.1235 6.47088 20.2241C6.22808 20.3248 5.96783 20.3766 5.705 20.3766C5.44217 20.3766 5.18192 20.3248 4.93912 20.2241C4.69632 20.1235 4.47575 19.976 4.29 19.79C4.10405 19.6043 3.95653 19.3837 3.85588 19.1409C3.75523 18.8981 3.70343 18.6378 3.70343 18.375C3.70343 18.1122 3.75523 17.8519 3.85588 17.6091C3.95653 17.3663 4.10405 17.1457 4.29 16.96L4.35 16.9C4.58054 16.6643 4.73519 16.365 4.794 16.0406C4.85282 15.7162 4.81312 15.3816 4.68 15.08C4.55324 14.7842 4.34276 14.532 4.07447 14.3543C3.80618 14.1766 3.49179 14.0813 3.17 14.08H3C2.46957 14.08 1.96086 13.8693 1.58579 13.4942C1.21071 13.1191 1 12.6104 1 12.08C1 11.5496 1.21071 11.0409 1.58579 10.6658C1.96086 10.2907 2.46957 10.08 3 10.08H3.09C3.42099 10.0723 3.74206 9.96512 4.01128 9.77251C4.2805 9.5799 4.48514 9.31074 4.6 9C4.73312 8.69838 4.77282 8.36381 4.714 8.03941C4.65519 7.71502 4.50054 7.41568 4.27 7.18L4.21 7.12C4.02405 6.93425 3.87653 6.71368 3.77588 6.47088C3.67523 6.22808 3.62343 5.96783 3.62343 5.705C3.62343 5.44217 3.67523 5.18192 3.77588 4.93912C3.87653 4.69632 4.02405 4.47575 4.21 4.29C4.39575 4.10405 4.61632 3.95653 4.85912 3.85588C5.10192 3.75523 5.36217 3.70343 5.625 3.70343C5.88783 3.70343 6.14808 3.75523 6.39088 3.85588C6.63368 3.95653 6.85425 4.10405 7.04 4.29L7.1 4.35C7.33568 4.58054 7.63502 4.73519 7.95941 4.794C8.28381 4.85282 8.61838 4.81312 8.92 4.68H9C9.29577 4.55324 9.54802 4.34276 9.72569 4.07447C9.90337 3.80618 9.99872 3.49179 10 3.17V3C10 2.46957 10.2107 1.96086 10.5858 1.58579C10.9609 1.21071 11.4696 1 12 1C12.5304 1 13.0391 1.21071 13.4142 1.58579C13.7893 1.96086 14 2.46957 14 3V3.09C14.0013 3.41179 14.0966 3.72618 14.2743 3.99447C14.452 4.26276 14.7042 4.47324 15 4.6C15.3016 4.73312 15.6362 4.77282 15.9606 4.714C16.285 4.65519 16.5843 4.50054 16.82 4.27L16.88 4.21C17.0657 4.02405 17.2863 3.87653 17.5291 3.77588C17.7719 3.67523 18.0322 3.62343 18.295 3.62343C18.5578 3.62343 18.8181 3.67523 19.0609 3.77588C19.3037 3.87653 19.5243 4.02405 19.71 4.21C19.896 4.39575 20.0435 4.61632 20.1441 4.85912C20.2448 5.10192 20.2966 5.36217 20.2966 5.625C20.2966 5.88783 20.2448 6.14808 20.1441 6.39088C20.0435 6.63368 19.896 6.85425 19.71 7.04L19.65 7.1C19.4195 7.33568 19.2648 7.63502 19.206 7.95941C19.1472 8.28381 19.1869 8.61838 19.32 8.92V9C19.4468 9.29577 19.6572 9.54802 19.9255 9.72569C20.1938 9.90337 20.5082 9.99872 20.83 10H21C21.5304 10 22.0391 10.2107 22.4142 10.5858C22.7893 10.9609 23 11.4696 23 12C23 12.5304 22.7893 13.0391 22.4142 13.4142C22.0391 13.7893 21.5304 14 21 14H20.91C20.5882 14.0013 20.2738 14.0966 20.0055 14.2743C19.7372 14.452 19.5268 14.7042 19.4 15Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        <path d="M19.4 15C19.2669 15.3016 19.2272 15.6362 19.286 15.9606C19.3448 16.285 19.4995 16.5842 19.73 16.82L19.79 16.88C19.976 17.0657 20.1235 17.2863 20.2241 17.5291C20.3248 17.7719 20.3766 18.0322 20.3766 18.295C20.3766 18.5578 20.3248 18.8181 20.2241 19.0609C20.1235 19.3037 19.976 19.5243 19.79 19.71C19.6043 19.896 19.3837 20.0435 19.1409 20.1441C18.8981 20.2448 18.6378 20.2966 18.375 20.2966C18.1122 20.2966 17.8519 20.2448 17.6091 20.1441C17.3663 20.0435 17.1457 19.896 16.96 19.71L16.9 19.65C16.6642 19.4195 16.365 19.2648 16.0406 19.206C15.7162 19.1472 15.3816 19.1869 15.08 19.32C14.7842 19.4468 14.532 19.6572 14.3543 19.9255C14.1766 20.1938 14.0813 20.5082 14.08 20.83V21C14.08 21.5304 13.8693 22.0391 13.4942 22.4142C13.1191 22.7893 12.6104 23 12.08 23C11.5496 23 11.0409 22.7893 10.6658 22.4142C10.2907 22.0391 10.08 21.5304 10.08 21V20.91C10.0723 20.579 9.96512 20.2578 9.77251 19.9887C9.5799 19.7197 9.31074 19.5143 9 19.4C8.69838 19.2669 8.36381 19.2272 8.03941 19.286C7.71502 19.3448 7.41568 19.4995 7.18 19.73L7.12 19.79C6.93425 19.976 6.71368 20.1235 6.47088 20.2241C6.22808 20.3248 5.96783 20.3766 5.705 20.3766C5.44217 20.3766 5.18192 20.3248 4.93912 20.2241C4.69632 20.1235 4.47575 19.976 4.29 19.79C4.10405 19.6043 3.95653 19.3837 3.85588 19.1409C3.75523 18.8981 3.70343 18.6378 3.70343 18.375C3.70343 18.1122 3.75523 17.8519 3.85588 17.6091C3.95653 17.3663 4.10405 17.1457 4.29 16.96L4.35 16.9C4.58054 16.6642 4.73519 16.365 4.794 16.0406C4.85282 15.7162 4.81312 15.3816 4.68 15.08C4.55324 14.7842 4.34276 14.532 4.07447 14.3543C3.80618 14.1766 3.49179 14.0813 3.17 14.08H3C2.46957 14.08 1.96086 13.8693 1.58579 13.4942C1.21071 13.1191 1 12.6104 1 12.08C1 11.5496 1.21071 11.0409 1.58579 10.6658C1.96086 10.2907 2.46957 10.08 3 10.08H3.09C3.42099 10.0723 3.742 9.96512 4.0113 9.77251C4.28059 9.5799 4.48572 9.31074 4.6 9C4.73312 8.69838 4.77282 8.36381 4.714 8.03941C4.65519 7.71502 4.50054 7.41568 4.27 7.18L4.21 7.12C4.02405 6.93425 3.87653 6.71368 3.77588 6.47088C3.67523 6.22808 3.62343 5.96783 3.62343 5.705C3.62343 5.44217 3.67523 5.18192 3.77588 4.93912C3.87653 4.69632 4.02405 4.47575 4.21 4.29C4.39575 4.10405 4.61632 3.95653 4.85912 3.85588C5.10192 3.75523 5.36217 3.70343 5.625 3.70343C5.88783 3.70343 6.14808 3.75523 6.39088 3.85588C6.63368 3.95653 6.85425 4.10405 7.04 4.29L7.1 4.35C7.33568 4.58054 7.63502 4.73519 7.95941 4.794C8.28381 4.85282 8.61838 4.81312 8.92 4.68H9C9.29577 4.55324 9.54802 4.34276 9.72569 4.07447C9.90337 3.80618 9.99872 3.49179 10 3.17V3C10 2.46957 10.2107 1.96086 10.5858 1.58579C10.9609 1.21071 11.4696 1 12 1C12.5304 1 13.0391 1.21071 13.4142 1.58579C13.7893 1.96086 14 2.46957 14 3V3.09C14.0013 3.41179 14.0966 3.72618 14.2743 3.99447C14.452 4.26276 14.7042 4.47324 15 4.6C15.3016 4.73312 15.6362 4.77282 15.9606 4.714C16.285 4.65519 16.5843 4.50054 16.82 4.27L16.88 4.21C17.0657 4.02405 17.2863 3.87653 17.5291 3.77588C17.7719 3.67523 18.0322 3.62343 18.295 3.62343C18.5578 3.62343 18.8181 3.67523 19.0609 3.77588C19.3037 3.87653 19.5243 4.02405 19.71 4.21C19.896 4.39575 20.0435 4.61632 20.1441 4.85912C20.2448 5.10192 20.2966 5.36217 20.2966 5.625C20.2966 5.88783 20.2448 6.14808 20.1441 6.39088C20.0435 6.63368 19.896 6.85425 19.71 7.04L19.65 7.1C19.4195 7.33568 19.2648 7.63502 19.206 7.95941C19.1472 8.28381 19.1869 8.61838 19.32 8.92V9C19.4468 9.29577 19.6572 9.54802 19.9255 9.72569C20.1938 9.90337 20.5082 9.99872 20.83 10H21C21.5304 10 22.0391 10.2107 22.4142 10.5858C22.7893 10.9609 23 11.4696 23 12C23 12.5304 22.7893 13.0391 22.4142 13.4142C22.0391 13.7893 21.5304 14 21 14H20.91C20.5882 14.0013 20.2738 14.0966 20.0055 14.2743C19.7372 14.452 19.5268 14.7042 19.4 15Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                 </button>
             )}
@@ -27,7 +27,7 @@ function Header({ onSettings, showSettings }) {
     );
 }
 
-function SettingsModal({ open, onClose, onSignOut, notificationPermission, notificationSubscription, onToggleNotifications, onTestNotification, phoneNumber, displayPhone, onPhoneNumberChange, onPhoneNumberBlur, onSavePhoneNumber, onRemovePhoneNumber, savingPhone, onTestSms }) {
+function SettingsModal({ open, onClose, onSignOut, phoneNumber, displayPhone, onPhoneNumberChange, onPhoneNumberBlur, onSavePhoneNumber, onRemovePhoneNumber, savingPhone, savedPhoneNumber }) {
     if (!open) return null;
 
     return (
@@ -52,51 +52,35 @@ function SettingsModal({ open, onClose, onSignOut, notificationPermission, notif
                         <p className={styles.settingDescription}>
                             Get SMS alerts when courses become available.
                         </p>
-                        <input
-                            type="tel"
-                            inputMode="numeric"
-                            placeholder="Enter phone number (e.g. 555-123-4567)"
-                            value={displayPhone}
-                            onChange={onPhoneNumberChange}
-                            onBlur={onPhoneNumberBlur}
-                            className={styles.phoneInput}
-                            maxLength={14} // (XXX) XXX-XXXX format
-                        />
-                        <div className={styles.phoneButtonsContainer}>
+                        <div className={styles.phoneInputContainer}>
+                            <input
+                                type="tel"
+                                inputMode="numeric"
+                                placeholder="Enter phone number (e.g. 555-123-4567)"
+                                value={displayPhone}
+                                onChange={onPhoneNumberChange}
+                                onBlur={onPhoneNumberBlur}
+                                className={styles.phoneInput}
+                                maxLength={14} // (XXX) XXX-XXXX format
+                            />
                             <button
-                                onClick={onSavePhoneNumber}
-                                disabled={savingPhone || !phoneNumber.trim()}
-                                className={styles.settingButton}
+                                onClick={savedPhoneNumber ? onRemovePhoneNumber : onSavePhoneNumber}
+                                disabled={savingPhone || (!phoneNumber && !phoneNumber.trim())}
+                                className={`${styles.phoneActionButton} ${savedPhoneNumber ? styles.unsubscribe : ''}`}
                             >
                                 {savingPhone ? (
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ animation: 'spin 1s linear infinite' }}>
                                         <path d="M12 2V6M12 18V22M4.93 4.93L7.76 7.76M16.24 16.24L19.07 19.07M2 12H6M18 12H22M4.93 19.07L7.76 16.24M16.24 7.76L19.07 4.93" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                     </svg>
-                                ) : (
+                                ) : savedPhoneNumber ? null : (
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M22 16.92V19a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h2.09a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9a16 16 0 0 0 6 6l.36-.36a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                     </svg>
                                 )}
-                                {savingPhone ? 'Saving...' : 'Save Number'}
+                                {savingPhone ? 'Saving...' : savedPhoneNumber ? 'Unsubscribe' : 'Subscribe'}
                             </button>
-                            {phoneNumber && (
-                                <button
-                                    onClick={onRemovePhoneNumber}
-                                    disabled={savingPhone}
-                                    className={styles.unsubscribeButton}
-                                >
-                                    Unsubscribe
-                                </button>
-                            )}
                         </div>
-                        {phoneNumber && (
-                            <button
-                                onClick={onTestSms}
-                                className={styles.testButton}
-                            >
-                                Send Test SMS
-                            </button>
-                        )}
+
                     </div>
 
                     <div className={styles.settingSection}>
@@ -108,8 +92,9 @@ function SettingsModal({ open, onClose, onSignOut, notificationPermission, notif
                             className={styles.settingButton}
                         >
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M18 13V6A6 6 0 0 0 6 6V13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                <rect x="2" y="11" width="20" height="11" rx="2" ry="2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                <path d="M18 13V19C18 19.5304 17.7893 20.0391 17.4142 20.4142C17.0391 20.7893 16.5304 21 16 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V8C3 7.46957 3.21071 6.96086 3.58579 6.58579C3.96086 6.21071 4.46957 6 5 6H11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                <path d="M15 3H21V9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                <path d="M10 14L21 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
                             OSCAR Registration
                         </a>
@@ -199,11 +184,12 @@ function App() {
     const [showInstallPrompt, setShowInstallPrompt] = useState(false);
     const [deferredPrompt, setDeferredPrompt] = useState(null);
     const [installPromptType, setInstallPromptType] = useState('browser'); // 'browser', 'ios', 'manual'
-    const [notificationPermission, setNotificationPermission] = useState('default');
-    const [notificationSubscription, setNotificationSubscription] = useState(null);
+
     const [phoneNumber, setPhoneNumber] = useState('');
     const [displayPhone, setDisplayPhone] = useState('');
     const [savingPhone, setSavingPhone] = useState(false);
+    const [savedPhoneNumber, setSavedPhoneNumber] = useState(''); // Track the saved phone number from backend
+    const [headerScrolled, setHeaderScrolled] = useState(false);
 
     // Detect device and browser for PWA install
     const detectInstallability = () => {
@@ -234,8 +220,8 @@ function App() {
             return true;
         }
 
-        // Check if browser supports PWAs (has service worker and manifest support)
-        const supportsPWA = 'serviceWorker' in navigator && 'PushManager' in window;
+        // Check if browser supports PWAs (basic manifest support)
+        const supportsPWA = 'serviceWorker' in navigator;
 
         if (supportsPWA) {
             // For other browsers that support PWA, show manual instructions
@@ -294,142 +280,9 @@ function App() {
         localStorage.setItem('pwa-install-dismissed', Date.now().toString());
     };
 
-    // Service Worker Registration
-    useEffect(() => {
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js')
-                .then((registration) => {
-                    console.log('Service Worker registered successfully:', registration);
-                })
-                .catch((error) => {
-                    console.error('Service Worker registration failed:', error);
-                });
-        }
-    }, []);
 
-    // Notification Setup
-    useEffect(() => {
-        if ('serviceWorker' in navigator && 'PushManager' in window) {
-            checkNotificationPermission();
-            checkExistingSubscription();
-        }
-    }, []);
 
-    const checkNotificationPermission = () => {
-        if ('Notification' in window) {
-            setNotificationPermission(Notification.permission);
-        }
-    };
 
-    const checkExistingSubscription = async () => {
-        try {
-            const registration = await navigator.serviceWorker.ready;
-            const existingSubscription = await registration.pushManager.getSubscription();
-            if (existingSubscription) {
-                console.log('Found existing push subscription on load:', existingSubscription);
-                setNotificationSubscription(existingSubscription);
-            }
-        } catch (error) {
-            console.error('Error checking existing subscription:', error);
-        }
-    };
-
-    const requestNotificationPermission = async () => {
-        // Check for notification support more comprehensively
-        const hasNotificationAPI = 'Notification' in window;
-        const hasServiceWorker = 'serviceWorker' in navigator;
-        const hasPushManager = 'PushManager' in window;
-
-        // Detect iOS Safari specifically
-        const isIOSSafari = /iPhone|iPad|iPod/.test(navigator.userAgent) && /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
-
-        console.log('Notification support check:', { hasNotificationAPI, hasServiceWorker, hasPushManager, isIOSSafari, userAgent: navigator.userAgent });
-
-        if (isIOSSafari) {
-            showMessage('iOS Safari has limited notification support. Use Chrome or add to Home Screen for better experience.', 'error');
-            return;
-        }
-
-        if (!hasNotificationAPI || !hasServiceWorker || !hasPushManager) {
-            showMessage('Push notifications not fully supported in this browser. Try Chrome, Firefox, or Edge.', 'error');
-            return;
-        }
-
-        try {
-            const permission = await Notification.requestPermission();
-            setNotificationPermission(permission);
-
-            if (permission === 'granted') {
-                await subscribeToNotifications();
-                showMessage('Notifications enabled! You\'ll get alerts when courses open up.', 'success');
-            } else if (permission === 'denied') {
-                showMessage('Notifications blocked. Please enable them in your browser settings.', 'error');
-            }
-        } catch (error) {
-            console.error('Error requesting notification permission:', error);
-            showMessage('Failed to enable notifications. Try a different browser.', 'error');
-        }
-    };
-
-    const subscribeToNotifications = async () => {
-        try {
-            const registration = await navigator.serviceWorker.ready;
-
-            // Check if already subscribed
-            const existingSubscription = await registration.pushManager.getSubscription();
-            if (existingSubscription) {
-                setNotificationSubscription(existingSubscription);
-                return;
-            }
-
-            // Create new subscription
-            const subscription = await registration.pushManager.subscribe({
-                userVisibleOnly: true,
-                applicationServerKey: urlBase64ToUint8Array('BDTHy3bjuAY5MDItHoC3KkMp01mqrhUfOAH4pqvul7WLltqYqZ5CTIqVqR6hwsPc-DJ1F2WT8JdG8EWJFSWNFpA')
-            });
-
-            setNotificationSubscription(subscription);
-
-            // Send subscription to backend
-            await crnService.registerPushSubscription(subscription);
-
-        } catch (error) {
-            console.error('Error subscribing to notifications:', error);
-            showMessage('Failed to subscribe to notifications', 'error');
-        }
-    };
-
-    const unsubscribeFromNotifications = async () => {
-        try {
-            const registration = await navigator.serviceWorker.ready;
-            const subscription = await registration.pushManager.getSubscription();
-
-            if (subscription) {
-                await subscription.unsubscribe();
-                setNotificationSubscription(null);
-                showMessage('Notifications disabled', 'success');
-            }
-        } catch (error) {
-            console.error('Error unsubscribing from notifications:', error);
-            showMessage('Failed to disable notifications', 'error');
-        }
-    };
-
-    // Utility function to convert VAPID key
-    const urlBase64ToUint8Array = (base64String) => {
-        const padding = '='.repeat((4 - base64String.length % 4) % 4);
-        const base64 = (base64String + padding)
-            .replace(/-/g, '+')
-            .replace(/_/g, '/');
-
-        const rawData = window.atob(base64);
-        const outputArray = new Uint8Array(rawData.length);
-
-        for (let i = 0; i < rawData.length; ++i) {
-            outputArray[i] = rawData.charCodeAt(i);
-        }
-        return outputArray;
-    };
 
     // Load CRNs when authenticated
     useEffect(() => {
@@ -438,6 +291,17 @@ function App() {
             loadUserProfile();
         }
     }, [auth.isAuthenticated]);
+
+    // Handle scroll for header transparency
+    useEffect(() => {
+        const handleScroll = () => {
+            const scrollTop = window.scrollY;
+            setHeaderScrolled(scrollTop > 50);
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
     const loadCRNs = async () => {
         setLoading(true);
@@ -455,12 +319,22 @@ function App() {
 
     const loadUserProfile = async () => {
         try {
+            console.log('Loading user profile...');
             const profile = await crnService.getUserProfile();
+            console.log('User profile loaded:', profile);
             if (profile.phone_number) {
                 // Extract digits and format the phone number
                 const digits = profile.phone_number.replace(/\D/g, '').slice(-10); // Get last 10 digits
+                console.log('Setting phone number:', digits);
                 setPhoneNumber(digits);
                 setDisplayPhone(formatPhoneNumber(digits));
+                setSavedPhoneNumber(digits); // Track the saved phone number
+            } else {
+                console.log('No phone number found in profile, clearing state');
+                // Clear saved phone number if none exists
+                setPhoneNumber('');
+                setDisplayPhone('');
+                setSavedPhoneNumber('');
             }
         } catch (error) {
             console.error('Failed to load user profile:', error);
@@ -549,15 +423,7 @@ function App() {
         removeCRN(crnData.crn);
     };
 
-    const sendTestNotification = async () => {
-        try {
-            await crnService.sendTestNotification();
-            showMessage('Test notification sent! Check your notifications.', 'success');
-        } catch (error) {
-            console.error('Error sending test notification:', error);
-            showMessage('Failed to send test notification', 'error');
-        }
-    };
+
 
     const refreshCRNs = async () => {
         // Set all CRNs to refreshing state
@@ -628,6 +494,8 @@ function App() {
         try {
             const result = await crnService.registerPhoneNumber(phoneNumber);
             showMessage('Phone number saved successfully! You\'ll receive SMS notifications when courses open.', 'success');
+            // Update saved phone number immediately
+            setSavedPhoneNumber(phoneNumber);
             // Reload user profile to get updated data
             await loadUserProfile();
         } catch (error) {
@@ -646,6 +514,7 @@ function App() {
             await crnService.removePhoneNumber();
             setPhoneNumber('');
             setDisplayPhone('');
+            setSavedPhoneNumber(''); // Clear saved phone number
             showMessage('Phone number removed successfully. You will no longer receive SMS notifications.', 'success');
         } catch (error) {
             console.error('Error removing phone number:', error);
@@ -656,16 +525,7 @@ function App() {
         }
     };
 
-    const sendTestSms = async () => {
-        try {
-            await crnService.sendTestSms();
-            showMessage('Test SMS sent! Check your phone.', 'success');
-        } catch (error) {
-            console.error('Error sending test SMS:', error);
-            const errorMsg = error.response?.data?.error || 'Failed to send test SMS';
-            showMessage(errorMsg, 'error');
-        }
-    };
+
 
     if (auth.isLoading) {
         return (
@@ -771,20 +631,22 @@ function App() {
         return (
             <div className={styles.gradientContainer}>
                 <div className={styles.container}>
-                    <Header onSettings={() => setSettingsOpen(true)} showSettings={true} />
+                    <Header onSettings={() => {
+                        setSettingsOpen(true);
+                        loadUserProfile(); // Ensure phone number is loaded when settings open
+                    }} showSettings={true} headerScrolled={headerScrolled} />
 
                     {/* Phase 2 Notice */}
                     <div className={styles.phaseNotice}>
-                        <span>Add courses now to track them! Course notifications start August 11th (Phase 2)</span>
+                        <div className={styles.phaseNoticeContent}>
+                            <div className={styles.infoIcon}>i</div>
+                            <span>Add courses now to track them! Course notifications start August 11th (Phase 2)</span>
+                        </div>
                     </div>
                     <SettingsModal
                         open={settingsOpen}
                         onClose={() => setSettingsOpen(false)}
                         onSignOut={handleSignOut}
-                        notificationPermission={notificationPermission}
-                        notificationSubscription={notificationSubscription}
-                        onToggleNotifications={notificationSubscription ? unsubscribeFromNotifications : requestNotificationPermission}
-                        onTestNotification={sendTestNotification}
                         phoneNumber={phoneNumber}
                         displayPhone={displayPhone}
                         onPhoneNumberChange={handlePhoneNumberChange}
@@ -792,7 +654,7 @@ function App() {
                         onSavePhoneNumber={savePhoneNumber}
                         onRemovePhoneNumber={removePhoneNumber}
                         savingPhone={savingPhone}
-                        onTestSms={sendTestSms}
+                        savedPhoneNumber={savedPhoneNumber}
                     />
                     {/* PWA Install Prompt */}
                     {showInstallPrompt && (
@@ -844,12 +706,19 @@ function App() {
                         ) : (
                             <>
                                 <div className={styles.listHeader}>
-                                    <span className={styles.listTitle}>Your Courses</span>
+                                    <div className={styles.listTitleContainer}>
+                                        <h2 className={styles.listTitle}>
+                                            Your Courses
+                                            <span className={styles.crnCount}>
+                                                {crns.length}/5
+                                            </span>
+                                        </h2>
+                                    </div>
                                     <button
                                         onClick={refreshCRNs}
                                         disabled={Object.keys(refreshing).length > 0}
                                         className={styles.refreshButton}
-                                        title="Refresh course status"
+                                        aria-label="Refresh course status"
                                     >
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ animation: Object.keys(refreshing).length > 0 ? 'spin 1s linear infinite' : 'none' }}>
                                             <path d="M1 4V10H7M23 20V14H17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -937,9 +806,6 @@ function App() {
 
                     {/* Input container moved to bottom for better mobile UX */}
                     <div className={styles.inputContainerBottom}>
-                        <div className={styles.inputHeader}>
-                            <span className={styles.crnCount}>{crns.length}/5 CRNs</span>
-                        </div>
                         <div className={styles.inputRow}>
                             <input
                                 type="text"

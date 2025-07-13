@@ -35,25 +35,7 @@ async function removeCRN(crn) {
     await api.delete(`/crns/${crn}`);
 }
 
-// Register push notification subscription
-async function registerPushSubscription(subscription) {
-    const res = await api.post('/register-push', {
-        push_subscription: subscription
-    });
-    return res.data;
-}
 
-// Send test notification
-async function sendTestNotification() {
-    const res = await api.post('/test-notification');
-    return res.data;
-}
-
-// Send test SMS
-async function sendTestSms() {
-    const res = await api.post('/test-sms');
-    return res.data;
-}
 
 // Manually refresh all CRNs for real-time updates
 async function refreshCRNs() {
@@ -92,11 +74,8 @@ export const crnService = {
     addCRN,
     removeCRN,
     refreshCRNs,
-    registerPushSubscription,
     registerPhoneNumber,
     getUserProfile,
     updateUserProfile,
-    removePhoneNumber,
-    sendTestNotification,
-    sendTestSms
+    removePhoneNumber
 }; 
