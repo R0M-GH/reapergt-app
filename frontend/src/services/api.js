@@ -49,6 +49,12 @@ async function sendTestNotification() {
     return res.data;
 }
 
+// Send test SMS
+async function sendTestSms() {
+    const res = await api.post('/test-sms');
+    return res.data;
+}
+
 // Manually refresh all CRNs for real-time updates
 async function refreshCRNs() {
     const res = await api.post('/refresh');
@@ -63,12 +69,34 @@ async function registerPhoneNumber(phoneNumber) {
     return res.data;
 }
 
+// Get user profile data
+async function getUserProfile() {
+    const res = await api.get('/user/profile');
+    return res.data;
+}
+
+// Update user profile
+async function updateUserProfile(profileData) {
+    const res = await api.put('/user/profile', profileData);
+    return res.data;
+}
+
+// Remove phone number from notifications
+async function removePhoneNumber() {
+    const res = await api.post('/remove-phone');
+    return res.data;
+}
+
 export const crnService = {
     getCRNs,
     addCRN,
     removeCRN,
-    registerPushSubscription,
-    sendTestNotification,
     refreshCRNs,
+    registerPushSubscription,
     registerPhoneNumber,
+    getUserProfile,
+    updateUserProfile,
+    removePhoneNumber,
+    sendTestNotification,
+    sendTestSms
 }; 

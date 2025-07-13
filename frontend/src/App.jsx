@@ -27,8 +27,9 @@ function Header({ onSettings, showSettings }) {
     );
 }
 
-function SettingsModal({ open, onClose, onSignOut, notificationPermission, notificationSubscription, onToggleNotifications, onTestNotification, phoneNumber, onPhoneNumberChange, onPhoneNumberBlur, onSavePhoneNumber, savingPhone, displayPhone }) {
+function SettingsModal({ open, onClose, onSignOut, notificationPermission, notificationSubscription, onToggleNotifications, onTestNotification, phoneNumber, displayPhone, onPhoneNumberChange, onPhoneNumberBlur, onSavePhoneNumber, onRemovePhoneNumber, savingPhone, onTestSms }) {
     if (!open) return null;
+
     return (
         <div className={styles.modalOverlay}>
             <div className={styles.modalContent}>
@@ -61,22 +62,41 @@ function SettingsModal({ open, onClose, onSignOut, notificationPermission, notif
                             className={styles.phoneInput}
                             maxLength={14} // (XXX) XXX-XXXX format
                         />
-                        <button
-                            onClick={onSavePhoneNumber}
-                            disabled={savingPhone || !phoneNumber.trim()}
-                            className={styles.settingButton}
-                        >
-                            {savingPhone ? (
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ animation: 'spin 1s linear infinite' }}>
-                                    <path d="M12 2V6M12 18V22M4.93 4.93L7.76 7.76M16.24 16.24L19.07 19.07M2 12H6M18 12H22M4.93 19.07L7.76 16.24M16.24 7.76L19.07 4.93" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                </svg>
-                            ) : (
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M22 16.92V19a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h2.09a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9a16 16 0 0 0 6 6l.36-.36a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                </svg>
+                        <div className={styles.phoneButtonsContainer}>
+                            <button
+                                onClick={onSavePhoneNumber}
+                                disabled={savingPhone || !phoneNumber.trim()}
+                                className={styles.settingButton}
+                            >
+                                {savingPhone ? (
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ animation: 'spin 1s linear infinite' }}>
+                                        <path d="M12 2V6M12 18V22M4.93 4.93L7.76 7.76M16.24 16.24L19.07 19.07M2 12H6M18 12H22M4.93 19.07L7.76 16.24M16.24 7.76L19.07 4.93" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                    </svg>
+                                ) : (
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M22 16.92V19a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h2.09a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9a16 16 0 0 0 6 6l.36-.36a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                    </svg>
+                                )}
+                                {savingPhone ? 'Saving...' : 'Save Number'}
+                            </button>
+                            {phoneNumber && (
+                                <button
+                                    onClick={onRemovePhoneNumber}
+                                    disabled={savingPhone}
+                                    className={styles.unsubscribeButton}
+                                >
+                                    Unsubscribe
+                                </button>
                             )}
-                            {savingPhone ? 'Saving...' : 'Save Phone Number'}
-                        </button>
+                        </div>
+                        {phoneNumber && (
+                            <button
+                                onClick={onTestSms}
+                                className={styles.testButton}
+                            >
+                                Send Test SMS
+                            </button>
+                        )}
                     </div>
 
                     <div className={styles.settingSection}>
@@ -415,6 +435,7 @@ function App() {
     useEffect(() => {
         if (auth.isAuthenticated) {
             loadCRNs();
+            loadUserProfile();
         }
     }, [auth.isAuthenticated]);
 
@@ -429,6 +450,21 @@ function App() {
         } finally {
             setLoading(false);
             setLoadingCrns(false);
+        }
+    };
+
+    const loadUserProfile = async () => {
+        try {
+            const profile = await crnService.getUserProfile();
+            if (profile.phone_number) {
+                // Extract digits and format the phone number
+                const digits = profile.phone_number.replace(/\D/g, '').slice(-10); // Get last 10 digits
+                setPhoneNumber(digits);
+                setDisplayPhone(formatPhoneNumber(digits));
+            }
+        } catch (error) {
+            console.error('Failed to load user profile:', error);
+            // Don't show error message for profile loading - it's not critical
         }
     };
 
@@ -592,12 +628,42 @@ function App() {
         try {
             const result = await crnService.registerPhoneNumber(phoneNumber);
             showMessage('Phone number saved successfully! You\'ll receive SMS notifications when courses open.', 'success');
+            // Reload user profile to get updated data
+            await loadUserProfile();
         } catch (error) {
             console.error('Error saving phone number:', error);
             const errorMsg = error.response?.data?.error || 'Failed to save phone number';
             showMessage(errorMsg, 'error');
         } finally {
             setSavingPhone(false);
+        }
+    };
+
+    // Remove phone number from notifications
+    const removePhoneNumber = async () => {
+        setSavingPhone(true);
+        try {
+            await crnService.removePhoneNumber();
+            setPhoneNumber('');
+            setDisplayPhone('');
+            showMessage('Phone number removed successfully. You will no longer receive SMS notifications.', 'success');
+        } catch (error) {
+            console.error('Error removing phone number:', error);
+            const errorMsg = error.response?.data?.error || 'Failed to remove phone number';
+            showMessage(errorMsg, 'error');
+        } finally {
+            setSavingPhone(false);
+        }
+    };
+
+    const sendTestSms = async () => {
+        try {
+            await crnService.sendTestSms();
+            showMessage('Test SMS sent! Check your phone.', 'success');
+        } catch (error) {
+            console.error('Error sending test SMS:', error);
+            const errorMsg = error.response?.data?.error || 'Failed to send test SMS';
+            showMessage(errorMsg, 'error');
         }
     };
 
@@ -724,7 +790,9 @@ function App() {
                         onPhoneNumberChange={handlePhoneNumberChange}
                         onPhoneNumberBlur={handlePhoneNumberBlur}
                         onSavePhoneNumber={savePhoneNumber}
+                        onRemovePhoneNumber={removePhoneNumber}
                         savingPhone={savingPhone}
+                        onTestSms={sendTestSms}
                     />
                     {/* PWA Install Prompt */}
                     {showInstallPrompt && (

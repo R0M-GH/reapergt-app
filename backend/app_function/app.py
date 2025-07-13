@@ -6,6 +6,14 @@ import base64
 import os
 from decimal import Decimal
 from typing import Dict, Any, List
+from datetime import datetime, timedelta
+
+try:
+    from pywebpush import webpush, WebPushException
+except ImportError:
+    # pywebpush is optional - only needed for push notifications
+    webpush = None
+    WebPushException = None
 
 def convert_decimals(obj):
     """Convert Decimal objects to int/float for JSON serialization."""
@@ -187,6 +195,32 @@ def get_user_crns(user_id: str) -> List[Dict[str, Any]]:
         print(f"Error getting user CRNs: {e}")
         return []
 
+def get_user_profile(user_id: str) -> Dict[str, Any]:
+    """Get user profile data including phone number."""
+    try:
+        users_table = get_dynamodb_table(os.environ['DYNAMODB_USERS_TABLE'])
+        print(f"Getting user profile for user: {user_id}")
+        response = users_table.get_item(Key={'user_id': user_id})
+        print(f"DynamoDB response: {response}")
+        
+        if 'Item' not in response:
+            print(f"No user found with ID: {user_id}")
+            return {}
+        
+        user_data = response['Item']
+        profile = {
+            'user_id': user_data.get('user_id'),
+            'phone_number': user_data.get('phone_number'),
+            'push_subscription': user_data.get('push_subscription'),
+            'crns_count': len(user_data.get('crns', []))
+        }
+        print(f"User profile: {profile}")
+        return profile
+        
+    except Exception as e:
+        print(f"Error getting user profile: {e}")
+        return {}
+
 def add_crn_to_user(user_id: str, crn: str, course_info: Dict[str, Any]) -> Dict[str, Any]:
     """Add CRN to user's list."""
     try:
@@ -225,6 +259,8 @@ def add_crn_to_user(user_id: str, crn: str, course_info: Dict[str, Any]) -> Dict
         user_item = response.get('Item', {})
         user_item['user_id'] = user_id
         user_item['crns'] = current_crns
+        # The user_item already contains all existing fields from get_item
+        # No need to explicitly preserve them - they're already there
         users_table.put_item(Item=user_item)
         print(f"Successfully stored user CRNs in users table")
         
@@ -260,11 +296,11 @@ def remove_crn_from_user(user_id: str, crn: str) -> Dict[str, Any]:
         if len(updated_crns) == len(current_crns):
             return {'error': 'CRN not found in your list'}
         
-        # Update user's CRN list
-        users_table.put_item(Item={
-            'user_id': user_id,
-            'crns': updated_crns
-        })
+        # Update user's CRN list while preserving all existing data
+        user_item = response['Item']
+        user_item['user_id'] = user_id
+        user_item['crns'] = updated_crns
+        users_table.put_item(Item=user_item)
         
         # Remove user from global CRN tracking
         try:
@@ -322,12 +358,62 @@ def register_push_notification(user_id: str, body: str) -> Dict[str, Any]:
             'body': json.dumps({'error': f'Failed to register push notification: {str(e)}'})
         }
 
+def send_welcome_sms(user_id: str, phone_number: str) -> Dict[str, Any]:
+    """Send welcome SMS when user registers phone number."""
+    try:
+        # Create welcome message
+        message = f"🎉 Welcome to Reaper! You'll get SMS alerts when your tracked courses open up. Manage courses at app.getreaper.com - Reply STOP to opt out"
+        
+        # Send SMS using Textbelt
+        import requests
+        
+        api_key = os.environ.get('TEXTBELT_API_KEY')
+        if not api_key:
+            print("TEXTBELT_API_KEY not configured for welcome SMS")
+            return {
+                'statusCode': 500,
+                'body': json.dumps({'error': 'SMS service not configured'})
+            }
+        
+        # Clean phone number (remove +1 if present)
+        clean_phone = phone_number.replace('+1', '').replace('+', '')
+        
+        response = requests.post('https://textbelt.com/text', {
+            'phone': clean_phone,
+            'message': message,
+            'key': api_key
+        }, timeout=10)
+        
+        result = response.json()
+        
+        if not result.get('success'):
+            print(f'Welcome SMS failed for user {user_id}: {result}')
+            return {
+                'statusCode': 400,
+                'body': json.dumps({'error': f'Welcome SMS failed: {result.get("error", "Unknown error")}'})
+            }
+        
+        print(f'Successfully sent welcome SMS to user {user_id} at {phone_number}')
+        return {
+            'statusCode': 200,
+            'body': json.dumps({'message': 'Welcome SMS sent successfully'})
+        }
+        
+    except Exception as e:
+        print(f"Error sending welcome SMS: {e}")
+        return {
+            'statusCode': 500,
+            'body': json.dumps({'error': f'Welcome SMS failed: {str(e)}'})
+        }
+
 def register_phone_number(user_id: str, body: str) -> Dict[str, Any]:
     """Register phone number for SMS notifications."""
     try:
+        print(f"DEBUG: register_phone_number called with user_id={user_id}, body={body}")
         # Parse request body
         request_data = json.loads(body)
         phone_number = request_data.get('phone_number', '').strip()
+        print(f"DEBUG: parsed phone_number={phone_number}")
         
         if not phone_number:
             return {
@@ -355,13 +441,21 @@ def register_phone_number(user_id: str, body: str) -> Dict[str, Any]:
         users_table = get_dynamodb_table(os.environ['DYNAMODB_USERS_TABLE'])
         user_response = users_table.get_item(Key={'user_id': user_id})
         user_item = user_response.get('Item', {})
+        print(f"DEBUG: existing user item: {user_item}")
         
         # Update user with phone number
         user_item['user_id'] = user_id
         user_item['phone_number'] = formatted_phone
         user_item['crns'] = user_item.get('crns', [])
+        print(f"DEBUG: updated user item before save: {user_item}")
         
         users_table.put_item(Item=user_item)
+        print(f"DEBUG: phone number saved successfully")
+        
+        # Send welcome SMS
+        welcome_result = send_welcome_sms(user_id, formatted_phone)
+        if welcome_result.get('statusCode') != 200:
+            print(f"Warning: Failed to send welcome SMS: {welcome_result}")
         
         return {
             'statusCode': 200,
@@ -381,6 +475,37 @@ def register_phone_number(user_id: str, body: str) -> Dict[str, Any]:
         return {
             'statusCode': 500,
             'body': json.dumps({'error': f'Failed to register phone number: {str(e)}'})
+        }
+
+def remove_phone_number(user_id: str) -> Dict[str, Any]:
+    """Remove phone number from user's profile."""
+    try:
+        users_table = get_dynamodb_table(os.environ['DYNAMODB_USERS_TABLE'])
+        user_response = users_table.get_item(Key={'user_id': user_id})
+        user_item = user_response.get('Item', {})
+        
+        if 'phone_number' not in user_item:
+            return {
+                'statusCode': 400,
+                'body': json.dumps({'error': 'Phone number not found in your profile'})
+            }
+        
+        # Remove phone number by setting it to None
+        user_item.pop('phone_number', None)
+        user_item['user_id'] = user_id
+        user_item['crns'] = user_item.get('crns', [])
+        
+        users_table.put_item(Item=user_item)
+        print(f"Phone number removed successfully for user {user_id}")
+        return {
+            'statusCode': 200,
+            'body': json.dumps({'message': 'Phone number removed successfully'})
+        }
+    except Exception as e:
+        print(f"Failed to remove phone number for {user_id}: {e}")
+        return {
+            'statusCode': 500,
+            'body': json.dumps({'error': 'Failed to remove phone number'})
         }
 
 def send_test_sms_notification(user_id: str, crn: str, course_info: Dict[str, Any]) -> Dict[str, Any]:
@@ -409,46 +534,112 @@ def send_test_sms_notification(user_id: str, crn: str, course_info: Dict[str, An
         
         message = f"📚 TEST: Course Added Successfully!\n\n{course_name}\nCRN: {crn}\nSeats: {seats_remaining}/{total_seats}\n\nYou'll get SMS alerts when this course opens up! 🎉"
         
-        # Send SMS using AWS SNS
-        import boto3
-        sns_client = boto3.client('sns')
+        # Send SMS using Textbelt
+        import requests
         
-        try:
-            response = sns_client.publish(
-                PhoneNumber=phone_number,
-                Message=message,
-                MessageAttributes={
-                    'AWS.SNS.SMS.SenderID': {
-                        'DataType': 'String',
-                        'StringValue': 'Reaper'
-                    },
-                    'AWS.SNS.SMS.SMSType': {
-                        'DataType': 'String',
-                        'StringValue': 'Transactional'
-                    }
-                }
-            )
-            
-            print(f'Successfully sent test SMS to user {user_id} at {phone_number}')
-            return {
-                'statusCode': 200,
-                'body': json.dumps({
-                    'message': 'Test SMS sent successfully!'
-                })
-            }
-            
-        except Exception as e:
-            print(f'SNS error sending test SMS: {e}')
+        api_key = os.environ.get('TEXTBELT_API_KEY')
+        if not api_key:
+            print("TEXTBELT_API_KEY not configured")
             return {
                 'statusCode': 500,
-                'body': json.dumps({'error': 'Failed to send test SMS'})
+                'body': json.dumps({'error': 'SMS service not configured'})
             }
-    
+        
+        # Clean phone number (remove +1 if present)
+        clean_phone = phone_number.replace('+1', '').replace('+', '')
+        
+        response = requests.post('https://textbelt.com/text', {
+            'phone': clean_phone,
+            'message': message,
+            'key': api_key
+        }, timeout=10)
+        
+        result = response.json()
+        
+        if not result.get('success'):
+            print(f'Textbelt SMS failed for user {user_id}: {result}')
+            error_msg = result.get('error', 'Unknown SMS error')
+            return {
+                'statusCode': 400,
+                'body': json.dumps({'error': f'SMS failed: {error_msg}'})
+            }
+        
+        print(f'Successfully sent test SMS to user {user_id} at {phone_number}')
+        return {
+            'statusCode': 200,
+            'body': json.dumps({'message': 'Test SMS sent successfully!'})
+        }
+        
     except Exception as e:
-        print(f"Failed to send test SMS for {user_id}: {e}")
+        print(f"Error sending test SMS: {e}")
         return {
             'statusCode': 500,
-            'body': json.dumps({'error': f'Failed to send test SMS: {str(e)}'})
+            'body': json.dumps({'error': f'SMS notification failed: {str(e)}'})
+        }
+
+def send_manual_test_sms(user_id: str) -> Dict[str, Any]:
+    """Send a manual test SMS notification to verify SMS functionality."""
+    try:
+        # Get user's phone number from database
+        users_table = get_dynamodb_table(os.environ['DYNAMODB_USERS_TABLE'])
+        user_response = users_table.get_item(Key={'user_id': user_id})
+        user_data = user_response.get('Item', {})
+        
+        phone_number = user_data.get('phone_number')
+        print(f"Manual test SMS for user: {user_id}")
+        print(f"Phone number found: {phone_number}")
+        
+        if not phone_number:
+            print(f"No phone number found for user {user_id}")
+            return {
+                'statusCode': 400,
+                'body': json.dumps({'error': 'No phone number registered. Please add your phone number in settings.'})
+            }
+        
+        # Create test message
+        message = f"🧪 TEST: Reaper SMS working! You'll get alerts when courses open. Manage at app.getreaper.com - Reply STOP to opt out"
+        
+        # Send SMS using Textbelt
+        import requests
+        
+        api_key = os.environ.get('TEXTBELT_API_KEY')
+        if not api_key:
+            print("TEXTBELT_API_KEY not configured")
+            return {
+                'statusCode': 500,
+                'body': json.dumps({'error': 'SMS service not configured'})
+            }
+        
+        # Clean phone number (remove +1 if present)
+        clean_phone = phone_number.replace('+1', '').replace('+', '')
+        
+        response = requests.post('https://textbelt.com/text', {
+            'phone': clean_phone,
+            'message': message,
+            'key': api_key
+        }, timeout=10)
+        
+        result = response.json()
+        
+        if not result.get('success'):
+            print(f'Manual test SMS failed for user {user_id}: {result}')
+            error_msg = result.get('error', 'Unknown SMS error')
+            return {
+                'statusCode': 400,
+                'body': json.dumps({'error': f'SMS test failed: {error_msg}'})
+            }
+        
+        print(f'Successfully sent manual test SMS to user {user_id} at {phone_number}')
+        return {
+            'statusCode': 200,
+            'body': json.dumps({'message': 'Test SMS sent successfully! Check your phone.'})
+        }
+        
+    except Exception as e:
+        print(f"Error sending manual test SMS: {e}")
+        return {
+            'statusCode': 500,
+            'body': json.dumps({'error': f'SMS test failed: {str(e)}'})
         }
 
 def send_test_push_notification(user_id: str) -> Dict[str, Any]:
@@ -494,38 +685,36 @@ def send_test_push_notification(user_id: str) -> Dict[str, Any]:
             }
         
         # Send the notification using pywebpush
-        try:
-            from pywebpush import webpush, WebPushException
-            
-            response = webpush(
-                subscription_info=push_subscription,
-                data=json.dumps(notification_payload),
-                vapid_private_key=vapid_private_key,
-                vapid_claims={
-                    "sub": "mailto:support@getreaper.com",
-                    "aud": push_subscription['endpoint']
+        if webpush:
+            try:
+                response = webpush(
+                    subscription_info=push_subscription,
+                    data=json.dumps(notification_payload),
+                    vapid_private_key=vapid_private_key,
+                    vapid_claims={
+                        'sub': 'mailto:admin@getreaper.com',
+                        'aud': 'https://fcm.googleapis.com',
+                        'exp': int((datetime.now() + timedelta(hours=12)).timestamp())
+                    }
+                )
+                
+                print(f"Push notification sent successfully: {response}")
+                return {
+                    'statusCode': 200,
+                    'body': json.dumps({'message': 'Test notification sent successfully'})
                 }
-            )
-            
-            print(f'Successfully sent test notification to user {user_id}')
-            return {
-                'statusCode': 200,
-                'body': json.dumps({
-                    'message': 'Test notification sent successfully!'
-                })
-            }
-            
-        except WebPushException as e:
-            print(f'WebPush error sending test notification: {e}')
+                
+            except Exception as e:
+                print(f"Failed to send push notification: {e}")
+                return {
+                    'statusCode': 500,
+                    'body': json.dumps({'error': 'Failed to send test notification'})
+                }
+        else:
+            print("pywebpush not available, skipping test push notification.")
             return {
                 'statusCode': 500,
-                'body': json.dumps({'error': 'Failed to send test notification'})
-            }
-        except Exception as e:
-            print(f'Error sending test notification: {e}')
-            return {
-                'statusCode': 500,
-                'body': json.dumps({'error': 'Failed to send test notification'})
+                'body': json.dumps({'error': 'Push notification service not configured'})
             }
     
     except Exception as e:
@@ -699,7 +888,22 @@ def lambda_handler(event, context):
     elif path == '/register-phone':
         if http_method == 'POST':
             # Register phone number for SMS notifications
+            print(f"DEBUG: register-phone called for user {user_id}")
+            print(f"DEBUG: request body: {event.get('body', '{}')}")
             result = register_phone_number(user_id, event.get('body', '{}'))
+            print(f"DEBUG: register_phone_number result: {result}")
+            return {
+                'statusCode': result['statusCode'],
+                'headers': get_cors_headers(),
+                'body': result['body']
+            }
+    
+    elif path == '/remove-phone':
+        if http_method == 'POST':
+            # Remove phone number for SMS notifications
+            print(f"DEBUG: remove-phone called for user {user_id}")
+            result = remove_phone_number(user_id)
+            print(f"DEBUG: remove_phone_number result: {result}")
             return {
                 'statusCode': result['statusCode'],
                 'headers': get_cors_headers(),
@@ -710,6 +914,16 @@ def lambda_handler(event, context):
         if http_method == 'POST':
             # Send test notification
             result = send_test_push_notification(user_id)
+            return {
+                'statusCode': result['statusCode'],
+                'headers': get_cors_headers(),
+                'body': result['body']
+            }
+    
+    elif path == '/test-sms':
+        if http_method == 'POST':
+            # Send test SMS notification
+            result = send_manual_test_sms(user_id)
             return {
                 'statusCode': result['statusCode'],
                 'headers': get_cors_headers(),
@@ -763,6 +977,68 @@ def lambda_handler(event, context):
                     'statusCode': 500,
                     'headers': get_cors_headers(),
                     'body': json.dumps({'error': 'Failed to refresh CRNs'})
+                }
+    
+    elif path == '/user/profile':
+        if http_method == 'GET':
+            # Get user profile
+            profile = get_user_profile(user_id)
+            return {
+                'statusCode': 200,
+                'headers': get_cors_headers(),
+                'body': json.dumps(profile)
+            }
+        elif http_method == 'PUT':
+            # Update user profile (e.g., phone number)
+            try:
+                body = json.loads(event.get('body', '{}'))
+                phone_number = body.get('phone_number')
+                
+                if phone_number:
+                    if not re.match(r'^\+?1?\d{10,15}$', phone_number): # Basic regex for phone number
+                        return {
+                            'statusCode': 400,
+                            'headers': get_cors_headers(),
+                            'body': json.dumps({'error': 'Invalid phone number format. Must be a valid US or international phone number.'})
+                        }
+                    
+                    # If phone number is provided, register it
+                    result = register_phone_number(user_id, json.dumps({'phone_number': phone_number}))
+                    if 'error' in result:
+                        return {
+                            'statusCode': result['statusCode'],
+                            'headers': get_cors_headers(),
+                            'body': result['body']
+                        }
+                else:
+                    # If phone_number is not in body, remove it
+                    result = remove_phone_number(user_id)
+                    if 'error' in result:
+                        return {
+                            'statusCode': result['statusCode'],
+                            'headers': get_cors_headers(),
+                            'body': result['body']
+                        }
+                
+                # Re-fetch profile to include updated phone number
+                profile = get_user_profile(user_id)
+                return {
+                    'statusCode': 200,
+                    'headers': get_cors_headers(),
+                    'body': json.dumps(profile)
+                }
+            except json.JSONDecodeError:
+                return {
+                    'statusCode': 400,
+                    'headers': get_cors_headers(),
+                    'body': json.dumps({'error': 'Invalid JSON in request body'})
+                }
+            except Exception as e:
+                print(f"Error in PUT /user/profile: {e}")
+                return {
+                    'statusCode': 500,
+                    'headers': get_cors_headers(),
+                    'body': json.dumps({'error': 'Internal server error'})
                 }
     
     # Default response for unknown paths

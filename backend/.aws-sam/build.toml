@@ -5,7 +5,7 @@ codeuri = "/home/rohan/Projects/reaper/reapergt-app/backend/app_function"
 runtime = "python3.12"
 architecture = "x86_64"
 handler = "app.lambda_handler"
-manifest_hash = "398624fe48b27d8d004026b3536b9391"
+manifest_hash = "109bf8e6515b2a37d5616b70be1f8fba"
 packagetype = "Zip"
 functions = ["AppFunction"]
 
@@ -23,7 +23,7 @@ codeuri = "/home/rohan/Projects/reaper/reapergt-app/backend/notifier"
 runtime = "python3.12"
 architecture = "x86_64"
 handler = "notifier.handler"
-manifest_hash = "03a3ca9aab74e66230769dc4a315d1a6"
+manifest_hash = "f822051bc9e647baf6d73966d44d0383"
 packagetype = "Zip"
 functions = ["Notifier"]
 

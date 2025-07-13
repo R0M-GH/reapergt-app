@@ -32,6 +32,7 @@ Resources:
         Variables:
           DYNAMODB_USERS_TABLE: reaper-users
           DYNAMODB_CRNS_TABLE: reaper-crns
+          TEXTBELT_API_KEY: 00e6ec89f554ab62ccb114e006b50ccd49ffe116ycBYw2NMUSdQoBhs7XVulZxXf
       Policies:
         - DynamoDBCrudPolicy:
             TableName: reaper-users
@@ -103,7 +104,7 @@ Resources:
           Properties:
             Path: /register-push
             Method: options
-        # Phone number registration endpoint
+        # Phone number endpoints
         RegisterPhone:
           Type: Api
           Properties:
@@ -113,6 +114,32 @@ Resources:
           Type: Api
           Properties:
             Path: /register-phone
+            Method: options
+        RemovePhone:
+          Type: Api
+          Properties:
+            Path: /remove-phone
+            Method: post
+        RemovePhoneOptions:
+          Type: Api
+          Properties:
+            Path: /remove-phone
+            Method: options
+        # User profile endpoints
+        UserProfile:
+          Type: Api
+          Properties:
+            Path: /user/profile
+            Method: get
+        UserProfilePut:
+          Type: Api
+          Properties:
+            Path: /user/profile
+            Method: put
+        UserProfileOptions:
+          Type: Api
+          Properties:
+            Path: /user/profile
             Method: options
         # Test notification endpoint
         TestNotification:
@@ -124,6 +151,17 @@ Resources:
           Type: Api
           Properties:
             Path: /test-notification
+            Method: options
+        # Test SMS endpoint
+        TestSms:
+          Type: Api
+          Properties:
+            Path: /test-sms
+            Method: post
+        TestSmsOptions:
+          Type: Api
+          Properties:
+            Path: /test-sms
             Method: options
         # Manual refresh endpoint for real-time updates
         RefreshCrns:
@@ -183,6 +221,7 @@ Resources:
         Variables:
           DYNAMODB_USERS_TABLE: reaper-users
           DYNAMODB_CRNS_TABLE: reaper-crns
+          TEXTBELT_API_KEY: 00e6ec89f554ab62ccb114e006b50ccd49ffe116ycBYw2NMUSdQoBhs7XVulZxXf
       Policies:
         - DynamoDBCrudPolicy:
             TableName: reaper-users

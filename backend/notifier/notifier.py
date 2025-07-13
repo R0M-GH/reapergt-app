@@ -92,23 +92,21 @@ def get_users_tracking_crn(crn):
         return []
 
 def send_sms_notifications(crn, availability):
-    """Send SMS notifications to all users tracking this CRN"""
+    """Send SMS notifications to users tracking this CRN"""
     try:
-        # Get users tracking this CRN
         users = get_users_tracking_crn(crn)
-        
         if not users:
-            logger.info(f"No users with phone numbers found for CRN {crn}")
+            logger.info(f"No users with phone numbers tracking CRN {crn}")
             return
         
-        # Create SMS message
         course_name = availability.get('course_name', f'CRN {crn}')
         seats_remaining = availability.get('seats_remaining', 0)
-        total_seats = availability.get('total_seats', 0)
         
-        message = f"🎉 COURSE AVAILABLE!\n\n{course_name}\nCRN: {crn}\nSeats: {seats_remaining}/{total_seats}\n\nRegister now at OSCAR before spots fill up!"
+        # Create concise SMS message with alert emoji and better formatting
+        message = f"🚨 {course_name} (CRN {crn}) - Seats open: {seats_remaining}! Register: oscar.gatech.edu - Update your courses in Reaper app"
         
-        # Send SMS to all users
+        logger.info(f'Sending SMS to {len(users)} users for CRN {crn}: "{message}"')
+        
         successful_sends = 0
         failed_sends = 0
         
@@ -122,21 +120,30 @@ def send_sms_notifications(crn, availability):
                     else:
                         phone = '+1' + phone
                 
-                # Send SMS using SNS
-                response = sns_client.publish(
-                    PhoneNumber=phone,
-                    Message=message,
-                    MessageAttributes={
-                        'AWS.SNS.SMS.SenderID': {
-                            'DataType': 'String',
-                            'StringValue': 'Reaper'
-                        },
-                        'AWS.SNS.SMS.SMSType': {
-                            'DataType': 'String',
-                            'StringValue': 'Transactional'
-                        }
-                    }
-                )
+                # Send SMS using Textbelt
+                import requests
+                
+                api_key = os.environ.get('TEXTBELT_API_KEY')
+                if not api_key:
+                    logger.error("TEXTBELT_API_KEY not configured")
+                    failed_sends += 1
+                    continue
+                
+                # Clean phone number (remove +1 if present)
+                clean_phone = phone.replace('+1', '').replace('+', '')
+                
+                response = requests.post('https://textbelt.com/text', {
+                    'phone': clean_phone,
+                    'message': message,
+                    'key': api_key
+                }, timeout=10)
+                
+                result = response.json()
+                
+                if not result.get('success'):
+                    logger.error(f'Textbelt SMS failed for user {user["user_id"]}: {result}')
+                    failed_sends += 1
+                    continue
                 
                 logger.info(f'Successfully sent SMS to user {user["user_id"]} at {phone} for CRN {crn}')
                 successful_sends += 1

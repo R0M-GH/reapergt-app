@@ -285,11 +285,11 @@ def update_user_crn_data(crn: str, availability: Dict) -> None:
             
             # Update user if needed
             if needs_update:
-                users_table.put_item(Item={
-                    'user_id': user_id,
-                    'crns': updated_crns,
-                    'push_subscription': user_item.get('push_subscription')  # Preserve push subscription
-                })
+                # Preserve ALL existing user data
+                updated_user_item = user_item.copy()
+                updated_user_item['user_id'] = user_id
+                updated_user_item['crns'] = updated_crns
+                users_table.put_item(Item=updated_user_item)
                 logger.info(f"Updated user {user_id} CRN data for {crn}")
         
     except Exception as e:
