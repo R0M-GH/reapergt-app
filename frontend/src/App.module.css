@@ -1,9 +1,50 @@
+/* Add these viewport and input zoom prevention rules at the very top */
+html {
+    /* Prevent horizontal scrolling and improve mobile behavior */
+    overflow-x: hidden;
+    /* Prevent zoom on mobile inputs */
+    -webkit-text-size-adjust: 100%;
+    -moz-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+body {
+    /* Prevent scrollbar and ensure proper mobile behavior */
+    overflow-x: hidden;
+    /* Fix iOS Safari viewport issues */
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Prevent input zoom on all input elements */
+input[type="text"],
+input[type="tel"],
+input[type="email"],
+input[type="number"],
+textarea,
+select {
+    font-size: 16px !important;
+    /* Prevent zoom on iOS */
+    -webkit-appearance: none;
+    border-radius: 0;
+}
+
+/* Fix input zoom specifically on focus */
+input:focus,
+textarea:focus,
+select:focus {
+    font-size: 16px !important;
+    /* Ensure no zoom on focus */
+}
+
 .gradientContainer {
     min-height: 100vh;
     width: 100vw;
     background: linear-gradient(180deg, #1a1a1a 0%, #000 100%);
     display: flex;
     flex-direction: column;
+    /* Remove any overflow that might cause scrollbars */
+    overflow-x: hidden;
     /* Only add safe area support for top on mobile devices */
     padding-top: env(safe-area-inset-top);
 }
@@ -91,20 +132,25 @@
     flex-direction: column;
     min-height: 100vh;
     position: relative;
+    /* Remove overflow that causes scrollbar */
+    overflow: visible;
+    /* Add top padding for fixed header */
+    padding-top: 80px;
 }
 
 .header {
-    position: sticky;
+    /* Make header truly fixed to prevent movement */
+    position: fixed;
     top: 0;
+    left: 0;
+    right: 0;
     z-index: 100;
-    background: transparent;
+    background: rgba(26, 26, 26, 0.95);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid rgba(203, 161, 53, 0.1);
     padding: 16px 20px;
-    padding-left: max(20px, calc(20px + env(safe-area-inset-left)));
-    padding-right: max(20px, calc(20px + env(safe-area-inset-right)));
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    transition: background-color 0.3s ease, backdrop-filter 0.3s ease;
+    /* Add space for content below fixed header */
+    margin-bottom: 0;
 }
 
 .header.scrolled {
@@ -483,63 +529,66 @@
 /* Phone input field styling */
 .phoneInputContainer {
     display: flex;
-    gap: 8px;
-    align-items: flex-start;
-    margin-bottom: 12px;
+    flex-direction: row;
+    gap: 12px;
+    align-items: center;
+    width: 100%;
+    /* Better flex layout for mobile */
+    flex-wrap: nowrap;
 }
 
 .phoneInput {
     flex: 1;
-    min-width: 0;
-    padding: 12px 14px;
-    border: 1px solid #333;
-    border-radius: 10px;
-    background: #111;
-    color: #ECECEC;
-    font-size: 14px;
-    font-weight: 400;
+    padding: 12px 16px;
+    border: 1px solid rgba(203, 161, 53, 0.3);
+    border-radius: 8px;
+    background: rgba(26, 26, 26, 0.8);
+    color: #fff;
+    font-size: 16px !important;
+    /* Prevent zoom */
     outline: none;
-    transition: all 0.2s cubic-bezier(.4, 2, .6, 1);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: border-color 0.2s;
+    /* Ensure proper sizing */
+    min-width: 0;
     box-sizing: border-box;
 }
 
 .phoneInput:focus {
-    border: 1px solid #CBA135;
-    box-shadow: 0 0 0 2px rgba(203, 161, 53, 0.2);
-    background: rgba(17, 17, 17, 0.95);
+    border-color: #CBA135;
+    font-size: 16px !important;
+    /* Ensure no zoom on focus */
 }
 
 .phoneInput::placeholder {
-    color: #666;
-    font-weight: 400;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 16px !important;
 }
 
 .phoneInput:disabled {
     opacity: 0.6;
     cursor: not-allowed;
-    background: rgba(17, 17, 17, 0.5);
 }
 
 .phoneActionButton {
+    padding: 12px 20px;
+    border: 1px solid #CBA135;
+    border-radius: 8px;
+    background: #CBA135;
+    color: #1a1a1a;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 6px;
-    padding: 12px 12px;
-    background: rgba(203, 161, 53, 0.1);
-    color: #CBA135;
-    border: 1px solid rgba(203, 161, 53, 0.3);
-    border-radius: 10px;
-    font-weight: 500;
-    font-size: 13px;
-    cursor: pointer;
-    transition: all 0.18s cubic-bezier(.4, 2, .6, 1);
-    text-decoration: none;
-    box-sizing: border-box;
+    gap: 8px;
     white-space: nowrap;
-    min-width: 90px;
+    /* Prevent text wrapping */
     flex-shrink: 0;
+    /* Prevent button from shrinking */
+    min-width: 110px;
+    justify-content: center;
+    box-sizing: border-box;
 }
 
 .phoneActionButton:hover:not(:disabled) {
@@ -765,7 +814,8 @@
     padding-left: max(20px, calc(20px + env(safe-area-inset-left)));
     padding-right: max(20px, calc(20px + env(safe-area-inset-right)));
     /* Added bottom padding for input space */
-    overflow-y: auto;
+    /* Remove overflow that causes unnecessary scrollbars */
+    overflow: visible;
 }
 
 .listHeader {
@@ -1329,12 +1379,26 @@
         min-height: 100vh;
         min-height: 100dvh;
         /* Use dynamic viewport height on mobile */
+        /* Remove any overflow */
+        overflow: visible;
+        /* Add top padding for mobile fixed header */
+        padding-top: 90px;
     }
 
     .header {
+        /* Ensure header stays fixed on mobile */
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
         padding: 12px 16px;
         padding-left: max(16px, calc(16px + env(safe-area-inset-left)));
         padding-right: max(16px, calc(16px + env(safe-area-inset-right)));
+        /* Add safe area top padding */
+        padding-top: max(12px, calc(12px + env(safe-area-inset-top)));
+        background: rgba(26, 26, 26, 0.98);
+        backdrop-filter: blur(12px);
+        z-index: 1000;
     }
 
     .listContainer {
@@ -1342,7 +1406,8 @@
         padding-left: max(16px, calc(16px + env(safe-area-inset-left)));
         padding-right: max(16px, calc(16px + env(safe-area-inset-right)));
         flex: 1;
-        overflow-y: auto;
+        /* Remove overflow that causes scrollbar issues */
+        overflow: visible;
     }
 
     .listTitle {
@@ -1380,7 +1445,7 @@
 
     .input {
         margin-right: 8px;
-        font-size: 16px;
+        font-size: 16px !important;
         /* Prevent zoom on iOS */
     }
 
@@ -1442,10 +1507,15 @@
 
     .inputMobile {
         height: 52px;
-        font-size: 16px;
+        font-size: 16px !important;
         /* Prevent zoom on iOS */
         border-radius: 12px;
         padding: 0 16px;
+    }
+
+    .inputMobile:focus {
+        font-size: 16px !important;
+        /* Ensure no zoom on focus */
     }
 
     .addButton {
@@ -1480,21 +1550,33 @@
         margin-top: 4px;
     }
 
-    /* Mobile phone input styling */
+    /* IMPROVED Mobile phone input styling - stack vertically */
     .phoneInputContainer {
         flex-direction: column;
-        gap: 10px;
+        gap: 12px;
+        align-items: stretch;
+        /* Full width */
     }
 
     .phoneInput {
-        font-size: 14px;
-        padding: 10px 14px;
+        font-size: 16px !important;
+        /* Prevent zoom */
+        padding: 14px 16px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .phoneInput:focus {
+        font-size: 16px !important;
+        /* Ensure no zoom on focus */
     }
 
     .phoneActionButton {
-        min-width: 100px;
-        font-size: 13px;
-        padding: 10px 14px;
+        width: 100%;
+        min-width: unset;
+        font-size: 14px;
+        padding: 14px 20px;
+        justify-content: center;
     }
 
     .settingSection {
@@ -1514,38 +1596,49 @@
     .settingButton {
         padding: 12px 16px;
         font-size: 14px;
+        /* Prevent zoom */
+        font-size: 16px !important;
+        box-sizing: border-box;
+    }
+
+    .settingButton:focus {
+        font-size: 16px !important;
     }
 
     .unsubscribeButton {
         padding: 12px 16px;
-        font-size: 14px;
+        font-size: 16px !important;
+        /* Prevent zoom */
+        box-sizing: border-box;
     }
 
-
-
-    .modalContent {
-        max-width: 340px;
-        max-height: 55vh;
-    }
-
-    .modalBodyScrollable {
-        padding: 10px 16px 14px 16px;
-        max-height: 35vh;
-    }
-
-    .testButton {
-        padding: 8px 14px;
-        font-size: 13px;
-        margin-top: 6px;
+    .unsubscribeButton:focus {
+        font-size: 16px !important;
     }
 
     .modalContent {
-        margin: 10px;
+        max-width: 360px;
+        /* Slightly wider for better phone input */
         max-height: 85vh;
+        margin: 10px;
     }
 
     .modalBodyScrollable {
         max-height: 70vh;
         padding: 16px;
+        /* Remove overflow that might cause issues */
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .testButton {
+        padding: 8px 14px;
+        font-size: 16px !important;
+        /* Prevent zoom */
+        margin-top: 6px;
+    }
+
+    .testButton:focus {
+        font-size: 16px !important;
     }
 }

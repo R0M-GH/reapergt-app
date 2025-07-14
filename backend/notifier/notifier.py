@@ -20,17 +20,23 @@ def handler(event, context):
     Sends SMS notifications when course spots are available
     """
     try:
-        logger.info("Notifier started")
-        logger.info(f"Processing notification: {event}")
+        logger.info("🚀 NOTIFIER STARTED")
+        logger.info(f"📋 Processing notification event: {event}")
         
         # Process the direct invocation event
         if event.get('notification_type') == 'course_available':
             crn = event.get('crn')
             availability = event.get('availability')
             
+            logger.info(f"🎯 Processing course_available notification for CRN {crn}")
             # Send SMS notifications to all users tracking this CRN
             send_sms_notifications(crn, availability)
-            logger.info(f"SMS notifications sent for CRN {crn}")
+            logger.info(f"✅ SMS notifications completed for CRN {crn}")
+            
+            # Check quota and warn if low
+            check_textbelt_quota_and_warn()
+        else:
+            logger.warning(f"❌ Unknown notification type: {event.get('notification_type')}")
         
         return {
             'statusCode': 200,
@@ -110,8 +116,8 @@ def send_sms_notifications(crn, availability):
         course_name = availability.get('course_name', f'CRN {crn}')
         seats_remaining = availability.get('seats_remaining', 0)
         
-        # Create concise SMS message with alert emoji and better formatting
-        message = f"⚠️ COURSE OPEN ⚠️\n\n{course_name} - (CRN {crn})\nSeats open: {seats_remaining}\n\nRegister in OSCAR and update your courses in the Reaper app"
+        # Create concise SMS message with professional emoji and better formatting
+        message = f"🎓 COURSE AVAILABLE 🎓\n\n{course_name} - (CRN {crn})\nSeats open: {seats_remaining}\n\nRegister in OSCAR and update your courses in the Reaper app"
         
         logger.info(f'Sending SMS to {len(users)} users for CRN {crn}: "{message}"')
         
@@ -188,4 +194,46 @@ def mark_user_notified(user_id, crn):
             logger.info(f"Marked user {user_id} as notified for CRN {crn}")
             
     except Exception as e:
-        logger.error(f"Error marking user {user_id} as notified for CRN {crn}: {str(e)}") 
+        logger.error(f"Error marking user {user_id} as notified for CRN {crn}: {str(e)}")
+
+def check_textbelt_quota_and_warn():
+    """Check Textbelt quota and send warning if low"""
+    try:
+        import requests
+        
+        api_key = os.environ.get('TEXTBELT_API_KEY')
+        if not api_key:
+            logger.warning("TEXTBELT_API_KEY not configured for quota check")
+            return
+        
+        # Check quota using Textbelt status endpoint
+        response = requests.post('https://textbelt.com/status', {
+            'key': api_key
+        }, timeout=10)
+        
+        result = response.json()
+        quota_remaining = result.get('quotaRemaining', 0)
+        
+        logger.info(f"Textbelt quota remaining: {quota_remaining}")
+        
+        # Send warning if quota is low (less than 100 messages)
+        if quota_remaining <= 100:
+            admin_phone = "4085816547"  # Your phone number
+            warning_message = f"🚨 REAPER ALERT 🚨\n\nTextbelt SMS quota is LOW!\nRemaining: {quota_remaining} messages\n\nAdd more credits at textbelt.com"
+            
+            # Send warning SMS
+            warning_response = requests.post('https://textbelt.com/text', {
+                'phone': admin_phone,
+                'message': warning_message,
+                'key': api_key
+            }, timeout=10)
+            
+            warning_result = warning_response.json()
+            
+            if warning_result.get('success'):
+                logger.info(f"Successfully sent quota warning to admin. Remaining: {quota_remaining}")
+            else:
+                logger.error(f"Failed to send quota warning: {warning_result}")
+        
+    except Exception as e:
+        logger.error(f"Error checking Textbelt quota: {e}")

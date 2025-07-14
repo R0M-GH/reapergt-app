@@ -458,7 +458,7 @@ def send_welcome_sms(user_id: str, phone_number: str) -> Dict[str, Any]:
                 'body': json.dumps({'error': f'Welcome SMS failed: {result.get("error", "Unknown error")}'})
             }
         
-        print(f'Successfully sent welcome SMS to user {user_id} at {phone_number}')
+        print(f'✅ SUCCESS: Welcome SMS sent to user {user_id} at {phone_number}')
         return {
             'statusCode': 200,
             'body': json.dumps({'message': 'Welcome SMS sent successfully'})
@@ -518,9 +518,11 @@ def register_phone_number(user_id: str, body: str) -> Dict[str, Any]:
         print(f"DEBUG: phone number saved successfully")
         
         # Send welcome SMS
+        print(f"DEBUG: About to send welcome SMS to {formatted_phone} for user {user_id}")
         welcome_result = send_welcome_sms(user_id, formatted_phone)
+        print(f"DEBUG: Welcome SMS result: {welcome_result}")
         if welcome_result.get('statusCode') != 200:
-            print(f"Warning: Failed to send welcome SMS: {welcome_result}")
+            print(f"ERROR: Failed to send welcome SMS: {welcome_result}")
         
         return {
             'statusCode': 200,
@@ -891,13 +893,6 @@ def lambda_handler(event, context):
                         'headers': get_cors_headers(),
                         'body': json.dumps(result)
                     }
-                
-                # Send test SMS notification when course is added
-                try:
-                    test_sms_result = send_test_sms_notification(user_id, crn, crn_check['course_info'])
-                    print(f"Test SMS notification result: {test_sms_result}")
-                except Exception as e:
-                    print(f"Failed to send test SMS notification: {e}")
                 
                 return {
                     'statusCode': 201,

@@ -294,9 +294,11 @@ async def process_crns_with_metadata(crns_list: Set[str], current_statuses: Dict
                 update_crn_data_with_metadata(crn, availability_data, crn_metadata.get(crn, {}), current_statuses.get(crn, 'closed'))
                 
                 # Send notification if course just opened
+                logger.info(f'DEBUG: CRN {crn} - is_open={is_open}, was_closed={was_closed}, current_status={current_statuses.get(crn, "unknown")}')
                 if is_open and was_closed:
-                    logger.info(f'🎉 Course {crn} is now OPEN!')
+                    logger.info(f'🎉 Course {crn} is now OPEN! Sending notification...')
                     send_notification(crn, availability_data)
+                    logger.info(f'✅ Notification call completed for CRN {crn}')
                 elif is_open:
                     logger.info(f'CRN {crn} remains open ({availability_data.get("seats_remaining", 0)}/{availability_data.get("total_seats", 0)} seats)')
                 else:
@@ -529,9 +531,11 @@ def send_notification(crn: str, availability: Dict) -> None:
         crn (str): The CRN that opened.
         availability (Dict): The availability data.
     """
+    logger.info(f'DEBUG: send_notification called for CRN {crn}')
     notifier_function_name = os.environ.get('NOTIFIER_FUNCTION_NAME')
+    logger.info(f'DEBUG: NOTIFIER_FUNCTION_NAME = {notifier_function_name}')
     if not notifier_function_name:
-        logger.error("NOTIFIER_FUNCTION_NAME environment variable not set")
+        logger.error("❌ ERROR: NOTIFIER_FUNCTION_NAME environment variable not set")
         return
     
     # Create notification payload
@@ -554,10 +558,10 @@ def send_notification(crn: str, availability: Dict) -> None:
             )
             
             if response['StatusCode'] == 202:  # Success for async invocation
-                logger.info(f"Notifier Lambda invoked successfully for CRN {crn} (attempt {attempt + 1})")
+                logger.info(f"✅ SUCCESS: Notifier Lambda invoked successfully for CRN {crn} (attempt {attempt + 1})")
                 return
             else:
-                logger.warning(f"Unexpected status code {response['StatusCode']} for CRN {crn} (attempt {attempt + 1})")
+                logger.error(f"❌ ERROR: Unexpected status code {response['StatusCode']} for CRN {crn} (attempt {attempt + 1})")
                 
         except Exception as e:
             logger.error(f"Error invoking notifier for CRN {crn} (attempt {attempt + 1}): {str(e)}")
