@@ -1241,8 +1241,6 @@
 .inputContainerBottom {
     position: sticky;
     bottom: 0;
-    background: rgba(26, 26, 26, 0.45);
-    border-top: 1px solid rgba(203, 161, 53, 0.1);
     padding: 16px 20px;
     padding-left: max(20px, calc(20px + env(safe-area-inset-left)));
     padding-right: max(20px, calc(20px + env(safe-area-inset-right)));
@@ -1365,8 +1363,6 @@
         padding-left: max(16px, calc(16px + env(safe-area-inset-left)));
         padding-right: max(16px, calc(16px + env(safe-area-inset-right)));
         padding-bottom: max(16px, calc(16px + env(safe-area-inset-bottom)));
-        background: rgba(26, 26, 26, 0.45);
-        border-top: 1px solid rgba(203, 161, 53, 0.1);
         position: sticky;
         bottom: 0;
     }
