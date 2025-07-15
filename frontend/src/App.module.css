@@ -1,10 +1,11 @@
 .gradientContainer {
-    min-height: 100vh;
-    min-height: 100dvh;
+    height: 100vh;
+    height: 100dvh;
     width: 100vw;
     background: linear-gradient(180deg, #1a1a1a 0%, #000 100%);
     display: flex;
     flex-direction: column;
+    overflow: hidden;
     /* Only add safe area support for top on mobile devices */
     padding-top: env(safe-area-inset-top);
 }
@@ -94,9 +95,9 @@
     /* Set consistent padding to maintain width */
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
-    min-height: 100dvh;
+    height: 100%;
     position: relative;
+    overflow: hidden;
 }
 
 .header {
@@ -770,7 +771,8 @@
     padding: 24px 20px 4px 20px;
     padding-left: max(20px, calc(20px + env(safe-area-inset-left)));
     padding-right: max(20px, calc(20px + env(safe-area-inset-right)));
-    /* Minimal bottom padding for very tight spacing with sticky input */
+    overflow-y: auto;
+    /* Enable internal scrolling for CRN list only */
 }
 
 .listHeader {
@@ -1330,8 +1332,8 @@
 @media (max-width: 600px) {
     .container {
         padding: 0 env(safe-area-inset-left) 0 env(safe-area-inset-right);
-        min-height: 100vh;
-        min-height: 100dvh;
+        height: 100%;
+        overflow: hidden;
         /* Use dynamic viewport height on mobile */
     }
 
@@ -1346,6 +1348,7 @@
         padding-left: max(16px, calc(16px + env(safe-area-inset-left)));
         padding-right: max(16px, calc(16px + env(safe-area-inset-right)));
         flex: 1;
+        overflow-y: auto;
     }
 
     .listTitle {
