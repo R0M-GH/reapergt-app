@@ -778,9 +778,9 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 24px 20px 110px 20px;
-    padding-left: max(20px, calc(20px + env(safe-area-inset-left)));
-    padding-right: max(20px, calc(20px + env(safe-area-inset-right)));
+    padding: 24px 32px 110px 32px;
+    padding-left: max(32px, calc(32px + env(safe-area-inset-left)));
+    padding-right: max(32px, calc(32px + env(safe-area-inset-right)));
     overflow-y: auto;
     /* Enable internal scrolling for CRN list only */
 }
@@ -1106,10 +1106,12 @@
     background: linear-gradient(135deg, rgba(76, 175, 80, 0.05) 0%, rgba(76, 175, 80, 0.02) 100%) !important;
 }
 
-.openCard:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 20px rgba(76, 175, 80, 0.2), 0 4px 12px rgba(76, 175, 80, 0.15) !important;
-    outline: 2px solid #4CAF50 !important;
+@media (hover: hover) {
+    .openCard:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(76, 175, 80, 0.2), 0 4px 12px rgba(76, 175, 80, 0.15) !important;
+        outline: 2px solid #4CAF50 !important;
+    }
 }
 
 .celebrate {
@@ -1449,7 +1451,7 @@
     }
 
     .listContainer {
-        padding: 12px 0;
+        padding: 12px 16px;
         padding-bottom: 90px;
         /* Space for floating mobile bottom input: 52px input + 12px top padding + 20px+ bottom padding */
         margin: 0 4px;
@@ -1485,8 +1487,7 @@
         border-radius: 12px;
         padding: 0 16px;
         background: rgba(17, 17, 17, 0.6);
-        border: 1px solid rgba(51, 51, 51, 0.6);
-        border-top: none;
+        border: 1px solid rgba(51, 51, 51, 0.3);
     }
 
     .addButton {
