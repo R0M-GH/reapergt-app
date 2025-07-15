@@ -73,7 +73,7 @@
         background: linear-gradient(180deg, #1a1a1a 0%, rgba(26, 26, 26, 0.95) 100%);
         backdrop-filter: blur(8px);
         z-index: 100;
-        padding: 12px 16px;
+        padding: 20px 16px 12px 16px;
         border-bottom: 1px solid rgba(203, 161, 53, 0.1);
     }
 
@@ -106,7 +106,7 @@
     top: 0;
     z-index: 100;
     background: transparent;
-    padding: 16px 20px;
+    padding: 24px 20px 16px 20px;
     padding-left: max(20px, calc(20px + env(safe-area-inset-left)));
     padding-right: max(20px, calc(20px + env(safe-area-inset-right)));
     display: flex;
