@@ -636,13 +636,6 @@ function App() {
                         loadUserProfile(); // Ensure phone number is loaded when settings open
                     }} showSettings={true} headerScrolled={headerScrolled} />
 
-                    {/* Phase 2 Notice */}
-                    <div className={styles.phaseNotice}>
-                        <div className={styles.phaseNoticeContent}>
-                            <div className={styles.infoIcon}>i</div>
-                            <span>Add courses now to track them! Course notifications start August 11th (Phase 2)</span>
-                        </div>
-                    </div>
                     <SettingsModal
                         open={settingsOpen}
                         onClose={() => setSettingsOpen(false)}
@@ -695,6 +688,13 @@ function App() {
                         </div>
                     )}
                     <div className={styles.listContainer}>
+                        {/* Phase 2 Notice */}
+                        <div className={styles.phaseNotice}>
+                            <div className={styles.phaseNoticeContent}>
+                                <div className={styles.infoIcon}>i</div>
+                                <span>Add courses now to track them! Course notifications start August 11th (Phase 2)</span>
+                            </div>
+                        </div>
                         {loadingCrns ? (
                             <div className={styles.emptyContainer}>
                                 <div className={styles.emptyText}>Loading your courses...</div>
