@@ -881,7 +881,7 @@
     flex-direction: row;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
 }
 
 .crnInfo {
@@ -895,9 +895,7 @@
     display: flex;
     gap: 6px;
     flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 8px;
+    width: 100%;
 }
 
 .detailBox {
@@ -956,6 +954,7 @@
     gap: 8px;
     align-items: center;
     flex-shrink: 0;
+    margin-left: 12px;
 }
 
 .actionButton {
