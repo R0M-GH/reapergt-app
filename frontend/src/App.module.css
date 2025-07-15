@@ -778,9 +778,9 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 24px 32px 110px 32px;
-    padding-left: max(32px, calc(32px + env(safe-area-inset-left)));
-    padding-right: max(32px, calc(32px + env(safe-area-inset-right)));
+    padding: 24px 26px 110px 26px;
+    padding-left: max(26px, calc(26px + env(safe-area-inset-left)));
+    padding-right: max(26px, calc(26px + env(safe-area-inset-right)));
     overflow-y: auto;
     /* Enable internal scrolling for CRN list only */
 }
@@ -1179,7 +1179,7 @@
     gap: 8px;
     z-index: 1000;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-    max-width: 85%;
+    max-width: 100%;
     min-width: 200px;
     animation: slideUp 0.3s ease-out;
     word-break: break-word;
@@ -1406,7 +1406,7 @@
 
     /* Mobile-specific message styling */
     .message {
-        max-width: 90% !important;
+        max-width: 100% !important;
         min-width: auto !important;
         padding: 8px 12px !important;
         font-size: 13px !important;
