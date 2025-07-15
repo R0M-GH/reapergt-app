@@ -760,10 +760,10 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 24px 20px 120px 20px;
+    padding: 24px 20px 24px 20px;
     padding-left: max(20px, calc(20px + env(safe-area-inset-left)));
     padding-right: max(20px, calc(20px + env(safe-area-inset-right)));
-    /* Added bottom padding for input space */
+    /* Remove large bottom padding since input is now sticky */
 }
 
 .listHeader {
@@ -1234,7 +1234,9 @@
 .inputContainerBottom {
     position: sticky;
     bottom: 0;
-    background: transparent;
+    background: linear-gradient(180deg, rgba(26, 26, 26, 0.8) 0%, #1a1a1a 100%);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(203, 161, 53, 0.1);
     padding: 16px 20px;
     padding-left: max(20px, calc(20px + env(safe-area-inset-left)));
     padding-right: max(20px, calc(20px + env(safe-area-inset-right)));
@@ -1336,7 +1338,7 @@
     }
 
     .listContainer {
-        padding: 16px 16px 100px 16px;
+        padding: 16px 16px 16px 16px;
         padding-left: max(16px, calc(16px + env(safe-area-inset-left)));
         padding-right: max(16px, calc(16px + env(safe-area-inset-right)));
         flex: 1;
@@ -1357,7 +1359,9 @@
         padding-left: max(16px, calc(16px + env(safe-area-inset-left)));
         padding-right: max(16px, calc(16px + env(safe-area-inset-right)));
         padding-bottom: max(16px, calc(16px + env(safe-area-inset-bottom)));
-        background: transparent;
+        background: linear-gradient(180deg, rgba(26, 26, 26, 0.8) 0%, #1a1a1a 100%);
+        backdrop-filter: blur(12px);
+        border-top: 1px solid rgba(203, 161, 53, 0.1);
         position: sticky;
         bottom: 0;
     }
