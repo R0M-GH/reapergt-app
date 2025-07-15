@@ -1525,19 +1525,24 @@
 
     /* Mobile phone input styling */
     .phoneInputContainer {
-        flex-direction: column;
-        gap: 10px;
+        flex-direction: row;
+        gap: 8px;
+        align-items: center;
     }
 
     .phoneInput {
         font-size: 14px;
         padding: 10px 14px;
+        max-width: 240px;
+        flex: 1;
+        min-width: 0;
     }
 
     .phoneActionButton {
-        min-width: 100px;
+        min-width: 80px;
         font-size: 13px;
-        padding: 10px 14px;
+        padding: 10px 12px;
+        flex-shrink: 0;
     }
 
     .settingSection {
