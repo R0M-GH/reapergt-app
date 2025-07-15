@@ -743,59 +743,61 @@ function App() {
                                                 `${styles.crnCard} ${crnData.isOpen ? styles.openCard : ''}`
                                             }
                                         >
-                                            <div className={styles.crnInfo}>
-                                                <div className={styles.crnText}>{crnData.course_id || 'Loading...'}</div>
-                                                <div className={styles.courseName}>{crnData.course_name || 'Loading...'}</div>
-                                                <div className={styles.courseDetails}>
-                                                    <span className={styles.detailBox}>Sec {crnData.course_section || '?'}</span>
-                                                    <span className={styles.detailBox}>CRN {crnData.crn}</span>
-                                                    {crnData.total_seats > 0 && (
-                                                        <span className={`${styles.detailBox} ${crnData.isOpen ? styles.seatsOpen : styles.seatsClosed}`}>
-                                                            {refreshing[crnData.crn] ? (
-                                                                <>
-                                                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ animation: 'spin 1s linear infinite', marginRight: '4px' }}>
-                                                                        <path d="M12 2V6M12 18V22M4.93 4.93L7.76 7.76M16.24 16.24L19.07 19.07M2 12H6M18 12H22M4.93 19.07L7.76 16.24M16.24 7.76L19.07 4.93" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                                                    </svg>
-                                                                    checking...
-                                                                </>
-                                                            ) : (
-                                                                `${crnData.seats_remaining || 0}/${crnData.total_seats} seats`
-                                                            )}
-                                                        </span>
-                                                    )}
+                                            <div className={styles.crnCardTop}>
+                                                <div className={styles.crnInfo}>
+                                                    <div className={styles.crnText}>{crnData.course_id || 'Loading...'}</div>
+                                                    <div className={styles.courseName}>{crnData.course_name || 'Loading...'}</div>
+                                                </div>
+                                                <div className={styles.actionButtons}>
+                                                    <button
+                                                        onClick={() => copyToClipboard(crnData.crn)}
+                                                        className={styles.copyButton}
+                                                        title="Copy CRN to clipboard"
+                                                    >
+                                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                            <path d="M8 4V16C8 17.1046 8.89543 18 10 18H18C19.1046 18 20 17.1046 20 16V7.24264C20 6.97742 19.8946 6.7228 19.7071 6.53553L16.4645 3.29289C16.2772 3.10536 16.0226 3 15.7574 3H10C8.89543 3 8 3.89543 8 5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                                            <path d="M16 18V20C16 21.1046 15.1046 22 14 22H6C4.89543 22 4 21.1046 4 20V8C4 6.89543 4.89543 6 6 6H8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                                        </svg>
+                                                    </button>
+                                                    <button
+                                                        onClick={(e) => crnData.isOpen ? handleCheckClick(crnData, e) : removeCRN(crnData.crn)}
+                                                        disabled={removing[crnData.crn]}
+                                                        className={`${styles.actionButton} ${crnData.isOpen ? styles.checkButton : styles.trashButton}`}
+                                                        title={crnData.isOpen ? "Course is open!" : "Remove CRN"}
+                                                    >
+                                                        {removing[crnData.crn] ? (
+                                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                <path d="M12 2V6M12 18V22M4.93 4.93L7.76 7.76M16.24 16.24L19.07 19.07M2 12H6M18 12H22M4.93 19.07L7.76 16.24M16.24 7.76L19.07 4.93" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                                            </svg>
+                                                        ) : crnData.isOpen ? (
+                                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                <path d="M20 6L9 17L4 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                                            </svg>
+                                                        ) : (
+                                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                <path d="M3 6H5H21M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                                            </svg>
+                                                        )}
+                                                    </button>
                                                 </div>
                                             </div>
-                                            <div className={styles.actionButtons}>
-                                                <button
-                                                    onClick={() => copyToClipboard(crnData.crn)}
-                                                    className={styles.copyButton}
-                                                    title="Copy CRN to clipboard"
-                                                >
-                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path d="M8 4V16C8 17.1046 8.89543 18 10 18H18C19.1046 18 20 17.1046 20 16V7.24264C20 6.97742 19.8946 6.7228 19.7071 6.53553L16.4645 3.29289C16.2772 3.10536 16.0226 3 15.7574 3H10C8.89543 3 8 3.89543 8 5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                                        <path d="M16 18V20C16 21.1046 15.1046 22 14 22H6C4.89543 22 4 21.1046 4 20V8C4 6.89543 4.89543 6 6 6H8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                                    </svg>
-                                                </button>
-                                                <button
-                                                    onClick={(e) => crnData.isOpen ? handleCheckClick(crnData, e) : removeCRN(crnData.crn)}
-                                                    disabled={removing[crnData.crn]}
-                                                    className={`${styles.actionButton} ${crnData.isOpen ? styles.checkButton : styles.trashButton}`}
-                                                    title={crnData.isOpen ? "Course is open!" : "Remove CRN"}
-                                                >
-                                                    {removing[crnData.crn] ? (
-                                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                            <path d="M12 2V6M12 18V22M4.93 4.93L7.76 7.76M16.24 16.24L19.07 19.07M2 12H6M18 12H22M4.93 19.07L7.76 16.24M16.24 7.76L19.07 4.93" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                                        </svg>
-                                                    ) : crnData.isOpen ? (
-                                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                            <path d="M20 6L9 17L4 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                                        </svg>
-                                                    ) : (
-                                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                            <path d="M3 6H5H21M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                                        </svg>
-                                                    )}
-                                                </button>
+                                            <div className={styles.courseDetails}>
+                                                <span className={styles.detailBox}>Sec {crnData.course_section || '?'}</span>
+                                                <span className={styles.detailBox}>CRN {crnData.crn}</span>
+                                                {crnData.total_seats > 0 && (
+                                                    <span className={`${styles.detailBox} ${crnData.isOpen ? styles.seatsOpen : styles.seatsClosed}`}>
+                                                        {refreshing[crnData.crn] ? (
+                                                            <>
+                                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ animation: 'spin 1s linear infinite', marginRight: '4px' }}>
+                                                                    <path d="M12 2V6M12 18V22M4.93 4.93L7.76 7.76M16.24 16.24L19.07 19.07M2 12H6M18 12H22M4.93 19.07L7.76 16.24M16.24 7.76L19.07 4.93" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                                                </svg>
+                                                                checking...
+                                                            </>
+                                                        ) : (
+                                                            `${crnData.seats_remaining || 0}/${crnData.total_seats} seats`
+                                                        )}
+                                                    </span>
+                                                )}
                                             </div>
                                         </div>
                                     ))
