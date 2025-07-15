@@ -897,7 +897,6 @@
     flex-wrap: wrap;
     width: 100%;
     margin-top: 8px;
-    clear: both;
 }
 
 .detailBox {
@@ -1497,7 +1496,6 @@
     .courseDetails {
         margin-top: 8px;
         width: 100%;
-        clear: both;
     }
 
     /* Mobile phone input styling */
