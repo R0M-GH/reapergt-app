@@ -22,7 +22,7 @@ dynamodb = boto3.resource('dynamodb')
 sqs = boto3.client('sqs')
 
 # COURSE SCRAPING CONSTANTS
-TERM = '202508'  # Spring 2025
+TERM = '202602'  # Spring 2026
 
 # Dynamic interval constants
 BASE_INTERVAL = 15        # Default interval for stable courses

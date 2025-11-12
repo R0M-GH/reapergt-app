@@ -692,7 +692,7 @@ function App() {
                         <div className={styles.phaseNotice}>
                             <div className={styles.phaseNoticeContent}>
                                 <div className={styles.infoIcon}>i</div>
-                                <span>Add courses now to track them! Course notifications start August 11th (Phase 2)</span>
+                                <span>Add courses now to track them! Course notifications start January 5th (Phase 2)</span>
                             </div>
                         </div>
                         {loadingCrns ? (

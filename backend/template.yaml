@@ -244,16 +244,18 @@ Resources:
   # EVENTBRIDGE SCHEDULER
   # =================================================================
   
-  # Schedule to run scraper every 13 minutes for continuous coverage
+  # Schedule to run scraper - DISABLED until August 11th for Phase 2
+  # TO RE-ENABLE: Change State to ENABLED and ScheduleExpression back to "rate(13 minutes)"
   Schedule:
     Type: AWS::Scheduler::Schedule
     Properties:
       Name: !Sub "${AWS::StackName}-scraper-schedule"
-      Description: Triggers course scraping every 13 minutes with internal loop for continuous coverage
+      Description: Triggers course scraping every 13 minutes - DISABLED until Phase 2 starts January 5th
       ScheduleExpression: "rate(13 minutes)"
       ScheduleExpressionTimezone: "America/New_York"
       FlexibleTimeWindow:
         Mode: "OFF"
+      State: DISABLED
       Target:
         Arn: !GetAtt Scraper.Arn
         RoleArn: !GetAtt ScheduleToScraperRole.Arn

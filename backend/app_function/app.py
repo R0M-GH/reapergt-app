@@ -84,8 +84,8 @@ def validate_crn_format(crn: str) -> bool:
 def check_crn_exists(crn: str) -> Dict[str, Any]:
     """Check if CRN exists and if it's open by scraping OSCAR."""
     try:
-        # Use hardcoded term for now (Spring 2025)
-        term = "202508"
+        # Use hardcoded term for now (Spring 2026)
+        term = "202602"
         
         url = f'https://oscar.gatech.edu/pls/bprod/bwckschd.p_disp_detail_sched?term_in={term}&crn_in={crn}'
         print(f"Checking URL: {url}")
